@@ -37,10 +37,25 @@ $dropdown_question_four = $_POST["year"];
 $dropdown_question_five = $_POST["year_used"];
 # Variable intake end.
 
+#Sanitisation
+$id = sanitise_inputs($id);
+$first_name = sanitise_inputs($first_name);
+$last_name = sanitise_inputs($last_name);
+$radio_question_one = sanitise_inputs($radio_question_one);
+$checkbox_question_two_process = sanitise_inputs($checkbox_question_two_process);
+$checkbox_question_two_hybrid = sanitise_inputs($checkbox_question_two_hybrid);
+$checkbox_question_two_event = sanitise_inputs($checkbox_question_two_event);
+$checkbox_question_two_professional_wrong = sanitise_inputs($checkbox_question_two_professional_wrong);
+$checkbox_question_two_key_wrong = sanitise_inputs($checkbox_question_two_key_wrong);
+$text_question_three = sanitise_inputs($answer3);
+$dropdown_question_four = sanitise_inputs($year);
+$dropdown_question_five = sanitise_inputs($year_used);
+
+#Santisation End 
+
 # Verify Inputs
 if isset($id) {
-	$id = sanitise_inputs($id);
-	if preg_match(^(\d{1,10})$, $id) {
+	if preg_match("^(\d{1,10})$", $id) {
 	## If digits, range from 1 to 10.
 	}
 }
