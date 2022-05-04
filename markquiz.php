@@ -40,7 +40,9 @@ $dropdown_question_five = $_POST["year_used"];
 # Verify Inputs
 if isset($id) {
 	$id = sanitise_inputs($id);
-	
+	if preg_match(^(\d{1,10})$, $id) {
+	## If digits, range from 1 to 10.
+	}
 }
 
 
