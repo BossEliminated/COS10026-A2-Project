@@ -1,0 +1,460 @@
+/*
+Authors: Syed, Yashas, Nick, Chris, Rohit
+Purpose: Deliver our Apache server content in a manner that is easy and beautiful to read
+*/
+
+/* -------------------- Global -------------------- */
+body { /*Nick T*/
+  /* removes body default margin */
+  background: gainsboro;
+  margin: 0px;
+}
+
+*, *::after, *::before { /*Nick T*/
+  /* sets the total width and height of an element to include border and padding */
+  box-sizing: border-box;
+}
+
+html { /*Nick T*/
+  /* font stack */
+  font-family: Century Gothic,CenturyGothic,AppleGothic,sans-serif;
+}
+
+p,a,h1,h2 { /*Nick T*/
+  /* remove deafult margin */
+  margin: 0px;
+  /* set deafult colour */
+  color: black;
+}
+
+.tooltip { /*Chris, Nick T*/
+	font-size: 18px;
+  display: none;
+  position: absolute;
+	text-align: center;
+	width: 10em;
+	background-color: #1f1f1fe3;
+	border-radius: 10px;
+	color: white;
+  padding: 2px 4px;
+  transform: translateY(22px);
+}
+
+.tooltip::after { /*Chris, Nick T*/
+  content: "";
+  position: absolute;
+  width: 1em;
+  height: 8px;
+  top: -8px;
+  left: 10%;
+  border-radius: 10px 10px 0px 0px;
+  background: #1f1f1fe3;
+}
+
+/* The + is a sibling selector */
+.show-tooltip:hover + p { /*Chris, Nick T*/
+  display: block;
+}
+
+/* -------------------- Navbar --------------------- */
+.nav-bar { /*Nick T*/
+  background: #ffffff;
+  display: flex;
+  font-size: 22px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media only screen and (max-width: 704px) { /*Nick T*/
+  .nav-bar {
+    justify-content: center;
+  }
+}
+
+@media only screen and (max-width: 430px) { /*Nick T*/
+  .nav-bar {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 10px;
+    gap: 0px;
+  }
+}
+
+.nav-bar img { /*Nick T*/
+  margin: 0 20px;
+  width: 152px;
+  height: 60px;
+  padding: 4px 0px;
+}
+
+.nav-bar > a {
+  /* Removes invisible spacing of inline element under nav image */
+  /* Could also use display block on nav image */
+  font-size: 0px;
+}
+
+.nav-bar > div {
+  height: 60px;
+}
+
+.nav-bar > div > a { /*Nick T, yash*/
+  text-decoration: none;
+  color: #616161;
+  padding: 6px;
+  margin-right: 20px;
+  border-radius: 15px;
+  display: inline-block;
+  /* Vertically Center text */
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+.nav-bar a:hover { /* yash + nick */
+  transition: background-color .5s;
+  background-color: #d6d9dc;
+}
+
+#nav-bar-active { /*Nick T*/
+  text-decoration: underline;
+}
+
+hr { /*Nick T*/
+  border: none;
+  height: 2px;
+  background-color: black;
+}
+
+/* ----------------- Index page ----------------- */
+.index-container-intro { /*Nick T*/
+  text-align: center;
+  background: rgb(191 0 0);
+  background: linear-gradient(90deg, rgba(121,9,9,1) 0%, rgba(91,9,121,1) 76%, rgba(140,0,255,1) 100%);
+  padding: 40px 0;
+}
+
+.index-container-intro h1 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.index-container { /*Nick T*/
+  font-size: 20px;
+  text-align: center;
+}
+
+.index-container { /*Nick T*/
+  padding: 40px;
+  max-width: 800px;
+  margin: 0px auto;
+}
+
+.index-container p { /*Nick T*/
+  margin: 20px;
+}
+
+.index-container img { /*Nick T*/
+  height: 100%;
+}
+
+img.index-container-img { /*Nick T*/
+  height: 300px;
+  margin: auto;
+}
+
+.index-background-image { /*Nick T*/
+  background-image: url("../img/index-section-background.jpg");
+  background-repeat: no-repeat, repeat;
+  background-size: cover;
+}
+
+.index-flex-container { /*Nick T*/
+  display: flex;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.index-flex-container > div { /*Nick T*/
+  background-color: #e6e6e6;
+  margin: 10px;
+  text-align: center;
+  font-size: 1.1ch;
+  padding: 15px;
+  width: 50%;
+  max-width: 425px;
+}
+
+@media only screen and (max-width: 600px) { /*Nick T*/
+  .index-flex-container {
+    flex-direction: column;
+  }
+  .index-flex-container > div {
+    width: 85%;
+    margin: 20px auto;
+  }
+}
+
+.box-index h2 {
+  margin-bottom: 10px;
+}
+
+img.index-bottom-image {
+  float: left;
+  width: 100%;
+}
+
+/* ----------------- Topic page ---------------- */
+.topic-background { /*Chris + Nick T*/
+  background: #004167;
+  background: linear-gradient(180deg, rgba(53,103,134,1) 0%, rgba(25,78,109,1) 47%, rgba(0,58,92,1) 100%);
+  background-attachment: fixed;
+}
+
+.topic-content-left { /*Nick T*/
+  float: left;
+  width: 70%;
+}
+
+.topic-content { /*Nick T*/
+  border:solid;
+  border-radius:10px;
+  border-color: gray;
+  margin: 40px auto;
+  padding: 10px;
+  background: #a9a9a9;
+  width: 90%;
+}
+
+.topic-content h2 { /*Nick T*/
+  font-size: 15px;
+}
+
+.topic-body h2 { /*Nick T*/
+  font-size: 23px;
+}
+
+.apache-support-info-table { /*Nick T*/
+  border-collapse: collapse;
+  position:relative;
+  min-width: 220px;
+  margin-top: 10px;
+}
+
+.apache-support-info-table thead { /*Nick T*/
+  background-color: #00d5fd;
+}
+
+.apache-support-info-table tbody tr { /*Nick T*/
+ border-bottom: 1px solid gray;
+ background-color: #e8e8e8;
+}
+
+#selectivetabletopic {
+	border:2px inset;
+}
+
+.declinegrowthtable { /*Chris*/
+	border:2px inset;
+	text-align:center;
+}
+
+.datalink { /*Chris*/
+	color:rgb(0,0,20);
+}
+
+th.declinegrowthtable{ /*Chris*/
+	background-color:lightblue;
+}
+
+.beyondsection:hover{ /*Chris*/
+	border-style:groove;
+}
+
+.ulchanges {
+	list-style-position:inside;
+}
+
+.topic-aside { /*Nick T*/
+  width: 30%;
+  float: right;
+  overflow-wrap: anywhere;
+  background-color: #e0e0e0;
+  border-radius: 10px 0px 0px 10px;
+  border: 5px solid #00afb7;
+  border-right: 0px;
+}
+
+.topic-aside-table-1 { /*Nick T*/
+  padding: 0px;
+  margin: 10px 0px;
+  margin-left: 20px;
+}
+
+.topic-aside-table-2 { /*Nick T*/
+  padding: 0px;
+  margin: 0px;
+  margin-left: 10px;
+}
+
+@media only screen and (max-width: 704px) { /*Nick T*/
+  .topic-aside {
+    float: none;
+    width: 90%;
+    border-right: 5px solid #00afb7;
+    border-radius: 10px;
+  }
+  .topic-content-left {
+    float: none;
+    width: 100%;
+  }
+}
+
+/* ----------------- Quiz page ---------------- */
+.quiz-legend {
+  font-size:20px;
+}
+
+.quiz-legend-2 {
+  font-weight: 800;
+  font-size:20px;
+}
+
+.quiz-paragraph{ /*Syed*/
+	color:rgb(0, 0, 204);
+}
+
+.quiz-question{ /*Syed*/
+	color:rgb(51, 153, 51);
+}
+
+.quiz-question-1{ /*Syed*/
+
+	color:rgb(128, 128, 0);
+}
+
+.quiz-question-2{ /*Syed*/
+	color:rgb(102, 0, 102);
+}
+
+.quiz-question-3{ /*Syed*/
+	color:rgb(230, 138, 0);
+}
+
+.quiz-question-4{ /*Syed*/
+	color:rgb(204, 51, 0);
+}
+
+.quiz-question-5{ /*Syed*/
+	color:rgb(102, 102, 51);
+}
+
+/* ----------------- Footer ---------------- */
+
+footer {
+  font-style: italic;
+  text-align: center;
+  padding: 1px;
+  background-color: #808080;
+  clear: both;
+  padding: 5px 0;
+}
+
+/* --------------------- Enhancements Page ------------------------*/
+
+#segment_enhancements_starter{
+	background-image:linear-gradient(to top, rgb(255,255,255), rgb(248,248,248));
+	padding-top:10px;
+}
+
+.segment_enhancements {
+	/*background-color:rgb(248,248,248);*/
+	background-image:linear-gradient(to top, rgb(255,255,255), rgb(248,248,248));
+	padding-top:40px;
+}
+
+.paragraph_mover{ /*chris*/
+	padding:1%;
+}
+
+.hyperlink_highlighter{ /*Chris*/
+	position:relative;
+	text-decoration:none;
+	border:solid;
+	padding:0.5%;
+	max-width:5%;
+	border-color:rgb(250,250,255);
+	border-width:2px;
+	border-radius:10px;
+	color:white;
+	background-color:rgb(120,120,205);
+}
+
+.enhancements_body {
+	background-color:rgb(225,251,226);
+	text-align:center;
+}
+
+.hyperlink_highlighter:visited{ /*Chris*/
+	position:relative;
+	left:0%;
+	color:rgb(249,240,255);
+}
+
+.beyondsection { /*Chris*/
+	min-width:10%;
+	background-color:white;
+	margin-right:20%;
+	margin-left:4%;
+	border-style:ridge;
+	border-width:10px;
+	position:relative;
+	left:8%;
+	padding:1%;
+}
+
+.header_offset { /*Chris*/
+	position:relative;
+	/*background:rgba(239,231,120,0.5);*/
+	animation:animation_enhancements 10s infinite;
+	color:black;
+	/*top:20px;*/
+	text-align:center;
+}
+
+.hyperlink_highlighter:hover{ /*Chris*/
+	border-color:rgb(220,220,255)
+}
+
+.enhancements_header {
+	border:solid;
+	color:white;
+	background-image: linear-gradient(to right, rgb(239,231,120), rgb(3,201,38));
+	border-color:rgb(240,240,240);
+}
+
+@keyframes animation_enhancements{ /*chris*/
+	0% {background-color:rgba(239,231,120,0.5);}
+	50% {background-color:rgba(29,10,120,0.5);}
+	100% {background-color:rgba(239,231,120,0.5);}
+}
+
+.figure_fixer_flow {
+  font-size: 0px;
+  padding: 10px 0;
+}
+
+.figure_fixer_flow img {
+  max-width: 100%;
+}
+
+#defaultimg {
+	display:none;
+}
+
+#changeimghover:hover{
+	display:none;
+}
+
+#changeimghover:hover + img{
+	display:block;
+}

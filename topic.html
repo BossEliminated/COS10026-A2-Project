@@ -1,0 +1,197 @@
+<!DOCTYPE html> <!--Note for self, I want to add special css for hovering and further action dependent things -->
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="stylesheet" href="css/master.css">
+    <meta charset="utf-8">
+    <title>Topic</title>
+    <meta name="description" content="Apache details and facts">
+    <meta name="keywords" content="Apache, info, details, facts, server">
+    <meta name="author" content="A Patchy Team">
+  </head>
+  <body class="topic-background">
+    <header class="nav-bar">
+      <a href="index.html"><img src="img/Apache_HTTP_server_logo_(2019-present).svg.png" alt="apache logo"></a>
+        <div><a href="index.html">Home</a></div>
+        <div>
+          <a id="nav-bar-active" class="show-tooltip" href="topic.html">Topic</a>
+          <p class="tooltip">Information about Apache Web Server</p>
+        </div>
+        <div>
+          <a class="show-tooltip" href="quiz.html">Quiz</a>
+          <p class="tooltip">Questions for you to answer</p>
+        </div>
+        <div>
+          <a class="show-tooltip" href="enhancements.html">Enhancements</a>
+          <p class="tooltip">Special changes to the website</p>
+        </div>
+    </header>
+    <div>
+      <div class="topic-content-left">
+        <div class="topic-content">
+          <h1>Apache HTTP Server Info</h1>
+          <h2>Industry leading performance for free</h2>
+        </div>
+        <div class="topic-content">
+          <h2>What is apache?</h2>
+          <p>Apache is an open source server application, it receives HTTP directory requests from users and sends them the information at that address. It can send files or handle reverse <a href="#PROXY_DEF">proxy requests.</a></p>
+          <br>
+          <h2>Background</h2>
+          <p>Apache is non-copyleft open source and owned by the Apache Software Foundation. They are a nonprofit organisation and based in America. The group was established on March 25, 1999 today continuing to support a number of open source software projects. The origin of the Apache Project formed due to the slowly deprecating web server software "HTTP daemon" which was relied upon throughout the internet, and as a result the Apache project formed with the intention of creating a reliable web server software for public use. The original initiators of Apache were <em>Brian Behlendorf, Cliff Skolnick</em><a href="https://httpd.apache.org/ABOUT_APACHE.html#How"><sup>[0]</sup></a> with the software contributed to by a large array of developers the two gathered.</p>
+        </div>
+        <div class="topic-content">
+          <h2><a href="#">The popularity of Apache</a></h2>
+          <p>Apache is used by a large majority amongst the internet, even when many open source options are available such as <strong class="tooltip_test">NGINX</strong> and <strong class="tooltip_test">Node.JS</strong></p>
+          <figure>
+            <!--I plan to add a table of data for this-->
+            <table id="selectivetabletopic"><!-- Css Task for ChrisT, I will format this table-->
+  		  <thead>
+              <tr>
+                <th class="declinegrowthtable">General Timing</th>
+                <th class="declinegrowthtable">1995 April</th>
+                <th class="declinegrowthtable">1996</th>
+                <th class="declinegrowthtable">2016</th>
+              </tr>
+  		  </thead>
+  		  <tbody>
+              <tr>
+                <th class="declinegrowthtable">Landmark Event</th>
+                <td class="declinegrowthtable">Apache Http Server is Created</td>
+                <td class="declinegrowthtable">Most used Web Server</td>
+                <td class="declinegrowthtable">Competitors start to overdominate the market over Apache</td>
+              </tr>
+  		  </tbody>
+  		  <tfoot>
+              <tr>
+                <th class="declinegrowthtable">Usage compared to other Web Servers</th>
+                <td class="declinegrowthtable">0%</td>
+                <td class="declinegrowthtable">41%</td>
+                <td class="declinegrowthtable">27%</td>
+              </tr>
+  			</tfoot>
+            </table>
+            <figcaption>
+              <sub><em>Data based off: <a href=#popularity-list class="datalink">Apache Official Website and Survey</a></em></sub>
+              <p>Apache's release was received greatly, with it gaining popularity fast. Only near a year after release it had become one of the largest
+              relied upon web server software in the realm of the internet. Only until around 10 years later did competitors start being used in a significant manner compared to Apache's large appeal to those looking for web server software.</p>
+            </figcaption>
+          </figure>
+          <h3>The competitors to Apache</h3>
+          <p>There are multiple other open source options available,however as TCP/IP protocols for communication are ideal for both users adhering to such protocols to communicate successfully, there are not many options that don't rely on the TCP/IP protocols due to their utilisation throughout the web. So the differences between the many similar technologies all differ in their stability, how and what data they store and security features however in essence both handle http requests and give replies back to clients.</p>
+          <h3>The future of Apache</h3>
+          <p>As Apache is maintained regularly, it appears to become a staple of web server technology and without reason of discontinuation as it is based on the layered protocols of TCP/IP which are utilised through the web, its usage is unlikely to ever drop off. The only threat to the use of Apache is its many competitors.</p>
+        </div>
+        <div class="topic-content">
+          <h2>Features</h2>
+          <ol>
+            <li>Storage & Bandwidth</li>
+            <li>Root SSH Access</li>
+            <li>Unlimited Domain Hosting</li>
+            <li>PHP5 Support</li>
+            <li>SSL Secure Server</li>
+            <li>IPv6 Support</li>
+            <li>Canned CGI Scripts</li>
+            <li>Full CGI Access</li>
+            <li>Network Isolation</li>
+          </ol>
+        </div>
+        <section class="topic-content">
+          <h2>The customizability of Apache</h2>
+          <figure class="figure_fixer_flow">
+          <img id="changeimghover" src="img/apachemodule2.jpg" alt="Little Image representing Apache">
+  		<img id="defaultimg" src="img/apachemodule.jpg" alt="Little Image representing Apache2">
+          <figcaption>
+          mod_authn_file is a modular addon upon the CORE of Apache. It provides a form of authentication to Apache.
+          </figcaption>
+          </figure>
+          <p>Apache comes with a large amount of customisability, with further customisability provided by the use of <a href="#MODULES_DEF
+          "><strong>modules</strong></a>. Modules can be added upon Apache for further commands and customisability to the software. Apache by itself comes with a standard suite of modules that allow users to for example: <em>waiting in response to information provided, specify IPs for further attention, utilisation of resources for processes.</em></p>
+          <h3>The Core Component of Apache</h3>
+          <p>Even with just its <strong>core</strong> component <strong>without any extra</strong> modules allows the user to manage their connections in a specific manner related to delays, limits, and what to accept and decline.</p>
+        </section>
+        <section class="topic-content">
+          <h2>Apache Request Management</h2>
+          <p>Apache's core is based on its fundamental purpose being its web server functionality. Fundamentally handling the requests and providing content to those who request it. Importantly Apache utilises TCP/IP protocol to ensure packets arrive</p>
+          <h3>Versions of Apache</h3>
+          <p>Apache is a software with a long past, resulting in many versions of Apache available for use. Whilst documentation is available a small amount of old versions of Apache, with any set of software the arrival of new features and security patches emphasises a strong recommendation that latest versions are utilised. The current latest version of Apache recommended is <strong>2.4</strong> as of 14/03/2022.</p>
+          <h3>Downloading Apache</h3>
+          <p>Apache allows users to easily download the software, and access many of the older versions of Apache. The methods of downloading for each operating system differs, however each Operating System may result in a slightly different process when downloading Apache, with the favoured OS being linux with files provided in linux file format.</p>
+        </section>
+        <div class="topic-content">
+          <h2>System Support</h2>
+          <table class="apache-support-info-table">
+            <thead>
+              <tr>
+                <th>Windows</th>
+                <th>Lunix</th>
+                <th>mocOS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>&#10003;</th>
+                <th>&#10003;</th>
+                <th>&#10003;</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="topic-content">
+          <h2>System Favourability</h2>
+          <table class="apache-support-info-table">
+            <thead>
+              <tr>
+                <th>Linux</th>
+                <th>Windows</th>
+                <th>MacOS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="topic-content">
+          <h2>Explained Terms</h2>
+          <dl>
+            <dt id="HTTP_DEF">HTTP</dt>
+            <dd>Web protocol related to the transmission of media across the internet.</dd>
+            <dt id="WEBSERVER_DEF">Web Server</dt>
+            <dd>A computer utilised as a source of information, which receives requests and provides content to users in the internet. Generally represented as the website itself.</dd>
+            <dt id="CLIENT_DEF">Client</dt>
+            <dd>The creator of HTTP requests, the part of the exchange where information is requested from the server. The client can be viewed as the person attempting to connect to the Apache Server externally.</dd>
+            <dt id="PROXY_DEF">Proxy Request</dt>
+            <dd>A proxy request is the product of a connection going through a proxy server.</dd>
+            <dt id="MODULES_DEF">Modules</dt>
+            <dd>A set of customisation and operations that can be added upon the core Apache system for more features. <small>eg: adding toppings on a vanilla ice cream for more flavour.</small></dd>
+          </dl>
+        </div>
+      </div>
+      <aside class="topic-aside topic-content">
+        <h2>Bibliography</h2>
+    			<ul class="topic-aside-table-1">
+      			<li><a href="https://en.wikipedia.org/wiki/The_Apache_Software_Foundation"><p>https://en.wikipedia.org/wiki/The_Apache_Software_Foundation</p></a></li>
+      			<li><a href="https://httpd.apache.org/docs/2.4/mod/"><p class="REF_MODULES">https://httpd.apache.org/docs/2.4/mod/</p></a></li>
+      			<li><a href="https://opensource.com/business/16/8/top-5-open-source-web-servers"><p>https://opensource.com/business/16/8/top-5-open-source-web-servers	</p></a></li>
+    			</ul>
+  		  <h2>Definition Reference List</h2>
+  			<sub><a href="https://www.freecodecamp.org/news/what-is-a-proxy-server-in-english-please/">https://www.freecodecamp.org/news/what-is-a-proxy-server-in-english-please/</a></sub>
+        <div class="popularity-list" id="popularity-list">
+          <br>
+      		<p><strong>Table Data</strong></p>
+    			<ul class="topic-aside-table-1">
+    				<li><p><a href="https://news.netcraft.com/archives/category/web-server-survey/">https://news.netcraft.com/archives/category/web-server-survey/</a></p></li>
+    				<li><p><a href="https://httpd.apache.org/ABOUT_APACHE.html">https://httpd.apache.org/ABOUT_APACHE.html</a></p></li>
+    			</ul>
+      		<p>
+      	</div>
+      </aside>
+    </div>
+		<footer class="footertopic">
+		  <a href="mailto:103995646@student.swin.edu.au">By: A Patchy Team</a>
+    </footer>
+  </body>
+</html>
