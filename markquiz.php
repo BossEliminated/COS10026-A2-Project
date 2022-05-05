@@ -7,7 +7,7 @@
 	<meta name="description" content="Marking the quiz on the server side allowing to sending to the database">
 </head>
 <body>
-<?php 
+<?php
 
 # Sanitisation Function
 function sanitise_inputs(input) {
@@ -18,7 +18,7 @@ function sanitise_inputs(input) {
 
 
 
-
+$_POST["name"]
 
 # Variables defined to intake from quiz.html
 $id = $_POST["ID"];
@@ -51,7 +51,7 @@ $text_question_three = sanitise_inputs($answer3);
 $dropdown_question_four = sanitise_inputs($year);
 $dropdown_question_five = sanitise_inputs($year_used);
 
-#Santisation End 
+#Santisation End
 
 # Verify Inputs
 if isset($id) {
