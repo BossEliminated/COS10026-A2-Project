@@ -7,7 +7,7 @@
     <hr>
     <p class="quiz-paragraph"><strong>Now lets take a Fun Quiz!</strong></p>
     <hr>
-    <form method="post" action="./markquiz.php">
+    <form method="post" action="./markquiz">
        <fieldset>
           <legend class="quiz-legend"><strong>Student Details</strong></legend>
              <label>Apache ID<input type="text" name="ID" pattern="[0-9]{9}" required="required" value="324234238"></label>
