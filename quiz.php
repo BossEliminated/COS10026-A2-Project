@@ -7,7 +7,7 @@
     <hr>
     <p class="quiz-paragraph"><strong>Now lets take a Fun Quiz!</strong></p>
     <hr>
-    <form method="post" action="http://mercury.swin.edu.au/it000000/formtest.php">
+    <form method="post" action="./markquiz.php">
        <fieldset>
           <legend class="quiz-legend"><strong>Student Details</strong></legend>
              <label>Apache ID<input type="text" name="ID" pattern="[0-9]{9}" required="required" value="324234238"></label>
@@ -15,7 +15,7 @@
              <label>Family Name<input type="text" name="family_name" pattern="^[a-zA-Z]+$" maxlength="30" required="required" value="Test"></label>
        </fieldset>
        <fieldset>
-          <legend class="quiz-question-1"><strong>Question 1</strong></legend>
+          <legend class="quiz-question"><strong>Question 1</strong></legend>
           <p class="quiz-question-1"><strong>Q1)Whats main Apache attack tool, which exploits a bug in Apache software?</strong></p>
           <label><input type="radio" name="quiz-question-1" value="slowloris" checked>Slowloris</label>
           <label><input type="radio" name="quiz-question-1" value="phishing">Phishing</label>
@@ -34,7 +34,7 @@
        <fieldset>
           <legend class="quiz-question"><strong>Question 3</strong></legend>
           <p class="quiz-question-3"><strong>Q3)Briefly describe, what are variety of features that Apache supports?</strong></p>
-          <label>Answer<br><textarea name="quiz-question-3" rows="4" cols="40" placeholder="Type your answer here">Junk jsdkjsdk kjskldjvslkdjlkj jsdkl jsdlkj</textarea></label>
+          <label><textarea name="quiz-question-3" rows="4" cols="40" placeholder="Type your answer here">Junk jsdkjsdk kjskldjvslkdjlkj jsdkl jsdlkj</textarea></label>
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 4</strong></legend>
@@ -51,11 +51,11 @@
           </label>
        </fieldset>
        <fieldset>
-          <legend class="quiz-question-5"><strong>Question 5</strong></legend>
+          <legend class="quiz-question"><strong>Question 5</strong></legend>
           <p class="quiz-question-5"><strong>Q5)In which year was the Apache HTTP Server became the most used web server?</strong></p>
           <label>
             Select here
-            <select name="year_used">
+            <select name="quiz-question-5">
                <option value="">Please Select </option>
                <option value="1994_F" selected>1994</option>
                <option value="1995_F">1995</option>
