@@ -1,30 +1,8 @@
 <!DOCTYPE html> <!--Note for self, I want to add special css for hovering and further action dependent things -->
 <html lang="en" dir="ltr">
-  <head>
-    <link rel="stylesheet" href="css/master.css">
-    <meta charset="utf-8">
-    <title>Topic</title>
-    <meta name="description" content="Apache details and facts">
-    <meta name="keywords" content="Apache, info, details, facts, server">
-    <meta name="author" content="A Patchy Team">
-  </head>
+  <?php $title = 'Topic'; include './php/head.php' ?>
   <body class="topic-background">
-    <header class="nav-bar">
-      <a href="index.html"><img src="img/Apache_HTTP_server_logo_(2019-present).svg.png" alt="apache logo"></a>
-        <div><a href="index.html">Home</a></div>
-        <div>
-          <a id="nav-bar-active" class="show-tooltip" href="topic.html">Topic</a>
-          <p class="tooltip">Information about Apache Web Server</p>
-        </div>
-        <div>
-          <a class="show-tooltip" href="quiz.html">Quiz</a>
-          <p class="tooltip">Questions for you to answer</p>
-        </div>
-        <div>
-          <a class="show-tooltip" href="enhancements.html">Enhancements</a>
-          <p class="tooltip">Special changes to the website</p>
-        </div>
-    </header>
+    <?php $select = 2; include './php/header.php' ?>
     <div>
       <div class="topic-content-left">
         <div class="topic-content">

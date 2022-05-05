@@ -1,30 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <link rel="stylesheet" href="css/master.css">
-    <meta charset="utf-8">
-    <title>Enhancements</title>
-    <meta name="description" content="Apache details and facts">
-    <meta name="keywords" content="Apache, info, details, facts, server">
-    <meta name="author" content="A Patchy Team">
-  </head>
+  <?php $title = 'Enhancements'; include './php/head.php' ?>
   <body class="enhancements_body">
-    <header class="nav-bar">
-       <a href="index.html"><img src="img/Apache_HTTP_server_logo_(2019-present).svg.png" alt="apache logo"></a>
-       <div><a href="index.html">Home</a></div>
-       <div>
-          <a class="show-tooltip" href="topic.html">Topic</a>
-          <p class="tooltip">Information about Apache Web Server</p>
-       </div>
-       <div>
-          <a class="show-tooltip" href="quiz.html">Quiz</a>
-          <p class="tooltip">Questions for you to answer</p>
-       </div>
-       <div>
-          <a id="nav-bar-active" class="show-tooltip" href="enhancements.html">Enhancements</a>
-          <p class="tooltip">Special changes to the website</p>
-       </div>
-    </header>
+    <?php $select = 4; include './php/header.php' ?>
     <h1 class="enhancements_header">Enhancements</h1>
     <h2 class="enhancements_header">Extra Improvements to the Website</h2>
     <div id="segment_enhancements_starter">
