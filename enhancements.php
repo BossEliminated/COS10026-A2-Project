@@ -44,8 +44,6 @@
           /css/css_tooltip.asp</a>
        </section>
     </div>
-    <footer class="footersetter">
-       <a href="mailto:103995646@student.swin.edu.au">By: A Patchy Team</a>
-    </footer>
+    <?php include './footer.inc'; ?>
   </body>
 </html>

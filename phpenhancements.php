@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Hi</title>
-  </head>
+  <?php $title = 'PHP Enhancements'; include './header.inc' ?>
+  <body>
+    <?php $select = 5; include './menu.inc' ?>
   <body>
     <h1><a href="./">Back.</a></h1>
+    <br><br>
+    <?php include './footer.inc'; ?>
   </body>
 </html>
