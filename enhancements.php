@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <?php $title = 'Enhancements'; include './php/head.php' ?>
+  <?php $title = 'Enhancements'; include './header.inc' ?>
   <body class="enhancements_body">
-    <?php $select = 4; include './php/header.php' ?>
+    <?php $select = 4; include './menu.inc' ?>
     <h1 class="enhancements_header">Enhancements</h1>
     <h2 class="enhancements_header">Extra Improvements to the Website</h2>
     <div id="segment_enhancements_starter">

@@ -1,8 +1,8 @@
 <!DOCTYPE html> <!--Note for self, I want to add special css for hovering and further action dependent things -->
 <html lang="en" dir="ltr">
-  <?php $title = 'Topic'; include './php/head.php' ?>
+  <?php $title = 'Topic'; include './header.inc' ?>
   <body class="topic-background">
-    <?php $select = 2; include './php/header.php' ?>
+    <?php $select = 2; include './menu.inc' ?>
     <div>
       <div class="topic-content-left">
         <div class="topic-content">

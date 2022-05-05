@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <?php $title = 'Apache HTTP server'; include './php/head.php' ?>
+  <?php $title = 'Apache HTTP server'; include './header.inc' ?>
   <body>
-    <?php $select = 1; include './php/header.php' ?>
+    <?php $select = 1; include './menu.inc' ?>
     <div class="index-container-intro">
       <h1>Apache HTTP Server</h1>
       <img class="index-container-img" src="img/server-icon.png" alt="Server icon">

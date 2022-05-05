@@ -13,4 +13,8 @@
     <a <?php if($select == 4){print('id="nav-bar-active"');};?> class="show-tooltip" href="enhancements">Enhancements</a>
     <p class="tooltip">Special changes to the website</p>
   </div>
+  <div>
+    <a <?php if($select == 4){print('id="nav-bar-active"');};?> class="show-tooltip" href="phpenhancements">PHP Enhancements</a>
+    <p class="tooltip">Special PHP features on the website</p>
+  </div>
 </header>

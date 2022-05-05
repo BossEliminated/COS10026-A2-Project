@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <?php $title = 'Quiz'; include './php/head.php' ?>
+  <?php $title = 'Quiz'; include './header.inc' ?>
   <body>
-    <?php $select = 3; include './php/header.php' ?>
+    <?php $select = 3; include './menu.inc' ?>
     <h1>Quiz</h1>
     <hr>
     <p class="quiz-paragraph"><strong>Now lets take a Fun Quiz!</strong></p>
