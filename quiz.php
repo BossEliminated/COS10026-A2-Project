@@ -25,11 +25,11 @@
        <fieldset>
           <legend class="quiz-question"><strong>Question 2</strong></legend>
           <p class="quiz-question-2"><strong>Q2)Apache provides a variety of MultiProcessing Modules (MPMs),<br>which allow it to run on which of following modes?</strong></p>
-          <label><input type="checkbox" name="quiz-question-2[]" value="process" checked>Process-based mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="hybrid" checked>Hybrid (process and thread) mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="event">Event-hybrid mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="professional_wrong">Professional mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="key_wrong">Keys Mode</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="process-based_mode" checked>Process-based mode</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="hybrid_mode" checked>Hybrid (process and thread) mode</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="event-hybrid_mode">Event-hybrid mode</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="professional_mode">Professional mode</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="key_mode">Keys Mode</label>
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 3</strong></legend>
@@ -43,10 +43,10 @@
             Select Here
             <select name="quiz-question-4">
                <option value="">Please Select</option>
-               <option value="2004_T" selected>2004</option>
-               <option value="2010_F">2010</option>
-               <option value="1998_F">1998</option>
-               <option value="2015_F">2015</option>
+               <option value="2004" selected>2004</option>
+               <option value="2010">2010</option>
+               <option value="1998">1998</option>
+               <option value="2015">2015</option>
             </select>
           </label>
        </fieldset>
@@ -57,10 +57,10 @@
             Select here
             <select name="quiz-question-5">
                <option value="">Please Select </option>
-               <option value="1994_F" selected>1994</option>
-               <option value="1995_F">1995</option>
-               <option value="1996_T">1996</option>
-               <option value="1997_F">1997</option>
+               <option value="1994" selected>1994</option>
+               <option value="1995">1995</option>
+               <option value="1996">1996</option>
+               <option value="1997">1997</option>
             </select>
           </label>
        </fieldset>
