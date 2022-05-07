@@ -65,7 +65,7 @@ function show_error_debug($array_of_errors) {
 }
 
 # Get post values
-function create_post_values_array($post_value_ids){
+function get_post_values($post_value_ids){ // Super Broken
 	$error_messages = [];
 	$input_array = [];
 	foreach ($post_value_ids as $i => $value) {
@@ -144,13 +144,29 @@ function fat_dump($results) {
 
 }
 
-$post_value_id = ['ID','given_name','family_name'];
-$post_value_questions = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
+function save($a, $b){
+	$conn = mysqli_connect("localhost", "root", "", "a_patchy_team");
+	$sql = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$a[0]','$a[1]','$a[2]','','')";
+
+	if (mysqli_query($conn, $sql)) {
+	  echo "New record created successfully";
+	} else {
+	  // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+	}
+
+	mysqli_close($conn);
+}
+
+$post_id_inputs = ['given_name','family_name','ID'];
+$post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
 
-$post_values_array = create_post_values_array($post_value_questions);
-$results = marking($post_values_array, $answers); // Input arrays must be same size will ad in check later
+$post_questions_values_array = get_post_values($post_question_inputs);
+$post_ids_values_array = get_post_values($post_id_inputs);
+$results = marking($post_questions_values_array, $answers); // Input arrays must be same size will ad in check later
 
-fat_dump($results);
+save($post_ids_values_array, $results);
+
+// fat_dump($results);
 
 ?>
