@@ -1,6 +1,7 @@
 <?php
 
 
+
 function sanitise_inputs($input) {
 	$input = trim($input);
 	$input = htmlspecialchars($input);
@@ -9,7 +10,7 @@ function sanitise_inputs($input) {
 
 
 function has_characters($input) {
-	if (!preg_match("|^([a-zA-Z]{1,50})$|", $input)) {  // If Character and between 1 to 50
+	if (!preg_match("#^(([a-zA-Z]|-| ){1,30})$#", $input)) {  // If Character and between 1 to 50
 		return false;
 	}
 	else {
@@ -18,7 +19,7 @@ function has_characters($input) {
 }
 
 function has_only_numbers($input) {
-	if (!preg_match("|^([0-9]{9})$|", $input)) {  // If Number and 9 only
+	if (!preg_match("|^([0-9]{7,10})$|", $input)) {  // If Number and 9 only
 		return false;
 	}
 	else {
@@ -28,19 +29,21 @@ function has_only_numbers($input) {
 
 function validate_accordingly($inputvalue, $validation_preference, $validation_index) {
 			$errorfound = false;
-			if (count($validation_preference) > $validation_index) {
-				if ($validation_preference[$validation_index] == 'number_only') {
-					if (has_only_numbers($inputvalue) == false) {
-						$errorfound = true;
-						//echo"<p>issue</p>";
-						return "Input other than numbers found!";
+			if ($inputvalue != "") {
+				if (count($validation_preference) > $validation_index) {
+					if ($validation_preference[$validation_index] == 'number_only') {
+						if (has_only_numbers($inputvalue) == false) {
+							$errorfound = true;
+							//echo"<p>issue</p>";
+							return "Input other than numbers found!";
+						}
 					}
-				}
-				elseif ($validation_preference[$validation_index] == 'character_only') {
-					if (has_characters($inputvalue) == false) {
-						$errorfound = true;
-						return "Input other than characters found!";
-					};
+					elseif ($validation_preference[$validation_index] == 'character_only') {
+						if (has_characters($inputvalue) == false) {
+							$errorfound = true;
+							return "Input other than characters found!";
+						};
+					}
 				}
 			}
 			if ($errorfound == false) {

@@ -11,8 +11,8 @@
        <fieldset>
           <legend class="quiz-legend"><strong>Student Details</strong></legend>
              <label>Apache ID<input type="text" name="ID" pattern="[0-9]{9}" required="required" value="324234238"></label>
-             <label>Given Name<input type="text" name="given_name" pattern="^[a-zA-Z]+$" maxlength="30" required="required" value="BOB"></label>
-             <label>Family Name<input type="text" name="family_name" pattern="^[a-zA-Z]+$" maxlength="30" required="required" value="Test"></label>
+             <label>Given Name<input type="text" name="given_name" pattern="^(([a-zA-Z]|-| ){1,30})$" maxlength="30" required="required" value="BOB"></label>
+             <label>Family Name<input type="text" name="family_name" pattern="^(([a-zA-Z]|-| ){1,30})$" maxlength="30" required="required" value="Test"></label>
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 1</strong></legend>
