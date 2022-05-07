@@ -16,11 +16,12 @@ function has_characters($input) {
 }
 
 function has_only_numbers($input) {
-	if (!preg_match("|^([0-9]{7,10})$|", $input)) {  // If Number and 9 only
-		return false;
+	if (preg_match("|^([0-9]{1,10})$|", $input)) {  // If Number and 1-10
+		return (int)$input;
 	}
 	else {
-		return true;
+		print ("Error: Number Issue");
+		return 'fallback';
 	}
 }
 
@@ -57,34 +58,39 @@ function deconstruct_array_sanitisation($array) {
 	return $sanitised_array;
 }
 
-
 function show_error_debug($array_of_errors) {
 	for ($counter=0;$counter<count($array_of_errors);$counter++) {
 		echo("<h2>$array_of_errors[$counter]</h2>");
 	}
 }
 
-# Get post values
-function get_post_values($post_value_ids){ // Super Broken
-	$error_messages = [];
+function get_post_values($post_value_ids){
 	$input_array = [];
-	foreach ($post_value_ids as $i => $value) {
-		$base_value = ($_POST[$post_value_ids[$i]]);
-		if (gettype($base_value) != "array") { // If not array, do basic pass.
-			$input_value = sanitise_inputs($base_value); // Sanitise values to prevent code injection.
-			$validation_output = (validate_accordingly($base_value, $i)); // Validate accordingly
-			if ($validation_output != "no_error") { // If error, add to error array.
-				$format_error = ("$post_value_ids[$i] :" . $validation_output);
-				array_push($error_messages, $format_error);
-			}
-		}
-		else {
-			$input_value = deconstruct_array_sanitisation($base_value); // Sanitise an array
-		}
-		array_push($input_array, $input_value ?? 'fallback'); // Useing Null Coalescing Operator + Broken NULL check needs fixing
+	foreach ($post_value_ids as $key => $value) {
+		array_push($input_array, sanitization_and_type_check($_POST[$post_value_ids[$key]] ?? 'fallback')); // Useing Null Coalescing Operator
 	}
-	show_error_debug($error_messages);
 	return $input_array;
+}
+
+function sanitization_and_type_check($input) {
+	if (!is_array($input)) {
+		$input = sanitization_and_type_processing($input);
+	} else {
+		foreach ($input as $input2) {
+			$input2 = sanitization_and_type_processing($input2);
+		}
+	}
+	return $input;
+}
+
+function sanitization_and_type_processing($input) { // Sanitization type confirmation ----------- Broken Needs Fixing
+	$input = sanitise_inputs($input);
+	print ($input."<br>");
+	if (is_numeric($input)) {
+		$input = has_only_numbers($input);
+	}
+	print (gettype($input)."<br>");
+	return $input;
 }
 
 function marking($post_values_array, $answers){ //Inputs must be pre sanitised & type checked
@@ -138,23 +144,47 @@ function fat_dump($results) {
 		}
 		print("<br>");
 	}
-
-	// // Temporary Null Ternary Operator error warning
-	// $input_value != 'fallback' ?: print "<h2 style='display: inline;'>Error Missing Value </h2><p style='display: inline;'>".$post_value_ids[$i]."</p><br><br>";
-
 }
 
-function save($a, $b){
-	$conn = mysqli_connect("localhost", "root", "", "a_patchy_team");
-	$sql = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$a[0]','$a[1]','$a[2]','','')";
-
-	if (mysqli_query($conn, $sql)) {
-	  echo "New record created successfully";
-	} else {
-	  // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+function db_connect() {
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "a_patchy_team";
+	try {
+		return $conn = new mysqli($servername, $username, $password, $dbname);
+	} catch(Exception $e) {
+	  echo '<p>MySQLi Conneciton Error: ' .$e->getMessage().'</p>';
+		return false;
 	}
+}
 
-	mysqli_close($conn);
+function save_db_data($a, $b){
+	$conn = db_connect();
+	if ($conn != false) {
+
+		// Count of recors with input details
+		$sql_check = "SELECT COUNT(*) FROM attempts WHERE first_name = '$a[0]' AND last_name = '$a[1]' AND student_number = '$a[2]'";
+		$check_db = $conn->query($sql_check);
+		$check_db = $check_db->fetch_assoc()["COUNT(*)"];
+		// print $check_db;
+		if ($check_db == 1) {
+			$sql_attempts = "SELECT attempt FROM attempts WHERE first_name = '$a[0]' AND last_name = '$a[1]' AND student_number = '$a[2]'";
+			$attempts = $conn->query($sql_attempts);
+			$attempts = $attempts->fetch_assoc()["attempt"]+1;
+		}
+
+		$sql_update_attempts = "UPDATE attempts SET attempt ='3' WHERE first_name = 'BOB' AND last_name = 'Test' AND student_number = '324234238'";
+
+		if ($check_db == false) {
+			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$a[0]','$a[1]','$a[2]','','')";
+			$conn->query($sql_insert);
+			print("<p>Success</p>");
+		} else {
+			print("<p>User Exists</p>");
+		}
+		$conn->close();
+	}
 }
 
 $post_id_inputs = ['given_name','family_name','ID'];
@@ -163,10 +193,11 @@ $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004
 
 $post_questions_values_array = get_post_values($post_question_inputs);
 $post_ids_values_array = get_post_values($post_id_inputs);
+
 $results = marking($post_questions_values_array, $answers); // Input arrays must be same size will ad in check later
 
-save($post_ids_values_array, $results);
+save_db_data($post_ids_values_array, $results);
 
-// fat_dump($results);
+fat_dump($results);
 
 ?>
