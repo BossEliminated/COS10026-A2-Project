@@ -27,28 +27,29 @@ function has_only_numbers($input) {
 	}
 }
 
-function validate_accordingly($inputvalue, $validation_preference, $validation_index) {
-			$errorfound = false;
-			if ($inputvalue != "") {
-				if (count($validation_preference) > $validation_index) {
-					if ($validation_preference[$validation_index] == 'number_only') {
-						if (has_only_numbers($inputvalue) == false) {
-							$errorfound = true;
-							//echo"<p>issue</p>";
-							return "Input other than numbers found!";
-						}
-					}
-					elseif ($validation_preference[$validation_index] == 'character_only') {
-						if (has_characters($inputvalue) == false) {
-							$errorfound = true;
-							return "Input other than characters found!";
-						};
-					}
+function validate_accordingly($inputvalue, $validation_index) {
+	$validation_preference = ['number_only', 'character_only'];
+	$errorfound = false;
+	if ($inputvalue != "") {
+		if (count($validation_preference) > $validation_index) {
+			if ($validation_preference[$validation_index] == 'number_only') {
+				if (has_only_numbers($inputvalue) == false) {
+					$errorfound = true;
+					//echo"<p>issue</p>";
+					return "Input other than numbers found!";
 				}
 			}
-			if ($errorfound == false) {
-				return "no_error";
+			elseif ($validation_preference[$validation_index] == 'character_only') {
+				if (has_characters($inputvalue) == false) {
+					$errorfound = true;
+					return "Input other than characters found!";
+				};
 			}
+		}
+	}
+	if ($errorfound == false) {
+		return "no_error";
+	}
 }
 
 function deconstruct_array_sanitisation($array) {
@@ -68,14 +69,14 @@ function show_error_debug($array_of_errors) {
 
 
 # Get post values
-function create_post_values_array($post_value_ids, $validation_preference){
+function create_post_values_array($post_value_ids){
 	$error_messages = [];
 	$input_array = [];
 	foreach ($post_value_ids as $i => $value) {
 		$base_value = ($_POST[$post_value_ids[$i]]);
 		if (gettype($base_value) != "array") { // If not array, do basic pass.
 			$input_value = sanitise_inputs($base_value); // Sanitise values to prevent code injection.
-			$validation_output = (validate_accordingly($base_value, $validation_preference, $i)); // Validate accordingly
+			$validation_output = (validate_accordingly($base_value, $i)); // Validate accordingly
 			if ($validation_output != "no_error") { // If error, add to error array.
 				$format_error = ("$post_value_ids[$i] :" . $validation_output);
 				array_push($error_messages, $format_error);
@@ -85,62 +86,51 @@ function create_post_values_array($post_value_ids, $validation_preference){
 			$input_value = deconstruct_array_sanitisation($base_value); // Sanitise an array
 		}
 		array_push($input_array, $input_value ?? 'fallback'); // Useing Null Coalescing Operator
-		$input_value != 'fallback' ?: print "<h2 style='display: inline;'>Error Missing Value </h2><p style='display: inline;'>".$post_value_ids[$i]."</p><br><br>"; // Temporary Ternary Operator error warning, I will add data checks later
-
-		// // Non Null Coalescing Operator Version
-		// if (isset($_POST[$post_value_ids[$i]])) {
-		// 	array_push($input_array, $_POST[$post_value_ids[$i]]);
-		// } else {
-		// 	array_push($input_array, 0);
-		// 	print "<h2 style='display: inline;'>Error Missing Value </h2><p style='display: inline;'>".$post_value_ids[$i]."</p><br><br>";
-		// }
+		// $input_value != 'fallback' ?: print "<h2 style='display: inline;'>Error Missing Value </h2><p style='display: inline;'>".$post_value_ids[$i]."</p><br><br>"; // Temporary Null Ternary Operator error warning
 	}
 	show_error_debug($error_messages);
 	return $input_array;
 }
 
-
-
-
-function check_post_values_array($post_values_array, $answers, $post_value_ids){
-	$exclude = 3;
-	$i = $exclude;
-	$count = count($post_values_array);
-	
-	for ($u=0;$u < $exclude;$u++) {
-		if ($post_values_array[$u] == "NOT_ENTERED") {
-			echo "<p>$post_value_ids[$u]: INCORRECT_INPUT</p>";
-		}
-		else {
-			echo "<p>$post_value_ids[$u]: $post_values_array[$u]</p>"; // Basic Display
-		}
-	}
-
-	while($i < $count) {
-		if (!is_array($post_values_array[$i])){
-			if ($post_values_array[$i] == $answers[$i-$exclude]) {
-				print "Correct: ".$post_values_array[$i];
+function marking($post_values_array, $answers){ //Inputs must be pre sanitised & type checked
+	foreach ($post_values_array as $key => $value) {
+		$correct = 0;
+		if (!is_array($value)){
+			if ($value == $answers[$key]) {
+				mark_submission(1, $value);
+				// print "Correct: ".$value;
 			} else {
-				print "Wrong: ".$post_values_array[$i];
+				mark_submission(0, $value);
+				// print "Wrong: ".$value;
 			}
 		} else {
-			$result = array_diff($post_values_array[$i], $answers[$i-$exclude]);
-			if (count($result) == 0 && count($post_values_array[$i]) == count($answers[$i-$exclude])) {
-				print "Correct: " . implode(", ", $post_values_array[$i]);
+			$result = array_diff($value, $answers[$key]);
+			if (count($result) == 0 && count($value) == count($answers[$key])) {
+				mark_submission(1, $value);
+				// print "Correct: ".implode(", ", $value); //How is this working TF why is there no first comma
 			} else {
-				print "Wrong: " . implode(", ", $post_values_array[$i]);
+				mark_submission(0, $value);
+				// print "Wrong: ".implode(", ", $value);
 			}
 		}
 		echo "<br>";
-	  $i++;
 	}
 }
 
-$post_value_ids = ['ID','given_name','family_name','quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
-$validation_preference = ['number_only', 'character_only'];
+function mark_submission($correct, $value) {
+	if ($correct == 1) {
+		print("Correct<br>");
+	} else {
+		print("Incorrect<br>");
+	}
+	// array_push($checked_items_array, $value);
+}
+
+$post_value_id = ['ID','given_name','family_name'];
+$post_value_questions = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],'','2004','1994'];
 
-$post_values_array = create_post_values_array($post_value_ids, $validation_preference);
-check_post_values_array($post_values_array, $answers, $post_value_ids);
+$post_values_array = create_post_values_array($post_value_questions);
+marking($post_values_array, $answers); // Input arrays must be same size will ad in check later
 
 ?>
