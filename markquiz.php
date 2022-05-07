@@ -209,8 +209,8 @@ $post_ids_values_array = get_post_values($post_id_inputs);
 $results = marking($post_questions_values_array, $answers); // Input arrays must be same size will ad in check later
 $score = score($results);
 
+print ("<p>Score: ".$score."</p>");
 save_db_data($post_ids_values_array, $score);
-
-// debug_dump($results);
+debug_dump($results);
 
 ?>
