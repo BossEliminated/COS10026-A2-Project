@@ -128,7 +128,7 @@ function marking($post_values_array, $answers){ //Inputs must be pre sanitised &
 	return $results;
 }
 
-function fat_dump($results) {
+function debug_dump($results) {
 	print_r($results);
 	print("<br><br>");
 
@@ -146,6 +146,16 @@ function fat_dump($results) {
 	}
 }
 
+function score($results) {
+	$score = 0;
+	foreach ($results as $value) {
+		if ($value[0] == 1) {
+			$score++;
+		}
+	}
+	return $score;
+}
+
 function db_connect() {
 	$servername = "localhost";
 	$username = "root";
@@ -159,30 +169,32 @@ function db_connect() {
 	}
 }
 
-function save_db_data($a, $b){
+function save_db_data($id, $score){
 	$conn = db_connect();
 	if ($conn != false) {
 
 		// Count of recors with input details
-		$sql_check = "SELECT COUNT(*) FROM attempts WHERE first_name = '$a[0]' AND last_name = '$a[1]' AND student_number = '$a[2]'";
+		$sql_check = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
 		$check_db = $conn->query($sql_check);
 		$check_db = $check_db->fetch_assoc()["COUNT(*)"];
 		// print $check_db;
 		if ($check_db == 1) {
-			$sql_attempts = "SELECT attempt FROM attempts WHERE first_name = '$a[0]' AND last_name = '$a[1]' AND student_number = '$a[2]'";
+			$sql_attempts = "SELECT attempt FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
 			$attempts = $conn->query($sql_attempts);
 			$attempts = $attempts->fetch_assoc()["attempt"]+1;
-		}
 
-		$sql_update_attempts = "UPDATE attempts SET attempt ='3' WHERE first_name = 'BOB' AND last_name = 'Test' AND student_number = '324234238'";
-
-		if ($check_db == false) {
-			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$a[0]','$a[1]','$a[2]','','')";
-			$conn->query($sql_insert);
-			print("<p>Success</p>");
+			$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+			$conn->query($sql_update_attempts);
+			print ("<p>Attempt: ".$attempts."</p>");
 		} else {
-			print("<p>User Exists</p>");
+			// Create user
+			if ($check_db == false) {
+				$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[0]','$id[1]','$id[2]','1','$score')";
+				$conn->query($sql_insert);
+				print("<h1>User Added</h1>");
+			}
 		}
+
 		$conn->close();
 	}
 }
@@ -195,9 +207,10 @@ $post_questions_values_array = get_post_values($post_question_inputs);
 $post_ids_values_array = get_post_values($post_id_inputs);
 
 $results = marking($post_questions_values_array, $answers); // Input arrays must be same size will ad in check later
+$score = score($results);
 
-save_db_data($post_ids_values_array, $results);
+save_db_data($post_ids_values_array, $score);
 
-fat_dump($results);
+// debug_dump($results);
 
 ?>
