@@ -16,7 +16,7 @@
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 1</strong></legend>
-          <p class="quiz-question-1"><strong>Q1)Whats main Apache attack tool, which exploits a bug in Apache software?</strong></p>
+          <p class="quiz-question-1"><strong>Q1) Whats main Apache attack tool, which exploits a bug in Apache software?</strong></p>
           <label><input type="radio" name="quiz-question-1" value="slowloris" checked>Slowloris</label>
           <label><input type="radio" name="quiz-question-1" value="phishing">Phishing</label>
           <label><input type="radio" name="quiz-question-1" value="mimt">MITM</label>
@@ -24,21 +24,30 @@
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 2</strong></legend>
-          <p class="quiz-question-2"><strong>Q2)Apache provides a variety of MultiProcessing Modules (MPMs),<br>which allow it to run on which of following modes?</strong></p>
+          <p class="quiz-question-2"><strong>Q2) Apache provides a variety of MultiProcessing Modules (MPMs), which allow it to run on which of following modes?</strong></p>
           <label><input type="checkbox" name="quiz-question-2[]" value="process-based_mode" checked>Process-based mode</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="hybrid_mode" checked>Hybrid (process and thread) mode</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="event-hybrid_mode">Event-hybrid mode</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="professional_mode">Professional mode</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="key_mode">Keys Mode</label>
        </fieldset>
+       <!-- <fieldset>
+          <legend class="quiz-question"><strong>Question 3</strong></legend>
+          <p class="quiz-question-3"><strong>Q3) Briefly describe, what are variety of features that Apache supports?</strong></p>
+          <label><textarea name="quiz-question-3" rows="4" cols="40" placeholder="Type your answer here">Junk jsdkjsdk kjskldjvslkdjlkj jsdkl jsdlkj</textarea></label>
+       </fieldset> -->
        <fieldset>
           <legend class="quiz-question"><strong>Question 3</strong></legend>
-          <p class="quiz-question-3"><strong>Q3)Briefly describe, what are variety of features that Apache supports?</strong></p>
-          <label><textarea name="quiz-question-3" rows="4" cols="40" placeholder="Type your answer here">Junk jsdkjsdk kjskldjvslkdjlkj jsdkl jsdlkj</textarea></label>
+          <p class="quiz-question-3"><strong>Q3) Which variety of features that Apache supports?</strong></p>
+          <label><input type="checkbox" name="quiz-question-3[]" value="bob" checked>Bob</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="dave">Dave</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="tree">Tree</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="sky" checked>Sky</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="games">Games</label>
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 4</strong></legend>
-          <p class="quiz-question-4"><strong>Q4)In which year was the Apache HTTP Server codebase,<br>relicensed to the Apache 2.0 License?</strong></p>
+          <p class="quiz-question-4"><strong>Q4) In which year was the Apache HTTP Server codebase,<br>relicensed to the Apache 2.0 License?</strong></p>
           <label>
             Select Here
             <select name="quiz-question-4">
@@ -52,7 +61,7 @@
        </fieldset>
        <fieldset>
           <legend class="quiz-question"><strong>Question 5</strong></legend>
-          <p class="quiz-question-5"><strong>Q5)In which year was the Apache HTTP Server became the most used web server?</strong></p>
+          <p class="quiz-question-5"><strong>Q5) In which year was the Apache HTTP Server became the most used web server?</strong></p>
           <label>
             Select here
             <select name="quiz-question-5">
