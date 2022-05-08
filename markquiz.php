@@ -207,7 +207,7 @@ function save_db_data($id, $score){
 		if ($user_exists >= 1) {
 			$sql = "SELECT attempt FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
 			$attempts = $conn->query($sql)->fetch_assoc()["attempt"]+1;
-			
+
 			if ($attempts <= 2) {
 				$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
 				$conn->query($sql_update_attempts);
