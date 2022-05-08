@@ -192,28 +192,30 @@ function db_connect() {
 function save_db_data($id, $score){
 	$conn = db_connect();
 	if ($conn == true) {
-		// Count of recors with input details
-		$sql_check = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
-		$check_db = $conn->query($sql_check);
-		$check_db = $check_db->fetch_assoc()["COUNT(*)"];
-		// print $check_db;
-		if ($check_db == 1) {
-			$sql_attempts = "SELECT attempt FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
-			$attempts = $conn->query($sql_attempts);
-			$attempts = $attempts->fetch_assoc()["attempt"]+1;
+		// Check if user exists
+		$sql = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+		$user_exists = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
 
-			$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
-			$conn->query($sql_update_attempts);
-			print ("<p>Attempt: ".$attempts."</p>");
-		} else {
-			// Create user
-			if ($check_db == false) {
-				$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[0]','$id[1]','$id[2]','1','$score')";
-				$conn->query($sql_insert);
-				print("<h1>User Added</h1>");
-			}
+		// Create User
+		if ($user_exists == 0) {
+			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[0]','$id[1]','$id[2]','1','$score')";
+			$conn->query($sql_insert);
+			print("<h1>User Added</h1>");
 		}
 
+		// For existing user update attempt details
+		if ($user_exists >= 1) {
+			$sql = "SELECT attempt FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+			$attempts = $conn->query($sql)->fetch_assoc()["attempt"]+1;
+			
+			if ($attempts <= 2) {
+				$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+				$conn->query($sql_update_attempts);
+				print ("<p>Attempt: ".$attempts."</p>");
+			} else {
+				print ("<h2>Maximum Attempts Reached</h2>");
+			}
+		}
 		$conn->close();
 	}
 }
