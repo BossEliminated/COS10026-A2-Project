@@ -85,11 +85,11 @@ function sanitization_and_type_check($input) {
 
 function sanitization_and_type_processing($input) { // Sanitization type confirmation ----------- Broken Needs Fixing
 	$input = sanitise_inputs($input);
-	print ($input."<br>");
+	// print ($input."<br>"); // Unpacked data debug dump
 	if (is_numeric($input)) {
 		$input = has_only_numbers($input);
 	}
-	print (gettype($input)."<br>");
+	// print (gettype($input)."<br>"); // Unpacked data debug dump
 	return $input;
 }
 
@@ -200,7 +200,7 @@ function save_db_data($id, $score){
 		if ($user_exists == 0) {
 			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[0]','$id[1]','$id[2]','1','$score')";
 			$conn->query($sql_insert);
-			print("<h1>User Added</h1>");
+			print("<h2>User Added</h2>");
 		}
 
 		// For existing user update attempt details
@@ -211,7 +211,6 @@ function save_db_data($id, $score){
 			if ($attempts <= 2) {
 				$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
 				$conn->query($sql_update_attempts);
-				print ("<p>Attempt: ".$attempts."</p>");
 			} else {
 				print ("<h2>Maximum Attempts Reached</h2>");
 			}
@@ -220,18 +219,37 @@ function save_db_data($id, $score){
 	}
 }
 
+function submission_check($results){
+	$count = 0;
+	foreach ($results as $value) {
+		if ($value == 'fallback') {
+			$count++;
+		}
+	}
+	if ($count == count($results)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 $post_id_inputs = ['given_name','family_name','ID'];
 $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
+$post_ids_values_array = get_post_values($post_id_inputs); // Read ID Values
 
-$post_questions_values_array = get_post_values($post_question_inputs);
-$post_ids_values_array = get_post_values($post_id_inputs);
+if (submission_check($post_ids_values_array) == true) {
+	print ('<div id="results" class="quiz-content quiz-results">');
 
-$results = marking($post_questions_values_array, $answers); // Input arrays must be same size will ad in check later
-$score = score($results);
+	$post_questions_values_array = get_post_values($post_question_inputs); // Read Questions Values
+	$results = marking($post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
 
-print ("<p>Score: ".$score."</p>");
-save_db_data($post_ids_values_array, $score);
-debug_dump($results);
+	$score = score($results);
+	save_db_data($post_ids_values_array, $score);
+	print ("<p>Score: ".$score."/5</p>");
+	// debug_dump($results);
+
+	print ('</div>');
+}
 
 ?>
