@@ -315,15 +315,14 @@ th.declinegrowthtable{ /*Chris*/
   background-color: white;
 }
 
-.quiz-body p,a,h1,h2 {
-  color: #005759;
-}
-
-
 .quiz-main-headding {
   text-align: center;
   font-family: serif;
   margin: 70px;
+}
+
+.quiz-main-headding p,h1 {
+  color: #005759;
 }
 
 .quiz-title {
