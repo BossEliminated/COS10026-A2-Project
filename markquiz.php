@@ -20,8 +20,9 @@ function has_only_numbers($input) {
 		return (int)$input;
 	}
 	else {
-		print ("Error: Number Issue");
-		return 'fallback';
+		//print ("Error: Number Issue");
+		//echo"<p>has_only_numers validation failure</p>";
+		return 'failback';
 	}
 }
 
@@ -31,10 +32,10 @@ function validate_accordingly($inputvalue, $validation_index) {
 	if ($inputvalue != "") {
 		if (count($validation_preference) > $validation_index) {
 			if ($validation_preference[$validation_index] == 'number_only') {
-				if (has_only_numbers($inputvalue) == false) {
+				if (has_only_numbers($inputvalue) == 'failback') {
 					$errorfound = true;
 					//echo"<p>issue</p>";
-					return "Input other than numbers found!";
+					return "Input out of range! ID from 1 to 10 ONLY!";
 				}
 			}
 			elseif ($validation_preference[$validation_index] == 'character_only') {
@@ -66,28 +67,82 @@ function show_error_debug($array_of_errors) {
 
 function get_post_values($post_value_ids){
 	$input_array = [];
+	$issue_found = false;
+	$issue_array = [];
 	foreach ($post_value_ids as $key => $value) {
-		array_push($input_array, sanitization_and_type_check($_POST[$post_value_ids[$key]] ?? 'fallback')); // Useing Null Coalescing Operator
+		//echo "<p>$post_value_ids[$key]</p>";
+		array_push($input_array, sanitization_and_type_check($_POST[$post_value_ids[$key]] ?? 'fallback', $post_value_ids[$key], false)); // Useing Null Coalescing Operator
+		if ($input_array[$key] != 'fallback' and $input_array[$key] == 'failback') { // Not existant.
+			$error_returned = sanitization_and_type_check($_POST[$post_value_ids[$key]], $post_value_ids[$key], true);
+			if ($issue_found == false) {
+				array_push($issue_array, "ERROR_ARRAY");
+				$issue_found = true;
+			}
+			array_push($issue_array, $error_returned);
+		}
 	}
-	return $input_array;
+	if ($issue_found == true) {
+		return $issue_array;
+	}
+	else {
+		return $input_array;
+	}
 }
 
-function sanitization_and_type_check($input) {
-	if (!is_array($input)) {
-		$input = sanitization_and_type_processing($input);
-	} else {
-		foreach ($input as $input2) {
-			$input2 = sanitization_and_type_processing($input2);
+function sanitization_and_type_check($input, $context, $debug) {
+	if ($input != 'fallback') { // Check if theres actually input
+		if (!is_array($input)) {
+			$input = sanitization_and_type_processing($input, $context, $debug);
+		} else {
+			foreach ($input as $input2) {
+				$input2 = sanitization_and_type_processing($input2, "no_prevention", $debug);
+			}
 		}
 	}
 	return $input;
 }
 
-function sanitization_and_type_processing($input) { // Sanitization type confirmation ----------- Broken Needs Fixing
+function sanitization_and_type_processing($input, $context, $debug) { // Sanitization type confirmation ----------- Broken Needs Fixing
 	$input = sanitise_inputs($input);
-	// print ($input."<br>"); // Unpacked data debug dump
-	if (is_numeric($input)) {
-		$input = has_only_numbers($input);
+	if ($input == "") {
+		if ($debug == true) {
+			return "Input $context has not been filled!";
+		}
+		return 'failback';
+	}
+	//print ($input."<br>"); // Unpacked data debug dump
+	//print ($context."<br>"); // Unpacked data debug dump
+	if ($context == "given_name" or $context == "family_name") {
+			$validation_output = validate_accordingly($input, 1);
+			if ($validation_output == "no_error") {
+				return $input;
+			}
+			else {
+				if ($debug == true) {
+					return $validation_output;
+				}
+				return 'failback';
+			}
+	}
+	if ($context == "ID") {
+		if (is_numeric($input)) {
+			$validation_output = validate_accordingly($input, 0);
+			if ($validation_output == "no_error") {
+				return $input;
+			}
+			else {
+				if ($debug == true) {
+					return $validation_output;
+				}
+				return 'failback';
+			}
+		}
+		else {
+			if ($debug == true) {
+				return 'ID has non-numeric input.';
+			}
+			return 'failback';
+		}
 	}
 	// print (gettype($input)."<br>"); // Unpacked data debug dump
 	return $input;
@@ -164,7 +219,7 @@ function db_connect() {
 	try {
 		$conn = new mysqli($servername, $username, $password, $dbname);
 	} catch(Exception $e) {
-	  echo '<p>MySQLi Conneciton Error: ' .$e->getMessage().'</p>';
+	  echo '<p>MySQLi Connection Error: ' .$e->getMessage().'</p>';
 		return false;
 	}
 
@@ -240,15 +295,24 @@ $post_ids_values_array = get_post_values($post_id_inputs); // Read ID Values
 
 if (submission_check($post_ids_values_array) == true) {
 	print ('<div id="results" class="quiz-content quiz-results">');
-
+	if ($post_ids_values_array[0] == "ERROR_ARRAY") {
+		foreach ($post_ids_values_array as $index => $result) {
+			if ($index != 0) {
+				echo "<p>$result</p>";
+			}
+			else {
+				echo "<p><strong>Attention! Errors in your input have prevented any further processing!</strong></p>"; // Start error message
+			}
+		}
+	}
+	else {
 	$post_questions_values_array = get_post_values($post_question_inputs); // Read Questions Values
 	$results = marking($post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
-
 	$score = score($results);
 	save_db_data($post_ids_values_array, $score);
 	print ("<p>Score: ".$score."/5</p>");
 	// debug_dump($results);
-
+	}
 	print ('</div>');
 }
 
