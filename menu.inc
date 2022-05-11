@@ -17,4 +17,8 @@
     <a <?php if($select == 5){print('id="nav-bar-active"');};?> class="show-tooltip" href="phpenhancements">PHP Enhancements</a>
     <p class="tooltip">Special PHP features on the website</p>
   </div>
+  <div>
+    <a <?php if($select == 6){print('id="nav-bar-active"');};?> class="show-tooltip" href="manage">Manage Page</a>
+    <p class="tooltip">Supervisor view</p>
+  </div>
 </header>
