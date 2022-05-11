@@ -3,6 +3,6 @@
   <meta charset="utf-8">
   <title><?php print($title) ?></title>
   <meta name="description" content="Apache details and facts">
-  <meta name="keywords" content="Apache, info, details, facts, server">
-  <meta name="author" content="A Patchy Team">
+  <meta name="keywords" content="PHP, SQL, Management, Apache, Info, Details, Facts, Server">
+  <meta name="author" content="Nicholas, Yash, Syed, Chris">
 </head>
