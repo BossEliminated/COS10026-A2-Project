@@ -65,20 +65,27 @@ function show_error_debug($array_of_errors) {
 	}
 }
 
-function get_post_values($post_value_ids){
+function get_post_values($post_value_ids, $get_errors){
 	$input_array = [];
 	$issue_found = false;
 	$issue_array = [];
 	foreach ($post_value_ids as $key => $value) {
 		//echo "<p>$post_value_ids[$key]</p>";
-		array_push($input_array, sanitization_and_type_check($_POST[$post_value_ids[$key]] ?? 'fallback', $post_value_ids[$key], false)); // Useing Null Coalescing Operator
-		if ($input_array[$key] != 'fallback' and $input_array[$key] == 'failback') { // Not existant.
-			$error_returned = sanitization_and_type_check($_POST[$post_value_ids[$key]], $post_value_ids[$key], true);
-			if ($issue_found == false) {
-				array_push($issue_array, "ERROR_ARRAY");
-				$issue_found = true;
+		if (isset($_POST[$post_value_ids[$key]])) {
+			array_push($input_array, sanitization_and_type_check($_POST[$post_value_ids[$key]], $post_value_ids[$key], false));
+		}
+		else {
+			array_push($input_array, "fallback");
+		}
+		if ($get_errors == true) {
+			if ($input_array[$key] != 'fallback' and $input_array[$key] == 'failback') { // Not existant.
+				$error_returned = sanitization_and_type_check($_POST[$post_value_ids[$key]], $post_value_ids[$key], true);
+				if ($issue_found == false) {
+					array_push($issue_array, "ERROR_ARRAY");
+					$issue_found = true;
+				}
+				array_push($issue_array, $error_returned);
 			}
-			array_push($issue_array, $error_returned);
 		}
 	}
 	if ($issue_found == true) {
@@ -92,11 +99,17 @@ function get_post_values($post_value_ids){
 function sanitization_and_type_check($input, $context, $debug) {
 	if ($input != 'fallback') { // Check if theres actually input
 		if (!is_array($input)) {
+			//print($context);
+			//print($input);
 			$input = sanitization_and_type_processing($input, $context, $debug);
 		} else {
+			$replacement_array = [];
 			foreach ($input as $input2) {
+				//echo"<p>$input2</p>";
 				$input2 = sanitization_and_type_processing($input2, "no_prevention", $debug);
+				array_push($replacement_array, $input2);
 			}
+			$input = $replacement_array;
 		}
 	}
 	return $input;
@@ -291,12 +304,12 @@ function submission_check($results){
 $post_id_inputs = ['given_name','family_name','ID'];
 $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
-$post_ids_values_array = get_post_values($post_id_inputs); // Read ID Values
-
+$post_ids_values_array = get_post_values($post_id_inputs, false); // Read ID Values
+$error_id_inputs_array = get_post_values($post_id_inputs,true); // Get any errors.
 if (submission_check($post_ids_values_array) == true) {
 	print ('<div id="results" class="quiz-content quiz-results">');
-	if ($post_ids_values_array[0] == "ERROR_ARRAY") {
-		foreach ($post_ids_values_array as $index => $result) {
+	if ($error_id_inputs_array[0] == "ERROR_ARRAY") {
+		foreach ($error_id_inputs_array as $index => $result) {
 			if ($index != 0) {
 				echo "<p>$result</p>";
 			}
@@ -305,14 +318,13 @@ if (submission_check($post_ids_values_array) == true) {
 			}
 		}
 	}
-	else {
-	$post_questions_values_array = get_post_values($post_question_inputs); // Read Questions Values
+	$post_questions_values_array = get_post_values($post_question_inputs, false); // Read Questions Values
 	$results = marking($post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
 	$score = score($results);
+	//print("$score");
 	save_db_data($post_ids_values_array, $score);
 	print ("<p>Score: ".$score."/5</p>");
 	// debug_dump($results);
-	}
 	print ('</div>');
 }
 
