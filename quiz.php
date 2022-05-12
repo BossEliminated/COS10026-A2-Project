@@ -9,12 +9,12 @@
       <p>Can you complete these five questions?</p>
     </div>
     <div class="quiz-content">
-      <form method="post" action="#results">
+      <form method="post" action="#results"> <!-- Disabled Validation -->
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Student Details</legend>
-          <label>Apache ID<input type="text" name="ID" pattern="[0-9]{9}" required="required" value="324234238" /></label>
-          <label>Given Name<input type="text" name="given_name" pattern="^(([a-zA-Z]|-| ){1,30})$" maxlength="30" required="required" value="BOB" /></label>
-          <label>Family Name<input type="text" name="family_name" pattern="^(([a-zA-Z]|-| ){1,30})$" maxlength="30" required="required" value="Test" /></label>
+          <label>Apache ID<input type="text" name="ID" value="324234238" /></label>
+          <label>Given Name<input type="text" name="given_name" value="BOB" /></label>
+          <label>Family Name<input type="text" name="family_name" value="Test" /></label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q1) Whats main Apache attack tool, which exploits a bug in Apache software?</legend>
