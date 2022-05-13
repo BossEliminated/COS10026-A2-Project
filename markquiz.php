@@ -1,5 +1,7 @@
 <?php
 
+include 'db_connect.php';
+
 function get_post_values($post_value_ids){
 	$input_array = [];
 	foreach ($post_value_ids as $key => $value) {
@@ -77,39 +79,6 @@ function score($results) {
 		}
 	}
 	return $score;
-}
-
-function db_connect() {
-	$servername = "localhost";
-	$username = "root";
-	$password = "";
-	$dbname = "a_patchy_team";
-	try {
-		$conn = new mysqli($servername, $username, $password, $dbname);
-	} catch(Exception $e) {
-	  echo '<p>MySQLi Connection Error: ' .$e->getMessage().'</p>';
-		return false;
-	}
-
-	// Check Table Exists
-	try {
-		$conn->query("SELECT 1 FROM attempts WHERE 1");
-		return $conn;
-	} catch(Exception $e) {
-		echo '<p>MySQLi Created Table: ' .$e->getMessage().'</p>';
-		$create_table = "CREATE TABLE IF NOT EXISTS attempts (
-			id int(11) NOT NULL AUTO_INCREMENT,
-			created datetime NOT NULL DEFAULT current_timestamp(),
-			first_name varchar(255) NOT NULL,
-			last_name varchar(255) NOT NULL,
-			student_number int(11) NOT NULL,
-			attempt int(11) NOT NULL,
-			score int(11) NOT NULL,
-			PRIMARY KEY (id)
-		)";
-		$conn->query($create_table);
-		return $conn;
-	}
 }
 
 function save_db_data($id, $score){
