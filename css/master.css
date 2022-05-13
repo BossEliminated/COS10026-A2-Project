@@ -375,6 +375,15 @@ th.declinegrowthtable{ /*Chris*/
 
 /* ----------------- Manage ---------------- */
 
+.manage_table {
+	border:solid;
+	border-color:gray;
+}
+
+.manage_table_info {
+	border: 0.1px solid;
+}
+
 .manage-body {
   background-color: white;
 }
