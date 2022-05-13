@@ -10,6 +10,11 @@ body { /*Nick T*/
   margin: 0px;
 }
 
+
+dialog {
+	top:100px;
+}
+
 *, *::after, *::before { /*Nick T*/
   /* sets the total width and height of an element to include border and padding */
   box-sizing: border-box;
