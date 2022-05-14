@@ -6,6 +6,7 @@ $notsearched = true;
 $attemptstable = "attempts";
 
 $filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter_hundred","mark_filter_fifty","mark_filter_custom", "custom_filter"];
+$id_refer = ["id", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "id=id", "score"];
 
 function filter_considerations($filter_fields) {
 	$filter_provided_array = [];
@@ -25,19 +26,38 @@ function filter_considerations($filter_fields) {
 	return $filter_provided_array;
 }
 
-function modify_query_based_on_filter($filter_fields, $filters_set, $is_first_filter) {
+function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter) {
 	if ($is_first_filter == true) {
 		$base_query = "WHERE ";
 	}
 	else {
 		$base_query = " AND ";
 	}
-	for ($counter=0;$counter<count($filter_fields);$counter++) {
+	for ($counter=0;$counter<count($id_refer);$counter++) {
 		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
 			if ($counter != 0) {
 				$base_query = ($base_query . " AND ");
 			}
-			$base_query = ($base_query . $filter_fields[$counter] . "=" . $filters_set[$counter]);
+			//echo"<p>find $id_refer[$counter]</p>";
+			if (strpos($id_refer[$counter], "OR")) { // Deduction of filter
+				$temp_string = "(";
+				$temp_string = ($temp_string . $id_refer[$counter]);
+				//echo"<p>$temp_string</p>";
+				$temp_string = str_replace("OR", " = $filters_set[$counter] OR ", $temp_string);
+				//echo"<p>$temp_string</p>";
+				$temp_string = ($temp_string . " = $filters_set[$counter]" . ")");
+				$base_query = ($base_query . $temp_string);
+			}
+			elseif (strpos($id_refer[$counter], "AND")) { // Deduction of filter
+				$temp_string = "(";
+				$temp_string = ($temp_string . $id_refer[$counter]);
+				//echo"<p>$temp_string</p>";
+				//echo"<p>$temp_string</p>";
+				$base_query = ($base_query . $temp_string . ")");
+			}
+			else {
+				$base_query = ($base_query . $id_refer[$counter] . "=" . $filters_set[$counter]); 
+			}
 		}
 	}
 	echo"<p>$base_query</p>";
@@ -218,7 +238,7 @@ else {
 
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields);
-	modify_query_based_on_filter($filter_fields, $filters_set, true);
+	modify_query_based_on_filter($id_refer, $filters_set, true);
 }
 
 // Check which page.
