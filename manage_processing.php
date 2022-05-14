@@ -5,9 +5,43 @@ include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
 
+$filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter_hundred","mark_filter_fifty","mark_filter_custom", "custom_filter"];
 
+function filter_considerations($filter_fields) {
+	$filter_provided_array = [];
+	for ($counter=0;$counter<count($filter_fields);$counter++) {
+		if (isset($_POST[$filter_fields[$counter]])) {
+			if ($_POST[$filter_fields[$counter]] != "") {
+				array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+			}
+			else {
+				array_push($filter_provided_array, "NO_FILT");
+			}
+		}
+		else {
+			array_push($filter_provided_array, "NO_FILT");
+		}
+	}
+	return $filter_provided_array;
+}
 
-
+function modify_query_based_on_filter($filter_fields, $filters_set, $is_first_filter) {
+	if ($is_first_filter == true) {
+		$base_query = "WHERE ";
+	}
+	else {
+		$base_query = " AND ";
+	}
+	for ($counter=0;$counter<count($filter_fields);$counter++) {
+		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
+			if ($counter != 0) {
+				$base_query = ($base_query . " AND ");
+			}
+			$base_query = ($base_query . $filter_fields[$counter] . "=" . $filters_set[$counter]);
+		}
+	}
+	echo"<p>$base_query</p>";
+}
 
 function display_results_in_table($returned_data, $mode, $page_num) {
 	$rows_available = mysqli_num_rows($returned_data);
@@ -22,9 +56,6 @@ function display_results_in_table($returned_data, $mode, $page_num) {
           $local_name = $all_fields[$t]->name;
           echo"<th class='manage_table_info'>$local_name</th>";
         }
-			if ($mode == "manage") {
-				echo"<th class='manage_table_info'>Desired Score</th>";
-			}
         echo"</tr>";
       // End Header
       for ($i=$starter;$i<$rows_available;$i++) {
@@ -35,18 +66,15 @@ function display_results_in_table($returned_data, $mode, $page_num) {
 		  $return_data = $associative_return[$local_name];
 		  if (($mode == "delete" or $mode == "manage") and $t == 0) {
 			  echo"<form method='POST' action='manage.php'>";
-			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button></td>";
+			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+			  echo"
+							<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
+						</td>";
 			  echo"<input type='hidden' name='action' value='$page_num'>";
 			  echo"</form>";
 		  }
 		  else {
 			  echo"<td class='manage_table_info'>$return_data</td>";
-				if ($mode == "manage" and $t == count($all_fields) - 1) {
-					echo"<td>
-							<input type='number' placeholder='1-5' name='desired_score' min='1' max='5'></input>
-						</td>";
-						echo"</form>";
-				}
 		  }
         }
         //$return_data = $associative_return["first_name"];
@@ -178,11 +206,20 @@ else {
 		}
 		elseif (get_Recent_click() == 4) {
 			$score_desired = sanitise_input($_POST["desired_score"]);
-			modify_attempt($attemptstable, $which_selected, $score_desired);
+			if (is_numeric($score_desired)) {
+				if ($score_desired >= 0 and $score_desired <= 5) {
+					modify_attempt($attemptstable, $which_selected, $score_desired);
+				}
+			}
 		}
 	}
 }
 
+
+if (isset($_POST["filter_all"])) { // Does user want to filter data?
+	$filters_set = filter_considerations($filter_fields);
+	modify_query_based_on_filter($filter_fields, $filters_set, true);
+}
 
 // Check which page.
 if (get_recent_click() == 1) {
@@ -204,6 +241,7 @@ if (get_recent_click() == 4) {
   manage_score($attemptstable);
   $notsearched = false;
 }
+
 
 
 

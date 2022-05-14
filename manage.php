@@ -30,23 +30,23 @@
       <div class="manage-content">
         <h1>Management Page</h1>
         <section>
-          <form method="post" action="https://mercury.swin.edu.au/it000000/formtest.php">
+          <form method="post" action="manage.php">
             <label for="student_id">Student ID </label>
             <input name="student_id" id="student_id" type="text" placeholder="Student ID" />
             <label for="student_name">Student Name </label>
             <input name="student_name" id="student_name" type="text" placeholder="Name" />
             <br />
-            <input type="radio" name="mark_filter" id="no_filter" />
+            <input type="radio" name="mark_filter_no" id="no_filter" />
             <label for="no_filter">No Filtering</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_hundred" />
+            <input type="radio" name="mark_filter_hundred" id="mark_filtering_hundred" />
             <label for="mark_filtering_hundred">100% First Attempt</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_less_than" />
+            <input type="radio" name="mark_filter_fifty" id="mark_filtering_less_than" />
             <label for="mark_filtering_less_than"> <50% Second Attempt </label>
             <br />
-            <input type="radio" class="selection_appearance" name="mark_filter" id="custom_filter" />
+            <input type="radio" class="selection_appearance" name="mark_filter_custom" id="custom_filter" />
             <label for="custom_filter">Custom Range</label>
             <input type="text" name="custom_filter" id="custom_filter" placeholder="eg. 20-50" />
-            <input type="submit" value="Submit" />
+            <input type="submit" name="filter_all" value="Submit" />
           </form>
           <hr />
           <h2>Attempts table</h2>
