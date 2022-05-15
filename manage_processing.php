@@ -63,6 +63,30 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 	echo"<p>$base_query</p>";
 }
 
+
+
+function manual_change_display($mode, $page_num) {
+	if ($mode == "delete") {
+		$button_text = "Delete";
+	}
+	elseif ($mode == "modify") {
+		$button_text = "Change Score";
+	}
+	echo"<hr>";
+	echo"<h2>Specific Change Request</h2>";
+	echo"<form method='POST' action='manage.php'>";
+	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
+	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='0' max='2' placeholder='Attempt'/>";
+	if ($mode == "modify") {
+		echo"</br>";
+		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
+	}
+	echo"<button type='submit' name='modify_request' value='true'>$mode</button>";
+	echo"<input type='hidden' name='action' value='$page_num'/>";
+	echo"<hr>";
+	echo"</form>";
+}
+
 function display_results_in_table($returned_data, $mode, $page_num) {
 	$rows_available = mysqli_num_rows($returned_data);
     $all_fields = mysqli_fetch_fields($returned_data);
@@ -87,9 +111,11 @@ function display_results_in_table($returned_data, $mode, $page_num) {
 		  if (($mode == "delete" or $mode == "manage") and $t == 0) {
 			  echo"<form method='POST' action='manage.php'>";
 			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-			  echo"
-							<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
-						</td>";
+			  if ($mode == "manage") {
+				  echo"
+								<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
+							</td>";
+			  }
 			  echo"<input type='hidden' name='action' value='$page_num'>";
 			  echo"</form>";
 		  }
@@ -103,9 +129,16 @@ function display_results_in_table($returned_data, $mode, $page_num) {
       echo"</table>";
 }
 
-function modify_attempt($attemptstable, $id_val, $score_desired) {
+function modify_attempt($attemptstable, $id_val, $score_desired, $manual) {
+	echo"<p>modification request</p>";
 	$database = db_connect();
-	$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE id=$id_val";
+	if ($manual == false) {
+		$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE id=$id_val";
+	}
+	else {
+		$sql_query = ($sql_query . str_replace(":", "=", $manual));
+		echo"<p>$sql_query</p>";
+	}
 	$attemptmodify = mysqli_query($database, $sql_query);
 	if ($attemptmodify) {
 		echo"<h2>Dataset successfully modified!</h2>";
@@ -116,9 +149,21 @@ function modify_attempt($attemptstable, $id_val, $score_desired) {
 }
 
 
-function delete_attempt($attemptstable, $id_val) {
+function delete_attempt($attemptstable, $id_val, $manual) {
 	$database = db_connect();
-	$sql_query = "DELETE FROM $attemptstable WHERE id=$id_val";
+	if ($manual == false) {
+		$sql_query = "DELETE FROM $attemptstable WHERE id=$id_val";
+	}
+	else {
+		$sql_query = "DELETE FROM $attemptstable WHERE ";
+		if (strpos($manual, "and")) {
+			$manual = str_replace("and", "AND", $manual);
+			$manual = str_replace(":", "=", $manual);
+		}
+		$manual = str_replace(":", "=", $manual);
+		$sql_query = $sql_query . $manual;
+		echo"<p>$sql_query</p>"; // DEBUG QUERY
+	}
 	$attemptdelete = mysqli_query($database, $sql_query);
 	if ($attemptdelete) {
 		echo"<h2>Dataset successfully deleted!</h2>";
@@ -128,11 +173,16 @@ function delete_attempt($attemptstable, $id_val) {
 	}
 }
 
-function confirmation($id_val) {
+function confirmation($id_val, $search_val) {
 	echo"<dialog open='true'>Are you sure you want to delete row with id $id_val? 
 		<form method='POST' action='manage.php'>
 			<input type='hidden' name='action' value='3'>
-			<input type='hidden' name='which_selected' value='$id_val'>
+			<input type='hidden' name='which_selected' value='$id_val'>";
+			if ($search_val == true) {
+				echo"<input type='hidden' name='what_searched' value='$id_val'>";
+				echo"<input type='hidden' name='type_of_change' value='$id_val'>";
+			}
+			echo"
 			<button type='submit' name='confirmation' value='true'>YES</button>
 			<button type='submit' name='confirmation' value='false'>NO</button>
 		</form>
@@ -211,24 +261,69 @@ function get_recent_click() {
 
 // Check if a deletion was prompted.
 if (!isset($_POST["confirmation"]) and get_recent_click() == 3) { // Confirmation given by user? NO? Then prompt confirmation.
-	if (isset($_POST["which_selected"])) {
+	if (isset($_POST["which_selected"]) or isset($_POST["modify_request"])) {
 		//echo"<p>hi im a test</p>";
-		confirmation(sanitise_input($_POST["which_selected"]));
+		if (isset($_POST["modify_request"]) and isset($_POST["manual_change_id"])) {
+			if ($_POST["manual_change_id"] != "") {
+					if (isset($_POST["manual_change_attempt"])) {
+							if (sanitise_input($_POST["manual_change_attempt"]) != "") {
+							confirmation(sanitise_input("student_number:". $_POST["manual_change_id"]) . " and attempt:" . sanitise_input($_POST["manual_change_attempt"]), true);
+							}
+							else {
+								confirmation(sanitise_input("student_number:". $_POST["manual_change_id"]), true);
+							}
+					}
+					else {
+						confirmation(sanitise_input("student_number:".$_POST["manual_change_id"]), true);
+					}
+			}
+			else {
+				if (isset($_POST["manual_change_attempt"])) {
+					confirmation(sanitise_input("attempt:".$_POST["manual_change_attempt"]), true);
+				}
+			}
+		}
+		else {
+			confirmation(sanitise_input($_POST["which_selected"]), false);
+		}
 	}
 }
 else {
-	if (isset($_POST["which_selected"])) {
-		$which_selected = sanitise_input($_POST["which_selected"]);
+	if (isset($_POST["which_selected"]) or isset($_POST["modify_request"])) {
+		if (isset($_POST["which_selected"])) {
+			$which_selected = sanitise_input($_POST["which_selected"]);
+		}
 		if (get_recent_click() == 3) {
 			if (sanitise_input($_POST["confirmation"]) == true) {
-				delete_attempt($attemptstable, $which_selected);
+				if (isset($_POST["what_searched"])) {
+					delete_attempt($attemptstable, $which_selected, sanitise_input(($_POST["what_searched"])));
+				}
+				else {
+					delete_attempt($attemptstable, $which_selected, false);
+				}
 			}
 		}
-		elseif (get_Recent_click() == 4) {
+		elseif (get_recent_click() == 4) {
+			echo"<p>this is a test marker, remove when done</p>";
 			$score_desired = sanitise_input($_POST["desired_score"]);
 			if (is_numeric($score_desired)) {
 				if ($score_desired >= 0 and $score_desired <= 5) {
-					modify_attempt($attemptstable, $which_selected, $score_desired);
+					$id_var_name = "student_number";
+					$attempt_var_name = "attempt";
+					if (isset($_POST["modify_request"])) {
+						if ($_POST["manual_change_id"] != "" and $_POST["manual_change_id"] != "") {
+							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$id_var_name=" . ($_POST["manual_change_id"]) . "AND $attempt_var_name=" . ($_POST["manual_change_attempt"])));
+						}
+						elseif ($_POST["manual_change_id"] != "") {
+							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$id_var_name=" .($_POST["manual_change_id"])));
+						}
+						($_POST["manual_change_attempt"] != "") {
+							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$attempt_var_name=" .($_POST["manual_change_attempt"])));
+						}
+					}
+					else {
+						modify_attempt($attemptstable, $which_selected, $score_desired, false);
+					}
 				}
 			}
 		}
@@ -253,11 +348,13 @@ if (get_recent_click() == 2) {
 }
 
 if (get_recent_click() == 3) {
+  manual_change_display("delete", 3);
   delete_attempts($attemptstable);
   $notsearched = false;
 }
 
 if (get_recent_click() == 4) {
+  manual_change_display("modify", 4);
   manage_score($attemptstable);
   $notsearched = false;
 }
