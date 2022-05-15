@@ -85,12 +85,12 @@ function save_db_data($id, $score){
 	$conn = db_connect();
 	if ($conn == true) {
 		// Check if user exists
-		$sql = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+		$sql = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
 		$user_exists = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
 
 		// Create User
 		if ($user_exists == 0) {
-			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[0]','$id[1]','$id[2]','1','$score')";
+			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[1]','$id[2]','$id[0]','1','$score')";
 			$conn->query($sql_insert);
 			print("<h2>User Added</h2>");
 		}
@@ -172,6 +172,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 	} else {
 	 print "Error: ID data validation invalid array length";
 	}
+	print_r($post_id_values_array);
 	return $post_id_values_array;
 }
 

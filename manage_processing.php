@@ -1,10 +1,9 @@
 <?php
-
+session_start();
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
-
 $filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter_hundred","mark_filter_fifty","mark_filter_custom", "custom_filter"];
 $id_refer = ["id", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "id=id", "score"];
 
@@ -136,6 +135,7 @@ function modify_attempt($attemptstable, $id_val, $score_desired, $manual) {
 		$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE id=$id_val";
 	}
 	else {
+		$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE ";
 		$sql_query = ($sql_query . str_replace(":", "=", $manual));
 		echo"<p>$sql_query</p>";
 	}
@@ -162,14 +162,14 @@ function delete_attempt($attemptstable, $id_val, $manual) {
 		}
 		$manual = str_replace(":", "=", $manual);
 		$sql_query = $sql_query . $manual;
-		echo"<p>$sql_query</p>"; // DEBUG QUERY
+		echo"<p>Query Sent: $sql_query</p>"; // INFO QUERY
 	}
 	$attemptdelete = mysqli_query($database, $sql_query);
 	if ($attemptdelete) {
-		echo"<h2>Dataset successfully deleted!</h2>";
+		echo"<h2>Dataset removal request sent!</h2>";
 	}
 	else {
-		echo"<h2>Dataset could not be deleted, may not exist!</h2>";
+		echo"<h2>Removal request could not be sent!</h2>";
 	}
 }
 
@@ -255,6 +255,14 @@ function get_recent_click() {
       return($action_val);
     }
   }
+  else {
+	 // echo"<p>session check reached</p>";
+	  if (isset($_SESSION["prev_page"])) {
+		$session_number = $_SESSION["prev_page"];
+		//echo"<p>$session_number</p>";
+		return($_SESSION["prev_page"]);
+	  } 
+  }
   return false;
 }
 // Start of Main Sequence
@@ -294,7 +302,10 @@ else {
 			$which_selected = sanitise_input($_POST["which_selected"]);
 		}
 		if (get_recent_click() == 3) {
-			if (sanitise_input($_POST["confirmation"]) == true) {
+			$test_var = $_POST["confirmation"];
+			//echo"$test_var";
+			if (sanitise_input($_POST["confirmation"]) == "true") {
+				//echo"<p>im true</p>";
 				if (isset($_POST["what_searched"])) {
 					delete_attempt($attemptstable, $which_selected, sanitise_input(($_POST["what_searched"])));
 				}
@@ -311,14 +322,14 @@ else {
 					$id_var_name = "student_number";
 					$attempt_var_name = "attempt";
 					if (isset($_POST["modify_request"])) {
-						if ($_POST["manual_change_id"] != "" and $_POST["manual_change_id"] != "") {
-							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$id_var_name=" . ($_POST["manual_change_id"]) . "AND $attempt_var_name=" . ($_POST["manual_change_attempt"])));
+						if ($_POST["manual_change_id"] != "" and $_POST["manual_change_attempt"] != "") {
+							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$id_var_name=" . ($_POST["manual_change_id"]) . " AND $attempt_var_name=" . ($_POST["manual_change_attempt"])));
 						}
 						elseif ($_POST["manual_change_id"] != "") {
-							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$id_var_name=" .($_POST["manual_change_id"])));
+							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$id_var_name=" .($_POST["manual_change_id"])));
 						}
-						($_POST["manual_change_attempt"] != "") {
-							modify_attempt($attemptstable, $which_selected, $score_desired, sanitise_input("$attempt_var_name=" .($_POST["manual_change_attempt"])));
+						elseif($_POST["manual_change_attempt"] != "") {
+							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$attempt_var_name=" .($_POST["manual_change_attempt"])));
 						}
 					}
 					else {
@@ -336,7 +347,19 @@ if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	modify_query_based_on_filter($id_refer, $filters_set, true);
 }
 
+
+
+
+if (get_recent_click()) {
+	$_SESSION["prev_page"] = get_recent_click();
+	$temp_prev_page_num = $_SESSION["prev_page"];
+	//echo"<p>$temp_prev_page_num</p>";
+}
+
+
+
 // Check which page.
+$test = get_recent_click();
 if (get_recent_click() == 1) {
   list_all_attempts($attemptstable);
   $notsearched = false;
