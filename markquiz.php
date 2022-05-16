@@ -36,6 +36,66 @@ function sanitization_processing($post_values) {
 	return $post_values;
 }
 
+function fallback_count($array) {
+	$count = 0;
+	foreach ($array as $value) {
+		if ($value == 'fallback') {
+			$count++;
+		}
+	}
+	return $count;
+}
+
+function id_data_validation($post_id_values_array, $post_id_inputs){
+	// Check arrays are the same length
+	if (count($post_id_values_array) == count($post_id_inputs)) {
+		$name_char_issues = false;
+		$name_length_issues = false;
+		foreach ($post_id_values_array as $key => $value) {
+			$error = 0;
+			if ($post_id_inputs[$key] == "ID") {
+				if (!is_numeric($value)) { // Check value is a number
+					$error = 1;
+					print "<p>ID not a number</p>";
+				}
+				if (strlen($value) < 7 or strlen($value) > 10) {  // Check number not between 7 to 10
+					$error = 1;
+					print "<p>ID must be between 7 to 10</p>";
+				}
+			} elseif ($post_id_inputs[$key] == "given_name" or $post_id_inputs[$key] == "family_name") {
+				if (strlen($value) > 30) {  // Check number not between 7 to 10
+					if ($name_length_issues == false) {
+						$error = 1;
+						$name_length_issues = "<p>$post_id_inputs[$key]";
+					} else {
+						$error = 1;
+						$name_length_issues .= " and $post_id_inputs[$key]";
+					}
+				}
+				if (preg_match("/[\- ]+/", $value)) {
+					if ($name_char_issues == false) {
+						$error = 1;
+						$name_char_issues = "$post_id_inputs[$key]";
+					} else {
+						$error = 1;
+						$name_char_issues .= " and $post_id_inputs[$key]";
+					}
+				}
+			}
+			if ($error == 1) { $post_id_values_array[$key] = 'fallback'; }
+		}
+		if ($name_char_issues) {
+			print "Spaces or hyphens not allowed in your ".$name_char_issues."</P>";
+		}
+		if ($name_length_issues) {
+			print $name_length_issues." must be 30 or less characters</p>";
+		}
+	} else {
+	 print "Error: ID data validation invalid array length";
+	}
+	return $post_id_values_array;
+}
+
 function marking($post_values_array, $answers){ //Inputs must be pre sanitised & type checked
 	$results = [];
 	foreach ($post_values_array as $key => $value) {
@@ -92,7 +152,7 @@ function save_db_data($id, $score){
 		if ($user_exists == 0) {
 			$sql = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[1]','$id[2]','$id[0]','1','$score')";
 			$conn->query($sql);
-			print("<h2>User Added</h2>");
+			print("<h2>Score submitted</h2>");
 		}
 
 		// For existing user update attempt details
@@ -103,6 +163,7 @@ function save_db_data($id, $score){
 			if ($attempts < 2) {
 				$sql_update_attempts = "UPDATE attempts SET attempt ='".$attempts+1 ."', score = '$score' WHERE student_number = '$id[0]' AND first_name = '$id[1]' AND last_name = '$id[2]'";
 				$conn->query($sql_update_attempts);
+				print("<h2>Second attempt submitted</h2>");
 			} else {
 				print ("<h2>Maximum Attempts Reached</h2>");
 			}
@@ -111,68 +172,56 @@ function save_db_data($id, $score){
 	}
 }
 
-function submission_check($results){
-	$count = 0;
-	foreach ($results as $value) {
-		if ($value == 'fallback') {
-			$count++;
+function print_wrong_answers($results) {
+	$incorrect = 0;
+	foreach ($results as $key => $value) {
+		if($value[0] == 0) {
+			$incorrect += 1;
 		}
 	}
-	if ($count == count($results)) {
-		return false;
-	} else {
-		return true;
-	}
-}
 
-function id_data_validation($post_id_values_array, $post_id_inputs){
-	// Check arrays are the same length
-	if (count($post_id_values_array) == count($post_id_inputs)) {
-		$name_char_issues = false;
-		$name_length_issues = false;
-		foreach ($post_id_values_array as $key => $value) {
-			$error = 0;
-			if ($post_id_inputs[$key] == "ID") {
-				if (!is_numeric($value)) { // Check value is a number
-					$error = 1;
-					print "<p>ID not a number</p>";
-				}
-				if (strlen($value) < 7 or strlen($value) > 10) {  // Check number not between 7 to 10
-					$error = 1;
-					print "<p>ID must be between 7 to 10</p>";
-				}
-			} elseif ($post_id_inputs[$key] == "given_name" or $post_id_inputs[$key] == "family_name") {
-				if (strlen($value) > 30) {  // Check number not between 7 to 10
-					if ($name_length_issues == false) {
-						$error = 1;
-						$name_length_issues = "<p>$post_id_inputs[$key]";
-					} else {
-						$error = 1;
-						$name_length_issues .= " and $post_id_inputs[$key]";
-					}
-				}
-				if (preg_match("/[\- ]+/", $value)) {
-					if ($name_char_issues == false) {
-						$error = 1;
-						$name_char_issues = "$post_id_inputs[$key]";
-					} else {
-						$error = 1;
-						$name_char_issues .= " and $post_id_inputs[$key]";
-					}
-				}
-			}
-			if ($error == 1) { $post_id_values_array[$key] = 'fallback'; }
-		}
-		if ($name_char_issues) {
-			print "Spaces or hyphens not allowed in your ".$name_char_issues."</P>";
-		}
-		if ($name_length_issues) {
-			print $name_length_issues." must be 30 or less characters</p>";
-		}
-	} else {
-	 print "Error: ID data validation invalid array length";
+	if ($incorrect > 0) {
+		print "<br /><h2>Incorrect:</h2>";
 	}
-	return $post_id_values_array;
+
+	foreach ($results as $key => $value) {
+		if($value[0] == 0) {
+			if (!is_array($value[1])) {
+				print "<p>Q".$key+1 .") ";
+				if ($value[1] == 'fallback') {
+					print("No input</p>");
+				} else {
+					print($value[1]."</p>");
+				}
+			} else {
+				$multi_choice = "";
+				$count_wrong = 0; // Used to work out when to print commas or and.
+				foreach ($value[1] as $v2) {
+					if($v2[0] == 0) {
+						$count_wrong += 1;
+					}
+				}
+				$i = 1;
+				foreach ($value[1] as $v2) {
+					// $missing_correct = 0;
+					if($v2[0] == 0) {
+						$multi_choice .= $v2[1];
+						if ($i < $count_wrong-1) {
+							$multi_choice .= ", ";
+						} elseif ($i == $count_wrong-1) {
+							$multi_choice .= " and ";
+						}
+						$i += 1;
+					}
+				}
+				if ($count_wrong == 0) { // Missing correct value check
+					$multi_choice .= "Missing an answer";
+				}
+				print "<p>Q".$key+1 .") ".$multi_choice;
+			}
+
+		}
+	}
 }
 
 $post_id_inputs = ['ID','given_name','family_name'];
@@ -180,14 +229,19 @@ $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
 $post_id_values_array = get_post_values($post_id_inputs);
 
-if (submission_check($post_id_values_array) == true) {
+
+if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
 	print ('<div id="results" class="quiz-content quiz-results">');
 	$validated_post_id_values_array = id_data_validation($post_id_values_array, $post_id_inputs);
 	$post_questions_values_array = get_post_values($post_question_inputs); // Read Questions Values
 	$results = marking($post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
-	$score = score($results);
-	save_db_data($validated_post_id_values_array, $score);
-	print ("<p>Score: ".$score."/5</p>");
+
+	if (!fallback_count($validated_post_id_values_array) > 0) {
+		$score = score($results);
+		save_db_data($validated_post_id_values_array, $score);
+		print ("<p>Score: ".$score."/5</p>");
+		print_wrong_answers($results);
+	}
 	print ('</div>');
 }
 
