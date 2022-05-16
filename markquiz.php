@@ -90,18 +90,18 @@ function save_db_data($id, $score){
 
 		// Create User
 		if ($user_exists == 0) {
-			$sql_insert = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[1]','$id[2]','$id[0]','1','$score')";
-			$conn->query($sql_insert);
+			$sql = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[1]','$id[2]','$id[0]','1','$score')";
+			$conn->query($sql);
 			print("<h2>User Added</h2>");
 		}
 
 		// For existing user update attempt details
 		if ($user_exists >= 1) {
-			$sql = "SELECT attempt FROM attempts WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
-			$attempts = $conn->query($sql)->fetch_assoc()["attempt"]+1;
+			$sql = "SELECT attempt FROM attempts WHERE student_number = '$id[0]' AND first_name = '$id[1]' AND last_name = '$id[2]'";
+			$attempts = $conn->query($sql)->fetch_assoc()["attempt"];
 
-			if ($attempts <= 2) {
-				$sql_update_attempts = "UPDATE attempts SET attempt ='$attempts', score = '$score' WHERE first_name = '$id[0]' AND last_name = '$id[1]' AND student_number = '$id[2]'";
+			if ($attempts < 2) {
+				$sql_update_attempts = "UPDATE attempts SET attempt ='".$attempts+1 ."', score = '$score' WHERE student_number = '$id[0]' AND first_name = '$id[1]' AND last_name = '$id[2]'";
 				$conn->query($sql_update_attempts);
 			} else {
 				print ("<h2>Maximum Attempts Reached</h2>");
@@ -172,13 +172,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 	} else {
 	 print "Error: ID data validation invalid array length";
 	}
-	print_r($post_id_values_array);
 	return $post_id_values_array;
-}
-
-function quiz_data_validation($post_questions_values_array){
-	// Not done yet
-	return $post_questions_values_array;
 }
 
 $post_id_inputs = ['ID','given_name','family_name'];
@@ -190,8 +184,7 @@ if (submission_check($post_id_values_array) == true) {
 	print ('<div id="results" class="quiz-content quiz-results">');
 	$validated_post_id_values_array = id_data_validation($post_id_values_array, $post_id_inputs);
 	$post_questions_values_array = get_post_values($post_question_inputs); // Read Questions Values
-	$validated_post_questions_values_array = quiz_data_validation($post_questions_values_array);
-	$results = marking($validated_post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
+	$results = marking($post_questions_values_array, $answers); // Calulate results - Input arrays must be same size
 	$score = score($results);
 	save_db_data($validated_post_id_values_array, $score);
 	print ("<p>Score: ".$score."/5</p>");
