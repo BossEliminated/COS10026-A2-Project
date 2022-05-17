@@ -5,7 +5,7 @@ include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter_hundred","mark_filter_fifty","mark_filter_custom", "custom_filter"];
-$id_refer = ["id", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "id=id", "score"];
+$id_refer = ["student_number", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "on", "score"];
 
 function filter_considerations($filter_fields) {
 	$filter_provided_array = [];
@@ -59,7 +59,8 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 			}
 		}
 	}
-	echo"<p>$base_query</p>";
+	echo"<p>Sent Query: $base_query</p>";
+	return $base_query;
 }
 
 
@@ -101,31 +102,37 @@ function display_results_in_table($returned_data, $mode, $page_num) {
         }
         echo"</tr>";
       // End Header
-      for ($i=$starter;$i<$rows_available;$i++) {
-        echo"<tr>";
-        $associative_return = mysqli_fetch_assoc($returned_data);
-        for ($t = 0; $t < count($all_fields); $t++) {
-          $local_name = $all_fields[$t]->name;
-		  $return_data = $associative_return[$local_name];
-		  if (($mode == "delete" or $mode == "manage") and $t == 0) {
-			  echo"<form method='POST' action='manage.php'>";
-			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-			  if ($mode == "manage") {
-				  echo"
-								<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
-							</td>";
+	  if ($rows_available != 0) {
+		  for ($i=$starter;$i<$rows_available;$i++) {
+			echo"<tr>";
+			$associative_return = mysqli_fetch_assoc($returned_data);
+			for ($t = 0; $t < count($all_fields); $t++) {
+			  $local_name = $all_fields[$t]->name;
+			  $return_data = $associative_return[$local_name];
+			  if (($mode == "delete" or $mode == "manage") and $t == 0) {
+				  echo"<form method='POST' action='manage.php'>";
+				  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+				  if ($mode == "manage") {
+					  echo"
+									<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
+								</td>";
+				  }
+				  echo"<input type='hidden' name='action' value='$page_num'>";
+				  echo"</form>";
 			  }
-			  echo"<input type='hidden' name='action' value='$page_num'>";
-			  echo"</form>";
+			  else {
+				  echo"<td class='manage_table_info'>$return_data</td>";
+			  }
+			}
+			//$return_data = $associative_return["first_name"];
+			echo"</tr>";
 		  }
-		  else {
-			  echo"<td class='manage_table_info'>$return_data</td>";
-		  }
-        }
-        //$return_data = $associative_return["first_name"];
-        echo"</tr>";
-      }
+	  }
+	  else {
+		 echo"<h3>No results found! Filter may be too strict!</h3>";
+	  }
       echo"</table>";
+	  mysqli_free_result($returned_data);
 }
 
 function modify_attempt($attemptstable, $id_val, $score_desired, $manual) {
@@ -165,11 +172,12 @@ function delete_attempt($attemptstable, $id_val, $manual) {
 		echo"<p>Query Sent: $sql_query</p>"; // INFO QUERY
 	}
 	$attemptdelete = mysqli_query($database, $sql_query);
-	if ($attemptdelete) {
-		echo"<h2>Dataset removal request sent!</h2>";
+	$affected_row_num = mysqli_affected_rows($database);
+	if ($affected_row_num > 0) {
+		echo"<h3>Data was deleted!</h2>";
 	}
 	else {
-		echo"<h2>Removal request could not be sent!</h2>";
+		echo"<h3>No data deleted, found no corresponding results!</h2>";
 	}
 }
 
@@ -189,10 +197,20 @@ function confirmation($id_val, $search_val) {
 	</dialog>";
 }
 
+function update_query($old_query, $new_query_filters) {
+	if ($new_query_filters != false) {
+		$old_query = ($old_query . " " . $new_query_filters );
+		//echo"<p>New query produced $old_query</p>";
+		return $old_query;
+	}
+	return $old_query;
+}
 
-function list_all_attempts($attemptstable) {
+function list_all_attempts($attemptstable, $query_produced) {
     $sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
+	//echo"<p>Query specification $query_produced</p>";
+	$sql_query = update_query($sql_query, $query_produced);
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
@@ -205,9 +223,10 @@ function list_all_attempts($attemptstable) {
 }
 
 
-function list_half_attempts($attemptstable) {
+function list_half_attempts($attemptstable, $query_produced) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
+	$sql_query = update_query($sql_query, $query_produced);
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
@@ -220,9 +239,10 @@ function list_half_attempts($attemptstable) {
 }
 
 
-function manage_score($attemptstable) {
+function manage_score($attemptstable, $query_produced) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
+	$sql_query = update_query($sql_query, $query_produced);
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
@@ -234,9 +254,10 @@ function manage_score($attemptstable) {
     }
 }
 
-function delete_attempts($attemptstable) {
+function delete_attempts($attemptstable, $query_produced) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
+	$sql_query = update_query($sql_query, $query_produced);
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
@@ -258,9 +279,9 @@ function get_recent_click() {
   else {
 	 // echo"<p>session check reached</p>";
 	  if (isset($_SESSION["prev_page"])) {
-		$session_number = $_SESSION["prev_page"];
+		$session_number = sanitise_input($_SESSION["prev_page"]);
 		//echo"<p>$session_number</p>";
-		return($_SESSION["prev_page"]);
+		return($session_number);
 	  } 
   }
   return false;
@@ -344,7 +365,10 @@ else {
 
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields);
-	modify_query_based_on_filter($id_refer, $filters_set, true);
+	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true);
+}
+else {
+	$query_produced = false;
 }
 
 
@@ -359,26 +383,33 @@ if (get_recent_click()) {
 
 
 // Check which page.
-$test = get_recent_click();
+$Page_Accessed_Properly = get_recent_click();
+if (!isset($main_page)) {
+	header("location: manage.php");
+}
 if (get_recent_click() == 1) {
-  list_all_attempts($attemptstable);
+  echo"<h2>Show all attempts page</h2>";
+  list_all_attempts($attemptstable, $query_produced);
   $notsearched = false;
 }
 
 if (get_recent_click() == 2) {
-  list_half_attempts($attemptstable);
+  echo"<h2>Show half attempts page</h2>";
+  list_half_attempts($attemptstable, $query_produced);
   $notsearched = false;
 }
 
 if (get_recent_click() == 3) {
+  echo"<h2>Delete page</h2>";
   manual_change_display("delete", 3);
-  delete_attempts($attemptstable);
+  delete_attempts($attemptstable, $query_produced);
   $notsearched = false;
 }
 
 if (get_recent_click() == 4) {
+  echo"<h2>Modify page</h2>";
   manual_change_display("modify", 4);
-  manage_score($attemptstable);
+  manage_score($attemptstable, $query_produced);
   $notsearched = false;
 }
 

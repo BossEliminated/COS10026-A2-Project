@@ -49,11 +49,12 @@
             <input type="submit" name="filter_all" value="Submit" />
           </form>
           <hr />
-          <h2>Attempts table</h2>
         </section>
         <section>
           <table>
-            <?php include './manage_processing.php'; ?>
+            <?php 
+			$main_page = true;
+			include_once './manage_processing.php'; ?>
           </table>
         </section>
       </div>
