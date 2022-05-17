@@ -4,18 +4,24 @@ include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
-$filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter_hundred","mark_filter_fifty","mark_filter_custom", "custom_filter"];
+$filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter","mark_filter","mark_filter", "custom_filter"];
 $id_refer = ["student_number", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "on", "score"];
 
 function filter_considerations($filter_fields) {
 	$filter_provided_array = [];
 	for ($counter=0;$counter<count($filter_fields);$counter++) {
 		if (isset($_POST[$filter_fields[$counter]])) {
-			if ($_POST[$filter_fields[$counter]] != "") {
-				array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
-			}
+			$sanitised_filter_fields = sanitise_input($_POST[$filter_fields[$counter]]);
+			if (is_array($sanitised_filter_fields)) {
+
+			}// If radio button.
 			else {
-				array_push($filter_provided_array, "NO_FILT");
+				if ($_POST[$filter_fields[$counter]] != "") {
+					array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+				}
+				else {
+					array_push($filter_provided_array, "NO_FILT");
+				}
 			}
 		}
 		else {
@@ -32,19 +38,24 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 	else {
 		$base_query = " AND ";
 	}
+	$test = count($id_refer);
+	$query_addition = 0;
 	for ($counter=0;$counter<count($id_refer);$counter++) {
 		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
-			if ($counter != 0) {
+			$query_addition = $query_addition + 1;
+			echo"<p>$query_addition</p>";
+			if ($query_addition > 1) {
 				$base_query = ($base_query . " AND ");
 			}
 			//echo"<p>find $id_refer[$counter]</p>";
 			if (strpos($id_refer[$counter], "OR")) { // Deduction of filter
 				$temp_string = "(";
 				$temp_string = ($temp_string . $id_refer[$counter]);
+				$seperator = '"';
 				//echo"<p>$temp_string</p>";
-				$temp_string = str_replace("OR", " = $filters_set[$counter] OR ", $temp_string);
+				$temp_string = str_replace("OR", " = $seperator$filters_set[$counter]$seperator OR ", $temp_string);
 				//echo"<p>$temp_string</p>";
-				$temp_string = ($temp_string . " = $filters_set[$counter]" . ")");
+				$temp_string = ($temp_string . " = $seperator$filters_set[$counter]$seperator" . ")");
 				$base_query = ($base_query . $temp_string);
 			}
 			elseif (strpos($id_refer[$counter], "AND")) { // Deduction of filter

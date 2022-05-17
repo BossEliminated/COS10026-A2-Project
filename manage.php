@@ -36,11 +36,11 @@
             <label for="student_name">Student Name </label>
             <input name="student_name" id="student_name" type="text" placeholder="Name" />
             <br />
-            <input type="radio" name="mark_filter_no" id="no_filter" />
+            <input type="radio" name="mark_filter" id="no_filter" value="no_filt" />
             <label for="no_filter">No Filtering</label>
-            <input type="radio" name="mark_filter_hundred" id="mark_filtering_hundred" />
+            <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="mark_filter_hundred" />
             <label for="mark_filtering_hundred">100% First Attempt</label>
-            <input type="radio" name="mark_filter_fifty" id="mark_filtering_less_than" />
+            <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="less_than"/>
             <label for="mark_filtering_less_than"> <50% Second Attempt </label>
             <br />
             <input type="radio" class="selection_appearance" name="mark_filter_custom" id="custom_filter" />
