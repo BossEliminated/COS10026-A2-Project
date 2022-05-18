@@ -1,11 +1,5 @@
 <?php
-<<<<<<< Updated upstream
-session_start();
-
-
-=======
 //session_start();
->>>>>>> Stashed changes
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
