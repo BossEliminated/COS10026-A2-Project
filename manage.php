@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
   <?php $title = 'Supervisor Management Quiz View'; include_once './header.inc' ?>
   <body>
+	<?php session_start();?>
     <?php $select = 6; include_once './menu.inc' ?>
     <div class="manage-flex-content">
       <div class="manage-menu">
@@ -37,16 +38,13 @@
             <label for="student_name">Student Name </label>
             <input name="student_name" id="student_name" type="text" placeholder="Name" />
             <br />
-            <input type="radio" name="mark_filter" id="no_filter" value="no_filt" />
+            <input type="radio" name="mark_filter" id="no_filter" value="0" />
             <label for="no_filter">No Filtering</label>
             <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="mark_filter_hundred" />
             <label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
             <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="less_than"/>
             <label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
             <br />
-            <input type="radio" class="selection_appearance" name="mark_filter_custom" id="custom_filter" />
-            <label for="custom_filter">Custom Range</label>
-            <input type="text" name="custom_filter" id="custom_filter" placeholder="eg. 20-50" />
             <input type="submit" name="filter_all" value="Submit" />
           </form>
           <hr />

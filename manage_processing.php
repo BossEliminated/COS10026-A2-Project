@@ -1,14 +1,19 @@
 <?php
+<<<<<<< Updated upstream
 session_start();
 
 
+=======
+//session_start();
+>>>>>>> Stashed changes
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
-$filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter","mark_filter","mark_filter", "custom_filter"];
-$id_refer = ["student_number", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "on", "score"];
-
+$filter_fields = ["student_id", "student_name", "mark_filter"];
+$attempts_filter = ["id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2"];
+$id_refer = ["student_number", "first_nameORlast_name"];
+// Correlate radio with filter.
 function debug_check() {
 	foreach ($_POST as $param_name => $param_val) {
     print "<p>Name: $param_name, Value: $param_val</p>";
@@ -24,21 +29,19 @@ debug_check();
 
 function filter_considerations($filter_fields) {
 	$filter_provided_array = [];
+	$index_of_radio_buttons = 3;
 	for ($counter=0;$counter<count($filter_fields);$counter++) {
 		if (isset($_POST[$filter_fields[$counter]])) {
-			$sanitised_filter_fields = sanitise_input($_POST[$filter_fields[$counter]]);
-			if (is_array($sanitised_filter_fields)) {
-
-			}// If radio button.
-			else {
 				$debug = $_POST[$filter_fields[$counter]];
 				if (trim($_POST[$filter_fields[$counter]]) != "") {
 					array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+					if ($index_of_radio_buttons = 3) {
+						
+					}
 				}
 				else {
 					array_push($filter_provided_array, "NO_FILT");
 				}
-			}
 		}
 		else {
 			array_push($filter_provided_array, "NO_FILT");
@@ -52,16 +55,15 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 	for ($basic_counter = 0; $basic_counter < count($filters_set); $basic_counter++) {
 		//echo"<p>$filters_set[$basic_counter]</p>";
 		if ($filters_set[$basic_counter] == "NO_FILT") {
-			$anyfiltering_done = false;
 		}
 		else {
 			$anyfiltering_done = true;
 		}
 
 	}
-	$debug_amount = count($filters_set);
-	echo"<p>Reminder $debug_amount</p>";
+	$base_query = "";
 	if ($anyfiltering_done == true) {
+					echo"<p>added continue</p>";
 		if ($is_first_filter == true) {
 			$base_query = "WHERE ";
 		}
@@ -71,11 +73,9 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 	}
 	$test = count($id_refer);
 	$query_addition = 0;
-	$base_query = "";
 	for ($counter=0;$counter<count($id_refer);$counter++) {
 		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
 			$query_addition = $query_addition + 1;
-			echo"<p>$query_addition</p>";
 			if ($query_addition > 1) {
 				$base_query = ($base_query . " AND ");
 			}
@@ -255,11 +255,7 @@ function list_all_attempts($attemptstable, $query_produced) {
     $sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	//echo"<p>Query specification $query_produced</p>";
-	echo"<p>Sql Query: </p>";
-	echo"<p>$sql_query</p>";
-	echo"$query_produced";
 	$sql_query = update_query($sql_query, $query_produced);
-	echo"<p>$sql_query</p>";
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
@@ -461,11 +457,6 @@ if (get_recent_click() == 4) {
   manage_score($attemptstable, $query_produced);
   $notsearched = false;
 }
-
-
-
-
-
 
 
 if ($notsearched == true) {
