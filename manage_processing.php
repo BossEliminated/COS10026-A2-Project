@@ -29,7 +29,8 @@ function filter_considerations($filter_fields) {
 
 			}// If radio button.
 			else {
-				if ($_POST[$filter_fields[$counter]] != "") {
+				$debug = $_POST[$filter_fields[$counter]];
+				if (trim($_POST[$filter_fields[$counter]]) != "") {
 					array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
 				}
 				else {
@@ -45,14 +46,30 @@ function filter_considerations($filter_fields) {
 }
 
 function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter) {
-	if ($is_first_filter == true) {
-		$base_query = "WHERE ";
+	$anyfiltering_done = false;
+	for ($basic_counter = 0; $basic_counter < count($filters_set); $basic_counter++) {
+		//echo"<p>$filters_set[$basic_counter]</p>";
+		if ($filters_set[$basic_counter] == "NO_FILT") {
+			$anyfiltering_done = false;
+		}
+		else {
+			$anyfiltering_done = true;
+		}
+		
 	}
-	else {
-		$base_query = " AND ";
+	$debug_amount = count($filters_set);
+	echo"<p>Reminder $debug_amount</p>";
+	if ($anyfiltering_done == true) {
+		if ($is_first_filter == true) {
+			$base_query = "WHERE ";
+		}
+		else {
+			$base_query = " AND ";
+		}
 	}
 	$test = count($id_refer);
 	$query_addition = 0;
+	$base_query = "";
 	for ($counter=0;$counter<count($id_refer);$counter++) {
 		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
 			$query_addition = $query_addition + 1;
@@ -119,12 +136,14 @@ function display_results_in_table($returned_data, $mode, $page_num) {
 		$starter = round($rows_available / 2);
 	}
 	 echo"<table class='manage_table'>"; // Create Headers
+		echo"<thead>";
         echo"<tr>";
         for ($t = 0; $t < count($all_fields); $t++) {
           $local_name = $all_fields[$t]->name;
-          echo"<th class='manage_table_info'>$local_name</th>";
+          echo"<th>$local_name</th>";
         }
         echo"</tr>";
+		echo"</thead>";
       // End Header
 	  if ($rows_available != 0) {
 		  for ($i=$starter;$i<$rows_available;$i++) {
@@ -234,7 +253,11 @@ function list_all_attempts($attemptstable, $query_produced) {
     $sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	//echo"<p>Query specification $query_produced</p>";
+	echo"<p>Sql Query: </p>";
+	echo"<p>$sql_query</p>";
+	echo"$query_produced";
 	$sql_query = update_query($sql_query, $query_produced);
+	echo"<p>$sql_query</p>";
     $returned_data = mysqli_query($sql_connection, $sql_query);
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
