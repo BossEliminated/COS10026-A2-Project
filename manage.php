@@ -40,9 +40,9 @@
             <input type="radio" name="mark_filter" id="no_filter" value="no_filt" />
             <label for="no_filter">No Filtering</label>
             <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="mark_filter_hundred" />
-            <label for="mark_filtering_hundred">100% First Attempt</label>
+            <label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
             <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="less_than"/>
-            <label for="mark_filtering_less_than"> <50% Second Attempt </label>
+            <label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
             <br />
             <input type="radio" class="selection_appearance" name="mark_filter_custom" id="custom_filter" />
             <label for="custom_filter">Custom Range</label>
