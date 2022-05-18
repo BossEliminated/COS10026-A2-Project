@@ -7,6 +7,19 @@ $attemptstable = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter_no","mark_filter","mark_filter","mark_filter", "custom_filter"];
 $id_refer = ["student_number", "first_nameORlast_name", "id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2", "on", "score"];
 
+function debug_check() {
+	foreach ($_POST as $param_name => $param_val) {
+    print "<p>Name: $param_name, Value: $param_val</p>";
+}
+	// foreach ($variable as $a) {
+	// 	if isset($_POST[$a]) {
+	// 		print ($_POST[$a]);
+	// 	}
+	// }
+}
+
+debug_check();
+
 function filter_considerations($filter_fields) {
 	$filter_provided_array = [];
 	for ($counter=0;$counter<count($filter_fields);$counter++) {
@@ -66,7 +79,7 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 				$base_query = ($base_query . $temp_string . ")");
 			}
 			else {
-				$base_query = ($base_query . $id_refer[$counter] . "=" . $filters_set[$counter]); 
+				$base_query = ($base_query . $id_refer[$counter] . "=" . $filters_set[$counter]);
 			}
 		}
 	}
@@ -193,7 +206,7 @@ function delete_attempt($attemptstable, $id_val, $manual) {
 }
 
 function confirmation($id_val, $search_val) {
-	echo"<dialog open='true'>Are you sure you want to delete row with id $id_val? 
+	echo"<dialog open='true'>Are you sure you want to delete row with id $id_val?
 		<form method='POST' action='manage.php'>
 			<input type='hidden' name='action' value='3'>
 			<input type='hidden' name='which_selected' value='$id_val'>";
@@ -293,7 +306,7 @@ function get_recent_click() {
 		$session_number = sanitise_input($_SESSION["prev_page"]);
 		//echo"<p>$session_number</p>";
 		return($session_number);
-	  } 
+	  }
   }
   return false;
 }

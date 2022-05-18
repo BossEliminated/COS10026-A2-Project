@@ -6,6 +6,7 @@
     <div class="manage-flex-content">
       <div class="manage-menu">
         <form method="post" action="manage.php">
+          <!-- <button class="manage-hide" type="submit" name="action" value="5"></button> -->
           <button type="submit" name="action" value="1">List All attempts</button>
           <button type="submit" name="action" value="2">List half attempts</button>
           <button type="submit" name="action" value="3">Delete attempts</button>
@@ -52,7 +53,7 @@
         </section>
         <section>
           <table>
-            <?php 
+            <?php
 			$main_page = true;
 			include_once './manage_processing.php'; ?>
           </table>

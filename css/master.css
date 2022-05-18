@@ -425,6 +425,17 @@ th.declinegrowthtable{ /*Chris*/
   text-align: left;
 }
 
+.manage-menu-hr {
+  width: 90%;
+  height: 3px;
+  background: #007174;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #007174 29%, #007174 69%, rgba(255,255,255,0) 100%);
+}
+
+.manage-hide{
+  display: none;
+}
+
 .manage-id-field {
   padding: 10px;
 }
@@ -451,13 +462,6 @@ th.declinegrowthtable{ /*Chris*/
   font-size: 1.2em;
   color: white;
   font-family: math;
-}
-
-.manage-menu-hr {
-  width: 90%;
-  height: 3px;
-  background: #007174;
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #007174 29%, #007174 69%, rgba(255,255,255,0) 100%);
 }
 
 /* --------------------- Enhancements Page ------------------------*/
