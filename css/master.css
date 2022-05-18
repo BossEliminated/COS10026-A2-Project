@@ -380,15 +380,6 @@ th.declinegrowthtable{ /*Chris*/
 
 /* ----------------- Manage ---------------- */
 
-.manage_table {
-	border:solid;
-	border-color:gray;
-}
-
-.manage_table_info {
-	border: 0.1px solid;
-}
-
 .manage-body {
   background-color: white;
 }
@@ -462,6 +453,29 @@ th.declinegrowthtable{ /*Chris*/
   font-size: 1.2em;
   color: white;
   font-family: math;
+}
+
+table.manage_table {
+  background-color: white;
+  border-collapse: collapse;
+}
+
+table.manage_table thead {
+  background-color: #005759;
+  color: white;
+}
+
+table.manage_table tr td{
+  border-right: 0.01em solid black;
+  padding: 2px 10px;
+}
+
+table.manage_table tr td:first-child {
+  border: none;
+}
+
+table.manage_table tr td:last-child {
+  border: none;
 }
 
 /* --------------------- Enhancements Page ------------------------*/

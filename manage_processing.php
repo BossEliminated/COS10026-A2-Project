@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
@@ -55,7 +57,7 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 		else {
 			$anyfiltering_done = true;
 		}
-		
+
 	}
 	$debug_amount = count($filters_set);
 	echo"<p>Reminder $debug_amount</p>";
