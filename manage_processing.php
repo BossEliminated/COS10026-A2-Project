@@ -7,6 +7,7 @@ $attemptstable = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
+$index_of_radio_buttons = 2;
 // Correlate radio with filter.
 function debug_check() {
 	foreach ($_POST as $param_name => $param_val) {
@@ -21,16 +22,28 @@ function debug_check() {
 
 debug_check();
 
-function filter_considerations($filter_fields) {
+function filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons) {
 	$filter_provided_array = [];
-	$index_of_radio_buttons = 3;
+	//print_r($filter_fields);
+	$debug = count($filter_fields);
 	for ($counter=0;$counter<count($filter_fields);$counter++) {
+		//echo"<p>loop $counter</p>";
 		if (isset($_POST[$filter_fields[$counter]])) {
-				$debug = $_POST[$filter_fields[$counter]];
+				//$debug = $_POST[$filter_fields[$counter]];
 				if (trim($_POST[$filter_fields[$counter]]) != "") {
-					array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
-					if ($index_of_radio_buttons = 3) {
-						
+					//echo"<p>$counter<p>";
+					if ($counter == $index_of_radio_buttons) {
+						//$result = $attempts_filter[$_POST[$filter_fields[$counter]]];
+						//echo $result;
+						//echo"<p> sent on </p>";
+						//$debug = $filter_fields[2];
+						//echo$debug;
+						//echo"<p>$counter</p>";
+						//echo"<p>add on</p>";
+						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+					}
+					else {
+						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
 					}
 				}
 				else {
@@ -44,20 +57,29 @@ function filter_considerations($filter_fields) {
 	return $filter_provided_array;
 }
 
-function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter) {
+function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter, $index_of_radio_buttons, $radio_mode) { // id_refer is query used., filters set are results of POST 
 	$anyfiltering_done = false;
 	for ($basic_counter = 0; $basic_counter < count($filters_set); $basic_counter++) {
 		//echo"<p>$filters_set[$basic_counter]</p>";
-		if ($filters_set[$basic_counter] == "NO_FILT") {
+		if ($radio_mode == false) {
+			if ($filters_set[$basic_counter] == "NO_FILT" or $filters_set[$basic_counter] == " ") {
+			}
+			else {
+				//$debug = $filters_set[$basic_counter];
+				//echo"<p>debug</p>";
+				if ($basic_counter != $index_of_radio_buttons) {
+					$anyfiltering_done = true;
+				}
+			}
 		}
-		else {
-			$anyfiltering_done = true;
+		elseif ($radio_mode == true) {
+			if ($filters_set[$index_of_radio_buttons] != "NO_FILT") {
+				$anyfiltering_done = true;
+			}
 		}
-
 	}
 	$base_query = "";
 	if ($anyfiltering_done == true) {
-					echo"<p>added continue</p>";
 		if ($is_first_filter == true) {
 			$base_query = "WHERE ";
 		}
@@ -70,11 +92,26 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter)
 	for ($counter=0;$counter<count($id_refer);$counter++) {
 		if ($filters_set[$counter] != "NO_FILT") { // Add to base query
 			$query_addition = $query_addition + 1;
-			if ($query_addition > 1) {
+			if ($query_addition > 1 and $radio_mode == false) {
+				echo"<p>im responsible.</p>";
 				$base_query = ($base_query . " AND ");
 			}
-			//echo"<p>find $id_refer[$counter]</p>";
-			if (strpos($id_refer[$counter], "OR")) { // Deduction of filter
+			$test = $id_refer[$counter];
+			//print_r($id_refer);
+			//print_r($filters_set);
+			//echo"<p>does it have =? $test</p>";
+			if (strpos($id_refer[$counter], "=")) { // Verbatim
+				$temp_string = "(";
+				if ($counter == $index_of_radio_buttons) {
+					echo"<p>added query for radio</p>";
+					$temp_string = ($temp_string . $id_refer[$filters_set[$counter]] . ")"); // Looking for number
+					$base_query = ($base_query . $temp_string);
+					$debug = $id_refer[$filters_set[$counter]];
+					echo"<p>added $debug</p>";
+					echo"$temp_string";
+				}
+			}
+			elseif (strpos($id_refer[$counter], "OR")) { // Deduction of filter
 				$temp_string = "(";
 				$temp_string = ($temp_string . $id_refer[$counter]);
 				$seperator = '"';
@@ -403,8 +440,18 @@ else {
 
 
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
-	$filters_set = filter_considerations($filter_fields);
-	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true);
+	$filters_set = filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons);
+	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true, $index_of_radio_buttons, false); // for text input;
+	if ($query_produced == "") {
+		$query_started = true;
+		echo"<p>first filter</p>";
+	}
+	else {
+		$query_started = false;
+	}
+	$second_query_produced = modify_query_based_on_filter($attempts_filter, $filters_set, $query_started, $index_of_radio_buttons, true); // For Radio Buttons
+	$query_produced = ($query_produced. " " . $second_query_produced);
+	echo"<p>final query $query_produced</p>";
 }
 else {
 	$query_produced = false;
