@@ -5,10 +5,102 @@ include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
-$attempts_filter = ["id=id", "score=100 AND attempt=1", "score<=50 AND attempt=2"];
+$attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
 // Correlate radio with filter.
+
+// Functions required for log in
+function get_recent_click() {
+  if (isset($_POST["action"])) {
+	$action_val = sanitise_input($_POST["action"]);
+    if (is_numeric($action_val)) {
+      return($action_val);
+    }
+  }
+  else {
+	 // echo"<p>session check reached</p>";
+	  if (isset($_SESSION["prev_page"])) {
+		$session_number = sanitise_input($_SESSION["prev_page"]);
+		//echo"<p>$session_number</p>";
+		return($session_number);
+	  }
+  }
+  return false;
+}
+
+function log_in_available() {
+	$sql_connect = db_connect();
+	$table = "passwords";
+	$creation_query = "CREATE TABLE IF NOT EXISTS login  (
+							login_id INT AUTO_INCREMENT PRIMARY KEY,
+							username VARCHAR(30),
+							password VARCHAR(30)
+						);";
+	$creation_login = mysqli_query($sql_connect, $creation_query);
+	if ($creation_login) {
+		mysqli_close($sql_connect);
+		return true;
+	}
+	else {
+		echo"<h3>Cannot connect to login servers, cannot login, try again later.</h3>";
+		return false;
+	}
+}
+
+function attempt_log_in($username, $password) {
+		$sql_connect = db_connect();
+		$login_query = "SELECT COUNT('username') FROM login WHERE password='$password' AND username='$username'";
+		//echo"<p>$login_query</p>";
+		$login_establishment = mysqli_query($sql_connect, $login_query);
+		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
+		if ($output_refinement == 1) {
+			echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			return true;
+		}
+		else {
+			echo"<h2 class='error'>Failed to log in, username or password may be incorrect</h2>";
+			return false;
+		}
+}
+
+
+// Initiate log in phase
+if (get_recent_click() == 5) {
+	if (isset($_POST["username"])) {
+		$username = $_POST["username"];
+	}
+	if (isset($_POST["password"])) {
+		$password = $_POST["password"];
+	}
+	if (isset($username) == true and isset($password) == true) {
+		echo"<p>DEBUG: Attempting log in</p>";
+		log_in_available();
+		attempt_log_in($username, $password);
+	}
+}
+
+
+//Input fields
+          echo'<form method="post" action="manage.php">
+            <label for="student_id">Student ID </label>
+            <input name="student_id" id="student_id" type="text" placeholder="Student ID" />
+            <label for="student_name">Student Name </label>
+            <input name="student_name" id="student_name" type="text" placeholder="Name" />
+            <br />
+            <input type="radio" name="mark_filter" id="no_filter" value="0" />
+            <label for="no_filter">No Filtering</label>
+            <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
+            <label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
+            <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
+            <label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
+            <br />
+            <input type="submit" name="filter_all" value="Submit" />
+          </form>
+          <hr />';
+
+//
+
 function debug_check() {
 	foreach ($_POST as $param_name => $param_val) {
     print "<p>Name: $param_name, Value: $param_val</p>";
@@ -21,6 +113,10 @@ function debug_check() {
 }
 
 debug_check();
+
+
+
+
 
 function filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons) {
 	$filter_provided_array = [];
@@ -345,23 +441,6 @@ function delete_attempts($attemptstable, $query_produced) {
     }
 }
 
-function get_recent_click() {
-  if (isset($_POST["action"])) {
-	$action_val = sanitise_input($_POST["action"]);
-    if (is_numeric($action_val)) {
-      return($action_val);
-    }
-  }
-  else {
-	 // echo"<p>session check reached</p>";
-	  if (isset($_SESSION["prev_page"])) {
-		$session_number = sanitise_input($_SESSION["prev_page"]);
-		//echo"<p>$session_number</p>";
-		return($session_number);
-	  }
-  }
-  return false;
-}
 // Start of Main Sequence
 
 // Check if a deletion was prompted.
@@ -465,6 +544,7 @@ if (get_recent_click()) {
 	$temp_prev_page_num = $_SESSION["prev_page"];
 	//echo"<p>$temp_prev_page_num</p>";
 }
+
 
 
 
