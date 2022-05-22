@@ -310,7 +310,7 @@ function manual_change_display($mode, $page_num) {
 
 function create_secondary($sql_specifications) {
 	 $sql_connection = db_connect();
-	 $table_name = "id";
+	 $table_name = "attempts";
     $sql_query = "SELECT * from $table_name";
 	//echo"<p>Query specification $query_produced</p>";
     $returned_data = mysqli_query($sql_connection, $sql_query);
@@ -341,6 +341,7 @@ function display_results_in_table($returned_data, $first_query, $secondary_query
 			// First
           $local_name = $secondary_all_fields[$t]->name;
 		  //echo"<p>$local_name</p>";
+		  echo"<p>$local_name</p>"; 
 		  if (array_search($local_name, $desired_headers) != false) {
 			array_push($column_second_nums_generate, $t);
 			echo"<th>$local_name</th>";
@@ -370,15 +371,15 @@ function display_results_in_table($returned_data, $first_query, $secondary_query
 				$return_data = "";
 				for ($repeater = 0; $repeater < 2; $repeater++) {
 				  if ($repeater == 0) {
-					if (array_search($t, $column_first_nums_generate)) {
-						$local_name = $all_fields[$t]->name;
-						$return_data = $associative_return[$local_name];
+					if (array_search($t, $column_second_nums_generate)) {
+						$local_name = $secondary_all_fields[$t]->name;
+						$return_data = $secondary_associative_return[$local_name];
 					}
 				  }
 				  elseif ($repeater == 1) {
-					  if (array_search($t, $column_second_nums_generate)) {
-							$local_name = $secondary_all_fields[$t]->name;
-							$return_data = $secondary_associative_return[$local_name];
+					  if (array_search($t, $column_first_nums_generate)) {
+							$local_name = $all_fields[$t]->name;
+							$return_data = $associative_return[$local_name];
 						}
 				  }
 				  //
