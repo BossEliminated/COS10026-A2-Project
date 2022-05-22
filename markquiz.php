@@ -145,23 +145,31 @@ function save_db_data($id, $score){
 	$conn = db_connect();
 	if ($conn == true) {
 		// Check if user exists
-		$sql = "SELECT COUNT(*) FROM attempts WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
+		$sql = "SELECT COUNT(*) FROM id WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
 		$user_exists = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
 
 		// Create User
 		if ($user_exists == 0) {
-			$sql = "INSERT INTO `attempts`(`first_name`, `last_name`, `student_number`, `attempt`, `score`) VALUES ('$id[1]','$id[2]','$id[0]','1','$score')";
+			$unique_id = rand().rand();
+			$sql = "INSERT INTO `id`(`unique_id`, `first_name`, `last_name`, `student_number`) VALUES ('$unique_id', '$id[1]', '$id[2]', '$id[0]')";
 			$conn->query($sql);
+			$sql = "INSERT INTO `attempts`(`unique_id`, `attempt`, `score`) VALUES ('$unique_id', '1', '$score')";
+			$conn->query($sql);
+
 			print("<h2>Score submitted</h2>");
 		}
 
 		// For existing user update attempt details
 		if ($user_exists >= 1) {
-			$sql = "SELECT attempt FROM attempts WHERE student_number = '$id[0]' AND first_name = '$id[1]' AND last_name = '$id[2]'";
+			// Get unique_id for attempts table
+			$sql = "SELECT `unique_id` FROM `id` WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
+			$unique_id = $conn->query($sql)->fetch_array()[0];
+			// Get number of attempts
+			$sql = "SELECT `attempt` FROM `attempts` WHERE `unique_id` = '$unique_id'";
 			$attempts = $conn->query($sql)->fetch_assoc()["attempt"];
-
+			// Update attempts
 			if ($attempts < 2) {
-				$sql_update_attempts = "UPDATE attempts SET attempt ='".$attempts+1 ."', score = '$score' WHERE student_number = '$id[0]' AND first_name = '$id[1]' AND last_name = '$id[2]'";
+				$sql_update_attempts = "UPDATE `attempts` SET `attempt` ='".$attempts+1 ."', `score` = '$score' WHERE `unique_id` = '$unique_id'";
 				$conn->query($sql_update_attempts);
 				print("<h2>Second attempt submitted</h2>");
 			} else {
@@ -228,7 +236,6 @@ $post_id_inputs = ['ID','given_name','family_name'];
 $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
 $post_id_values_array = get_post_values($post_id_inputs);
-
 
 if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
 	print ('<div id="results" class="quiz-content quiz-results">');

@@ -71,7 +71,7 @@
         </div>
       </form>
     </div>
-    <?php require_once 'markquiz.php' ?>
+    <?php require_once './markquiz.php' ?>
     <?php include './footer.inc'; ?>
   </body>
 </html>
