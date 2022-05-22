@@ -38,9 +38,11 @@ if (!isset($_SESSION["username"])) {
 }
 else { // Attempt login
 	$sanitised_user = sanitise_input($_SESSION["username"]);
-	echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
-	echo"<hr/>";
-	$logged_in = true;
+	if (get_recent_click() != 6) {
+		echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
+		echo"<hr/>";
+		$logged_in = true;
+	}
 }
 
 function log_in_available() {
@@ -76,7 +78,7 @@ function attempt_log_in($username, $password) {
 		}
 		else {
 			session_destroy();
-			echo"<h2 class='error'>Failed to log in, username or password may be incorrect</h2>";
+			echo"<h2 class='fail_log'>Failed to log in, username or password may be incorrect</h2>";
 			echo"</hr>";
 			return false;
 		}
@@ -86,15 +88,22 @@ function attempt_log_in($username, $password) {
 // Initiate log in phase
 if (get_recent_click() == 5) {
 	if (isset($_POST["username"])) {
-		$username = $_POST["username"];
+		$username = sanitise_input($_POST["username"]);
 	}
 	if (isset($_POST["password"])) {
-		$password = $_POST["password"];
+		$password = sanitise_input($_POST["password"]);
 	}
 	if (isset($username) == true and isset($password) == true) {
-		//echo"<p>DEBUG: Attempting log in</p>";
-		log_in_available();
-		attempt_log_in($username, $password);
+		if ($username == "" or $password == "") {
+			echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+		}
+		else {
+			//echo"<p>DEBUG: Attempting log in</p>";
+			log_in_available();
+			if (attempt_log_in($username, $password) == true) {
+				$logged_in = true;
+			};
+		}
 	}
 }
 
@@ -166,10 +175,10 @@ function filter_considerations($filter_fields, $attempts_filter, $index_of_radio
 						//echo$debug;
 						//echo"<p>$counter</p>";
 						//echo"<p>add on</p>";
-						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
 					}
 					else {
-						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
 					}
 				}
 				else {
@@ -275,7 +284,7 @@ function manual_change_display($mode, $page_num) {
 	echo"<h2>Specific Change Request</h2>";
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
-	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='0' max='2' placeholder='Attempt'/>";
+	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='1' max='2' placeholder='Attempt'/>";
 	if ($mode == "modify") {
 		echo"</br>";
 		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
@@ -626,6 +635,7 @@ if ($logged_in == true) {
 	}
 }
 else {
+		echo"<p>$logged_in</p>";
 		echo"<section>";
 		echo"</br>";
 		echo"<h2>Log in, to view results</h2>";
