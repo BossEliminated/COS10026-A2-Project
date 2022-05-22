@@ -19,13 +19,17 @@
               <input name="username" type="text" placeholder="Username" />
             </label>
             <label for="student_name">
-              <input name="password" type="text" placeholder="Password" />
+              <input name="password" type="password" placeholder="Password" />
             </label>
             <!-- <p class="">If loged in Put User Name here</p> -->
           </div>
           <button type="submit" name="action" value="5">Login/Sign Up</button>
           <!-- Show logout button if loged in -->
-          <!-- <button type="submit" name="action" value="6">Logout</button> -->
+		  <?php 
+		  if (isset($_SESSION["username"]) == true and $_POST["action"] != 6) {
+			echo"<button type='submit' name='action' value='6'>Logout</button>";
+		  }
+		  ?>
         </form>
         <div style="height: 500px;"></div>
       </div>

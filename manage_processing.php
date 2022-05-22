@@ -8,6 +8,7 @@ $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
+$logged_in = false;
 // Correlate radio with filter.
 
 // Functions required for log in
@@ -29,6 +30,26 @@ function get_recent_click() {
   return false;
 }
 
+
+
+
+
+if (!isset($_SESSION["username"])) {
+	$logged_in = false;
+}
+else { // Attempt login
+	$sanitised_user = sanitise_input($_SESSION["username"]);
+	if (get_recent_click() != 6) {
+		if (log_in_available() == true) {
+			if (attempt_log_in(sanitise_input($_SESSION["username"]), sanitise_input($_SESSION["password"]), true) == true) {
+				echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
+				echo"<hr/>";
+				$logged_in = true;
+			}
+		}
+	}
+}
+
 function log_in_available() {
 	$sql_connect = db_connect();
 	$table = "passwords";
@@ -48,18 +69,29 @@ function log_in_available() {
 	}
 }
 
-function attempt_log_in($username, $password) {
+function attempt_log_in($username, $password, $recheck) {
 		$sql_connect = db_connect();
 		$login_query = "SELECT COUNT('username') FROM login WHERE password='$password' AND username='$username'";
 		//echo"<p>$login_query</p>";
 		$login_establishment = mysqli_query($sql_connect, $login_query);
 		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
 		if ($output_refinement == 1) {
-			echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			if ($recheck == false) {
+				echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			}
+			$_SESSION["username"] = $username;
+			$_SESSION["password"] = $password;
 			return true;
 		}
 		else {
-			echo"<h2 class='error'>Failed to log in, username or password may be incorrect</h2>";
+			session_destroy();
+			if ($recheck == false) {
+				echo"<h2 class='fail_log'>Failed to log in, username or password may be incorrect</h2>";
+			}
+			else {
+				echo"<h2 class='fail_log'>Password was changed whilst logged in. Retry log in.</h2>";
+			}
+			echo"</hr>";
 			return false;
 		}
 }
@@ -68,37 +100,56 @@ function attempt_log_in($username, $password) {
 // Initiate log in phase
 if (get_recent_click() == 5) {
 	if (isset($_POST["username"])) {
-		$username = $_POST["username"];
+		$username = sanitise_input($_POST["username"]);
 	}
 	if (isset($_POST["password"])) {
-		$password = $_POST["password"];
+		$password = sanitise_input($_POST["password"]);
 	}
 	if (isset($username) == true and isset($password) == true) {
-		echo"<p>DEBUG: Attempting log in</p>";
-		log_in_available();
-		attempt_log_in($username, $password);
+		if ($username == "" or $password == "") {
+			echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+		}
+		else {
+			//echo"<p>DEBUG: Attempting log in</p>";
+			log_in_available();
+			if (attempt_log_in($username, $password, false) == true) {
+				$logged_in = true;
+			};
+		}
 	}
 }
 
 
-//Input fields
-          echo'<form method="post" action="manage.php">
-            <label for="student_id">Student ID </label>
-            <input name="student_id" id="student_id" type="text" placeholder="Student ID" />
-            <label for="student_name">Student Name </label>
-            <input name="student_name" id="student_name" type="text" placeholder="Name" />
-            <br />
-            <input type="radio" name="mark_filter" id="no_filter" value="0" />
-            <label for="no_filter">No Filtering</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
-            <label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
-            <label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
-            <br />
-            <input type="submit" name="filter_all" value="Submit" />
-          </form>
-          <hr />';
 
+
+//Input fields
+function load_filter_inputs($logged_in) {
+	if ($logged_in == true) {
+			  echo'<form method="post" action="manage.php">
+				<label for="student_id">Student ID </label>
+				<input name="student_id" id="student_id" type="text" placeholder="Student ID" />
+				<label for="student_name">Student Name </label>
+				<input name="student_name" id="student_name" type="text" placeholder="Name" />
+				<br />
+				<input type="radio" name="mark_filter" id="no_filter" value="0" />
+				<label for="no_filter">No Filtering</label>
+				<input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
+				<label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
+				<input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
+				<label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
+				<br />
+				<input type="submit" name="filter_all" value="Submit" />
+			  </form>
+			  <hr />';
+	}
+	else {
+		echo"<section>";
+		echo"</br>";
+		echo"<h2>Log in, to view results</h2>";
+		echo"<p>If you believe this is an error, please contact your server administrator</p>";
+		echo"</section>";
+	}
+}
 //
 
 function debug_check() {
@@ -112,7 +163,7 @@ function debug_check() {
 	// }
 }
 
-debug_check();
+//debug_check();
 
 
 
@@ -136,10 +187,10 @@ function filter_considerations($filter_fields, $attempts_filter, $index_of_radio
 						//echo$debug;
 						//echo"<p>$counter</p>";
 						//echo"<p>add on</p>";
-						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
 					}
 					else {
-						array_push($filter_provided_array, $_POST[$filter_fields[$counter]]);
+						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
 					}
 				}
 				else {
@@ -242,11 +293,10 @@ function manual_change_display($mode, $page_num) {
 	elseif ($mode == "modify") {
 		$button_text = "Change Score";
 	}
-	echo"<hr>";
 	echo"<h2>Specific Change Request</h2>";
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
-	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='0' max='2' placeholder='Attempt'/>";
+	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='1' max='2' placeholder='Attempt'/>";
 	if ($mode == "modify") {
 		echo"</br>";
 		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
@@ -517,6 +567,13 @@ else {
 	}
 }
 
+if (get_recent_click() == 6) { // Log out
+	 session_destroy();
+	 $logged_in = false;
+	 echo"<h2 class='log_in_notif'>You've been logged out.</h2>";
+}
+
+
 
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons);
@@ -553,34 +610,52 @@ $Page_Accessed_Properly = get_recent_click();
 if (!isset($main_page)) {
 	header("location: manage.php");
 }
-if (get_recent_click() == 1) {
-  echo"<h2>Show all attempts page</h2>";
-  list_all_attempts($attemptstable, $query_produced);
-  $notsearched = false;
+
+
+
+
+
+if ($logged_in == true) {
+	if (get_recent_click() == 1) {
+	  echo"<h2>Show all attempts page</h2>";
+	  load_filter_inputs($logged_in);
+	  list_all_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 2) {
+	  echo"<h2>Show half attempts page</h2>";;
+	  load_filter_inputs($logged_in);
+	  list_half_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 3) {
+	  echo"<h2>Delete page</h2>";
+	  load_filter_inputs($logged_in);
+	  manual_change_display("delete", 3);
+	  delete_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 4) {
+	  echo"<h2>Modify page</h2>";
+	  load_filter_inputs($logged_in);
+	  manual_change_display("modify", 4);
+	  manage_score($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+}
+else {
+		echo"<p>$logged_in</p>";
+		echo"<section>";
+		echo"</br>";
+		echo"<h2>Log in, to view results</h2>";
+		echo"<p>If you believe this is an error, please contact your server administrator</p>";
+		echo"</section>";
 }
 
-if (get_recent_click() == 2) {
-  echo"<h2>Show half attempts page</h2>";
-  list_half_attempts($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-if (get_recent_click() == 3) {
-  echo"<h2>Delete page</h2>";
-  manual_change_display("delete", 3);
-  delete_attempts($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-if (get_recent_click() == 4) {
-  echo"<h2>Modify page</h2>";
-  manual_change_display("modify", 4);
-  manage_score($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-
-if ($notsearched == true) {
+if ($notsearched == true and $logged_in == true) {
   echo"<h2>No search has occured</h2>";
 }
 

@@ -478,6 +478,15 @@ table.manage_table tr td:last-child {
   border: none;
 }
 
+.log_in_notif {
+	color:rgb(12,139,188);
+	display:inline;
+}
+
+.fail_log {
+	color:red;
+}
+
 /* --------------------- Enhancements Page ------------------------*/
 
 #segment_enhancements_starter{
