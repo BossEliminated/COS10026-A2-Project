@@ -8,6 +8,7 @@ $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
+$logged_in = false;
 // Correlate radio with filter.
 
 // Functions required for log in
@@ -39,9 +40,13 @@ if (!isset($_SESSION["username"])) {
 else { // Attempt login
 	$sanitised_user = sanitise_input($_SESSION["username"]);
 	if (get_recent_click() != 6) {
-		echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
-		echo"<hr/>";
-		$logged_in = true;
+		if (log_in_available() == true) {
+			if (attempt_log_in(sanitise_input($_SESSION["username"]), sanitise_input($_SESSION["password"]), true) == true) {
+				echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
+				echo"<hr/>";
+				$logged_in = true;
+			}
+		}
 	}
 }
 
@@ -64,21 +69,28 @@ function log_in_available() {
 	}
 }
 
-function attempt_log_in($username, $password) {
+function attempt_log_in($username, $password, $recheck) {
 		$sql_connect = db_connect();
 		$login_query = "SELECT COUNT('username') FROM login WHERE password='$password' AND username='$username'";
 		//echo"<p>$login_query</p>";
 		$login_establishment = mysqli_query($sql_connect, $login_query);
 		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
 		if ($output_refinement == 1) {
-			echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			if ($recheck == false) {
+				echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			}
 			$_SESSION["username"] = $username;
 			$_SESSION["password"] = $password;
 			return true;
 		}
 		else {
 			session_destroy();
-			echo"<h2 class='fail_log'>Failed to log in, username or password may be incorrect</h2>";
+			if ($recheck == false) {
+				echo"<h2 class='fail_log'>Failed to log in, username or password may be incorrect</h2>";
+			}
+			else {
+				echo"<h2 class='fail_log'>Password was changed whilst logged in. Retry log in.</h2>";
+			}
 			echo"</hr>";
 			return false;
 		}
@@ -100,7 +112,7 @@ if (get_recent_click() == 5) {
 		else {
 			//echo"<p>DEBUG: Attempting log in</p>";
 			log_in_available();
-			if (attempt_log_in($username, $password) == true) {
+			if (attempt_log_in($username, $password, false) == true) {
 				$logged_in = true;
 			};
 		}
