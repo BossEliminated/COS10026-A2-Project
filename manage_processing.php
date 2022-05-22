@@ -3,12 +3,13 @@
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
-$attemptstable = "attempts";
+$attemptstable = "id";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
 $logged_in = false;
+$second_query_produced = "";
 // Correlate radio with filter.
 
 // Functions required for log in
@@ -307,9 +308,25 @@ function manual_change_display($mode, $page_num) {
 	echo"</form>";
 }
 
-function display_results_in_table($returned_data, $mode, $page_num) {
+function create_secondary($sql_specifications) {
+	 $sql_connection = db_connect();
+	 $table_name = "id";
+    $sql_query = "SELECT * from $table_name";
+	//echo"<p>Query specification $query_produced</p>";
+    $returned_data = mysqli_query($sql_connection, $sql_query);
+	if ($returned_data) {
+		return $returned_data;
+	}
+	else {
+		echo"<h2>id table dependency lost</h2>";
+	}
+}
+
+function display_results_in_table($returned_data, $first_query, $secondary_query, $mode, $page_num) {
+	$secondary_table = create_secondary($secondary_query);
 	$rows_available = mysqli_num_rows($returned_data);
     $all_fields = mysqli_fetch_fields($returned_data);
+    $secondary_all_fields = mysqli_fetch_fields($secondary_table);
 	$starter = 0;
 	if ($mode == "half") {
 		$starter = round($rows_available / 2);
@@ -317,34 +334,71 @@ function display_results_in_table($returned_data, $mode, $page_num) {
 	 echo"<table class='manage_table'>"; // Create Headers
 		echo"<thead>";
         echo"<tr>";
-        for ($t = 0; $t < count($all_fields); $t++) {
-          $local_name = $all_fields[$t]->name;
-          echo"<th>$local_name</th>";
+		$desired_headers = ["", "student_number", "first_name", "last_name", "created", "attempt", "score"];
+		$column_first_nums_generate = [""];
+		$column_second_nums_generate = [""];
+        for ($t = 0; $t < count($secondary_all_fields); $t++) {
+			// First
+          $local_name = $secondary_all_fields[$t]->name;
+		  //echo"<p>$local_name</p>";
+		  if (array_search($local_name, $desired_headers) != false) {
+			array_push($column_second_nums_generate, $t);
+			echo"<th>$local_name</th>";
+		  }
+		  // Secondary
+		  if ($t < (count($all_fields))) {
+			$local_name = $all_fields[$t]->name;
+			echo"<p>$local_name</p>";
+			//print_r($desired_headers);
+			if (array_search($local_name, $desired_headers) != false) {
+				//echo"<p>ran</p>";
+				array_push($column_first_nums_generate, $t);
+				echo"<th>$local_name</th>";
+			}
+		  }
         }
         echo"</tr>";
 		echo"</thead>";
       // End Header
-	  if ($rows_available != 0) {
+	  if ($rows_available != 0) { // Go through rows
 		  for ($i=$starter;$i<$rows_available;$i++) {
 			echo"<tr>";
 			$associative_return = mysqli_fetch_assoc($returned_data);
+			$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
 			for ($t = 0; $t < count($all_fields); $t++) {
-			  $local_name = $all_fields[$t]->name;
-			  $return_data = $associative_return[$local_name];
-			  if (($mode == "delete" or $mode == "manage") and $t == 0) {
-				  echo"<form method='POST' action='manage.php'>";
-				  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-				  if ($mode == "manage") {
-					  echo"
-									<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
-								</td>";
+				  //
+				$return_data = "";
+				for ($repeater = 0; $repeater < 2; $repeater++) {
+				  if ($repeater == 0) {
+					if (array_search($t, $column_first_nums_generate)) {
+						$local_name = $all_fields[$t]->name;
+						$return_data = $associative_return[$local_name];
+					}
 				  }
-				  echo"<input type='hidden' name='action' value='$page_num'>";
-				  echo"</form>";
-			  }
-			  else {
-				  echo"<td class='manage_table_info'>$return_data</td>";
-			  }
+				  elseif ($repeater == 1) {
+					  if (array_search($t, $column_second_nums_generate)) {
+							$local_name = $secondary_all_fields[$t]->name;
+							$return_data = $secondary_associative_return[$local_name];
+						}
+				  }
+				  //
+				  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
+					  echo"<form method='POST' action='manage.php'>";
+					  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+					  if ($mode == "manage") {
+						  echo"
+										<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
+									</td>";
+					  }
+					  echo"<input type='hidden' name='action' value='$page_num'>";
+					  echo"</form>";
+				  }
+				  else {
+					  if ($return_data != "") {
+						echo"<td class='manage_table_info'>$return_data</td>";
+					  }
+				  }
+				}
 			}
 			//$return_data = $associative_return["first_name"];
 			echo"</tr>";
@@ -428,7 +482,7 @@ function update_query($old_query, $new_query_filters) {
 	return $old_query;
 }
 
-function list_all_attempts($attemptstable, $query_produced) {
+function list_all_attempts($attemptstable, $query_produced, $secondary_query) {
     $sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	//echo"<p>Query specification $query_produced</p>";
@@ -437,7 +491,7 @@ function list_all_attempts($attemptstable, $query_produced) {
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
     if ($returned_data) {
-     display_results_in_table($returned_data, "all", 1);
+     display_results_in_table($returned_data, $sql_query, $secondary_query, "all", 1);
     }
     else {
       $query_failure = true;
@@ -445,7 +499,7 @@ function list_all_attempts($attemptstable, $query_produced) {
 }
 
 
-function list_half_attempts($attemptstable, $query_produced) {
+function list_half_attempts($attemptstable, $query_produced, $secondary_query) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	$sql_query = update_query($sql_query, $query_produced);
@@ -453,7 +507,7 @@ function list_half_attempts($attemptstable, $query_produced) {
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
     if ($returned_data) {
-     display_results_in_table($returned_data, "half", 2);
+     display_results_in_table($returned_data, $sql_query, $secondary_query, "half", 2);
     }
     else {
       $query_failure = true;
@@ -461,7 +515,7 @@ function list_half_attempts($attemptstable, $query_produced) {
 }
 
 
-function manage_score($attemptstable, $query_produced) {
+function manage_score($attemptstable, $query_produced, $secondary_query) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	$sql_query = update_query($sql_query, $query_produced);
@@ -469,14 +523,14 @@ function manage_score($attemptstable, $query_produced) {
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
     if ($returned_data) {
-     display_results_in_table($returned_data, "manage", 4);
+     display_results_in_table($returned_data, $sql_query, $secondary_query, "manage", 4);
     }
     else {
       $query_failure = true;
     }
 }
 
-function delete_attempts($attemptstable, $query_produced) {
+function delete_attempts($attemptstable, $query_produced, $secondary_query) {
 	$sql_connection = db_connect();
     $sql_query = "SELECT * from $attemptstable";
 	$sql_query = update_query($sql_query, $query_produced);
@@ -484,7 +538,7 @@ function delete_attempts($attemptstable, $query_produced) {
     #$test_var = count($all_fields);
     #echo"<p>$test_var</p>";
     if ($returned_data) {
-     display_results_in_table($returned_data, "delete", 3);
+     display_results_in_table($returned_data, $sql_query, $secondary_query, "delete", 3);
     }
     else {
       $query_failure = true;
@@ -578,16 +632,11 @@ if (get_recent_click() == 6) { // Log out
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons);
 	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true, $index_of_radio_buttons, false); // for text input;
-	if ($query_produced == "") {
-		$query_started = true;
-		echo"<p>first filter</p>";
-	}
-	else {
-		$query_started = false;
-	}
+	$query_started = true;
 	$second_query_produced = modify_query_based_on_filter($attempts_filter, $filters_set, $query_started, $index_of_radio_buttons, true); // For Radio Buttons
-	$query_produced = ($query_produced. " " . $second_query_produced);
-	echo"<p>final query $query_produced</p>";
+	//$query_produced = ($query_produced. " " . $second_query_produced);
+	echo"<p>first query $query_produced</p>";
+	echo"<p>secondary query $second_query_produced</p>";
 }
 else {
 	$query_produced = false;
@@ -619,14 +668,14 @@ if ($logged_in == true) {
 	if (get_recent_click() == 1) {
 	  echo"<h2>Show all attempts page</h2>";
 	  load_filter_inputs($logged_in);
-	  list_all_attempts($attemptstable, $query_produced);
+	  list_all_attempts($attemptstable, $query_produced, $second_query_produced);
 	  $notsearched = false;
 	}
 
 	if (get_recent_click() == 2) {
 	  echo"<h2>Show half attempts page</h2>";;
 	  load_filter_inputs($logged_in);
-	  list_half_attempts($attemptstable, $query_produced);
+	  list_half_attempts($attemptstable, $query_produced, $second_query_produced);
 	  $notsearched = false;
 	}
 
@@ -634,7 +683,7 @@ if ($logged_in == true) {
 	  echo"<h2>Delete page</h2>";
 	  load_filter_inputs($logged_in);
 	  manual_change_display("delete", 3);
-	  delete_attempts($attemptstable, $query_produced);
+	  delete_attempts($attemptstable, $query_produced, $second_query_produced);
 	  $notsearched = false;
 	}
 
@@ -642,7 +691,7 @@ if ($logged_in == true) {
 	  echo"<h2>Modify page</h2>";
 	  load_filter_inputs($logged_in);
 	  manual_change_display("modify", 4);
-	  manage_score($attemptstable, $query_produced);
+	  manage_score($attemptstable, $query_produced, $second_query_produced);
 	  $notsearched = false;
 	}
 }
