@@ -29,6 +29,20 @@ function get_recent_click() {
   return false;
 }
 
+
+
+
+
+if (!isset($_SESSION["username"])) {
+	$logged_in = false;
+}
+else { // Attempt login
+	$sanitised_user = sanitise_input($_SESSION["username"]);
+	echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
+	echo"<hr/>";
+	$logged_in = true;
+}
+
 function log_in_available() {
 	$sql_connect = db_connect();
 	$table = "passwords";
@@ -56,10 +70,14 @@ function attempt_log_in($username, $password) {
 		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
 		if ($output_refinement == 1) {
 			echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
+			$_SESSION["username"] = $username;
+			$_SESSION["password"] = $password;
 			return true;
 		}
 		else {
+			session_destroy();
 			echo"<h2 class='error'>Failed to log in, username or password may be incorrect</h2>";
+			echo"</hr>";
 			return false;
 		}
 }
@@ -74,31 +92,43 @@ if (get_recent_click() == 5) {
 		$password = $_POST["password"];
 	}
 	if (isset($username) == true and isset($password) == true) {
-		echo"<p>DEBUG: Attempting log in</p>";
+		//echo"<p>DEBUG: Attempting log in</p>";
 		log_in_available();
 		attempt_log_in($username, $password);
 	}
 }
 
 
-//Input fields
-          echo'<form method="post" action="manage.php">
-            <label for="student_id">Student ID </label>
-            <input name="student_id" id="student_id" type="text" placeholder="Student ID" />
-            <label for="student_name">Student Name </label>
-            <input name="student_name" id="student_name" type="text" placeholder="Name" />
-            <br />
-            <input type="radio" name="mark_filter" id="no_filter" value="0" />
-            <label for="no_filter">No Filtering</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
-            <label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
-            <input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
-            <label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
-            <br />
-            <input type="submit" name="filter_all" value="Submit" />
-          </form>
-          <hr />';
 
+
+//Input fields
+function load_filter_inputs($logged_in) {
+	if ($logged_in == true) {
+			  echo'<form method="post" action="manage.php">
+				<label for="student_id">Student ID </label>
+				<input name="student_id" id="student_id" type="text" placeholder="Student ID" />
+				<label for="student_name">Student Name </label>
+				<input name="student_name" id="student_name" type="text" placeholder="Name" />
+				<br />
+				<input type="radio" name="mark_filter" id="no_filter" value="0" />
+				<label for="no_filter">No Filtering</label>
+				<input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
+				<label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
+				<input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
+				<label for="mark_filtering_less_than">Scored 50% on second Attempt </label>
+				<br />
+				<input type="submit" name="filter_all" value="Submit" />
+			  </form>
+			  <hr />';
+	}
+	else {
+		echo"<section>";
+		echo"</br>";
+		echo"<h2>Log in, to view results</h2>";
+		echo"<p>If you believe this is an error, please contact your server administrator</p>";
+		echo"</section>";
+	}
+}
 //
 
 function debug_check() {
@@ -112,7 +142,7 @@ function debug_check() {
 	// }
 }
 
-debug_check();
+//debug_check();
 
 
 
@@ -242,7 +272,6 @@ function manual_change_display($mode, $page_num) {
 	elseif ($mode == "modify") {
 		$button_text = "Change Score";
 	}
-	echo"<hr>";
 	echo"<h2>Specific Change Request</h2>";
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
@@ -517,6 +546,13 @@ else {
 	}
 }
 
+if (get_recent_click() == 6) { // Log out
+	 session_destroy();
+	 $logged_in = false;
+	 echo"<h2 class='log_in_notif'>You've been logged out.</h2>";
+}
+
+
 
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons);
@@ -553,34 +589,51 @@ $Page_Accessed_Properly = get_recent_click();
 if (!isset($main_page)) {
 	header("location: manage.php");
 }
-if (get_recent_click() == 1) {
-  echo"<h2>Show all attempts page</h2>";
-  list_all_attempts($attemptstable, $query_produced);
-  $notsearched = false;
+
+
+
+
+
+if ($logged_in == true) {
+	if (get_recent_click() == 1) {
+	  echo"<h2>Show all attempts page</h2>";
+	  load_filter_inputs($logged_in);
+	  list_all_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 2) {
+	  echo"<h2>Show half attempts page</h2>";;
+	  load_filter_inputs($logged_in);
+	  list_half_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 3) {
+	  echo"<h2>Delete page</h2>";
+	  load_filter_inputs($logged_in);
+	  manual_change_display("delete", 3);
+	  delete_attempts($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+
+	if (get_recent_click() == 4) {
+	  echo"<h2>Modify page</h2>";
+	  load_filter_inputs($logged_in);
+	  manual_change_display("modify", 4);
+	  manage_score($attemptstable, $query_produced);
+	  $notsearched = false;
+	}
+}
+else {
+		echo"<section>";
+		echo"</br>";
+		echo"<h2>Log in, to view results</h2>";
+		echo"<p>If you believe this is an error, please contact your server administrator</p>";
+		echo"</section>";
 }
 
-if (get_recent_click() == 2) {
-  echo"<h2>Show half attempts page</h2>";
-  list_half_attempts($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-if (get_recent_click() == 3) {
-  echo"<h2>Delete page</h2>";
-  manual_change_display("delete", 3);
-  delete_attempts($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-if (get_recent_click() == 4) {
-  echo"<h2>Modify page</h2>";
-  manual_change_display("modify", 4);
-  manage_score($attemptstable, $query_produced);
-  $notsearched = false;
-}
-
-
-if ($notsearched == true) {
+if ($notsearched == true and $logged_in == true) {
   echo"<h2>No search has occured</h2>";
 }
 

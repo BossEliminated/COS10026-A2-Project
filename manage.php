@@ -25,7 +25,11 @@
           </div>
           <button type="submit" name="action" value="5">Login/Sign Up</button>
           <!-- Show logout button if loged in -->
-          <!-- <button type="submit" name="action" value="6">Logout</button> -->
+		  <?php 
+		  if (isset($_SESSION["username"]) == true) {
+			echo"<button type='submit' name='action' value='6'>Logout</button>";
+		  }
+		  ?>
         </form>
         <div style="height: 500px;"></div>
       </div>
