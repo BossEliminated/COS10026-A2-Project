@@ -304,10 +304,14 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 		$temp_id_holder = mysqli_fetch_assoc($returned_data)["unique_id"];
 		array_push($column_first_unique_identifier, $temp_id_holder);
 	}
+	echo"<p>first list</p>";
+	print_r($column_first_unique_identifier);
 	for ($id_collector_counter = 0; $id_collector_counter < $rows_secondary_available; $id_collector_counter++) {
 		$temp_id_holder = mysqli_fetch_assoc($secondary_table)["unique_id"];
 		array_push($column_second_unique_identifier, $temp_id_holder);
 	}
+		echo"<p>second list</p>";
+	print_r($column_second_unique_identifier);
 	for ($array_compare_index = 0; $array_compare_index < count($column_first_unique_identifier); $array_compare_index++) {
 		for ($array_compare_index_secondary = 0; $array_compare_index_secondary < count($column_second_unique_identifier); $array_compare_index_secondary++) {
 			$debug_first = $column_first_unique_identifier[$array_compare_index];
@@ -317,6 +321,7 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 			}
 		}
 	}
+	print_r($sufficient_ids);
 	mysqli_data_seek($returned_data, 0);
 	mysqli_data_seek($secondary_table, 0);
 	$all_fields = mysqli_fetch_fields($returned_data); // This has Name
@@ -352,7 +357,6 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
   echo"</tr>";
 	echo"</thead>";
   // Header End
-
   $ids_already_used = ["head"];
   if ($rows_available != 0) { // Go through rows
 	  for ($i=$starter;$i<$rows_available;$i++) {
@@ -364,9 +368,11 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 		$found_second_id = false;
 		if (array_search($first_table_id, $sufficient_ids)) {
 			// Find and place pointer at second.
-			for ($index_searcher = 1; $index_searcher < count($column_second_nums_generate) + 2;$index_searcher++) {
+			for ($index_searcher = 1; $index_searcher < count($column_second_unique_identifier) + 2;$index_searcher++) {
 				//echo("<h3>$index_searcher</h3>");
 				if ($found_second_id == false) {
+					$testval = $secondary_associative_return["unique_id"];
+					//echo"<p>$first_table_id == $testval</p>";
 					if (($first_table_id) == $secondary_associative_return["unique_id"] and !array_search($first_table_id, $ids_already_used)) {
 						$found_second_id = true;
 						//echo($first_table_id);
@@ -384,11 +390,13 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 				}
 			}
 		}
+		$testval = count($sufficient_ids);
 		if (count($sufficient_ids) == 1) {
 			 echo"<h3>No results found! Filter may be too strict!</h3>";
 		}
 		// Compare Unique IDS
 		if ($found_second_id == true) { // stop if hit
+			echo"<p>creating</p>";
 			for ($annoying_index = 0; $annoying_index < 2; $annoying_index++) {
 				for ($t = 0; $t < count($all_fields); $t++) {
 					$return_data = "";
