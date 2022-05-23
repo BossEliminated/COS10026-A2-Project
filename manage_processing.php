@@ -19,14 +19,6 @@ function get_recent_click() {
       return($action_val);
     }
   }
-  else {
-	 // echo"<p>session check reached</p>";
-	  if (isset($_SESSION["prev_page"])) {
-		$session_number = sanitise_input($_SESSION["prev_page"]);
-		//echo"<p>$session_number</p>";
-		return($session_number);
-	  }
-  }
   return false;
 }
 
@@ -38,6 +30,14 @@ $conn = db_connect();
 if ($conn) {
   mysqli_query($conn, $sql);
 	mysqli_close($conn);
+}
+
+// Login message - Must be before set
+if (isset($_SESSION["login_msg"])) {
+  if ($_SESSION["login_msg"]) {
+    $_SESSION["login_msg"] = false;
+    print "<h2 class='log_in_notif'>Logged in as, ".$_SESSION["username"]."</h2>";
+  }
 }
 
 if (get_recent_click() == 5) {
@@ -60,7 +60,6 @@ if (get_recent_click() == 5) {
       $_SESSION["password"] = $password;
       $_SESSION["login_msg"] = true;
       $logged_in = true;
-      $_POST["action"] = 0; // Reset pressed option to avoid Logging in again
       header("refresh:0");
     } else {
       echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
@@ -68,20 +67,11 @@ if (get_recent_click() == 5) {
   }
 }
 
-
 // Check login details against database
 function attempt_log_in($username, $password) {
-		$conn = db_connect();
-		$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
-		return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
-}
-
-// Log login message
-if (isset($_SESSION["login_msg"])) {
-  if ($_SESSION["login_msg"]) {
-    $_SESSION["login_msg"] = false;
-    print "<h2 class='log_in_notif'>Logged in as, ".$_SESSION["username"]."</h2>";
-  }
+	$conn = db_connect();
+	$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
+	return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
 }
 
 // Check Login
@@ -99,22 +89,20 @@ if (isset($_SESSION["logout_msg"])) {
   }
 }
 
-// Log out
-if (get_recent_click() == 6) {
-   unset($_SESSION['username']);
-   unset($_SESSION['password']);
-   $_SESSION["logout_msg"] = true;
-	 $logged_in = false; // Set db acces to false
-   $_POST["action"] = 0; // Must reset pressed option to avoid infinite loop on refresh
-   header("refresh:0");
-}
-
-// Log out message
+// Log out message - Must be before set
 if (isset($_SESSION["logout_msg"])) {
   if ($_SESSION["logout_msg"]) {
     $_SESSION["logout_msg"] = false;
     print "<h2 class='log_in_notif'>You've been logged out.</h2>";
   }
+}
+
+// Log out
+if (get_recent_click() == 6) {
+   unset($_SESSION['username']);
+   unset($_SESSION['password']);
+   $_SESSION["logout_msg"] = true;
+   header("refresh:0");
 }
 
 // ---------------- END ----------------
@@ -518,7 +506,7 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 		echo"<p>conversion check</p>";
 		$unique_id = convert_student_number_to_unique_id($id_table, $database, $manual);
 	}
-	
+
 	if ($id_val != 0) {
 		$id_val = convert_student_number_to_unique_id($id_table, $database, "unique_id=$id_val");
 	}
@@ -526,8 +514,8 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 		$unique_id = ($unique_id . " AND" . $attempts);
 		$id_val = ($unique_id . " AND" . $attempts);
 	}
-	
-	if ($attempt_only_search == true) {
+
+	if ($attempts_only_search) {
 		$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE $manual";
 		echo"<p>$sql_query</p>";
 		$attemptmodify = mysqli_query($database, $sql_query);
@@ -754,15 +742,8 @@ if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	//$query_produced = ($query_produced. " " . $second_query_produced);
 	echo"<p>first query $query_produced</p>";
 	echo"<p>secondary query $second_query_produced</p>";
-}
-else {
+} else {
 	$query_produced = false;
-}
-
-if (get_recent_click()) {
-	$_SESSION["prev_page"] = get_recent_click();
-	$temp_prev_page_num = $_SESSION["prev_page"];
-	//echo"<p>$temp_prev_page_num</p>";
 }
 
 // Check which page.
@@ -816,10 +797,13 @@ if ($notsearched == true and $logged_in == true) {
 }
 
 function debug_check() {
-	foreach ($_POST as $param_name => $param_val) {
-    print "<p>Name: $param_name, Value: $param_val</p>";
+  if (isset($_POST)) {
+    print "<h2>No post set</h2>";
+  } else {
+    foreach ($_POST as $param_name => $param_val) {
+      print "<p>Name: $param_name, Value: $param_val</p>";
+    }
   }
-  print("<br/>");
 }
 
 // debug_check();
