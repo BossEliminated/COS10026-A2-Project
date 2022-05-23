@@ -618,6 +618,14 @@ table.manage_table tr td:last-child { /*Nick T*/
   margin-bottom: 20px;
 }
 
+.php-enh-content code {
+	background-color:rgb(255,182,47);
+	border-radius:5px;
+	padding:2px;
+	display:inline-block;
+}
+
+
 /* .php-enh-hr {
   height: 0.1em;
   background-color: #005759;
