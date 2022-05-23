@@ -13,39 +13,43 @@
           <button type="submit" name="action" value="3">Delete attempts</button>
           <button type="submit" name="action" value="4">Manage Score</button>
           <hr class="manage-menu-hr" />
-          <div class="manage-id-field">
-            <label for="student_id">
-              <input name="username" type="text" placeholder="Username" />
-            </label>
-            <label for="student_name">
-              <input name="password" type="password" placeholder="Password" />
-            </label>
-          </div>
           <?php
-          if (isset($_POST["action"])) {
-            if (isset($_SESSION["username"]) == true and $_POST["action"] != 6) {
+            if (!isset($_SESSION["username"])) {
+              print "
+              <div class='manage-id-field'>
+                <label for='student_id'>
+                  <input name='username' type='text' placeholder='Username' />
+                </label>
+                <label for='student_name'>
+                  <input name='password' type='password' placeholder='Password' />
+                </label>
+              </div>";
+            } else {
+              print "
+              <div class='manage-id-field'>
+                <p>".$_SESSION["username"]."</p>
+              </div>";
+            }
+            if (isset($_SESSION["username"])) {
               echo"<button type='submit' name='action' value='6'>Logout</button>";
             }
-          }
-          if (!isset($_SESSION["username"])) {
-            print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
-          }
+            if (!isset($_SESSION["username"])) {
+              print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
+            }
           ?>
         </form>
         <div style="height: 500px;"></div>
       </div>
       <div class="manage-content">
         <h1>Management Page</h1>
-        <section>
-
-        </section>
-        <section>
-          <table>
-            <?php
-			$main_page = true;
-			include_once './manage_processing.php'; ?>
-          </table>
-        </section>
+          <section>
+            <table>
+              <?php
+                $main_page = true;
+                include_once './manage_processing.php';
+              ?>
+            </table>
+          </section>
       </div>
     </div>
     <?php include './footer.inc'; ?>

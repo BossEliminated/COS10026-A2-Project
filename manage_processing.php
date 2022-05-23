@@ -1,5 +1,4 @@
 <?php
-//session_start();
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
@@ -8,7 +7,6 @@ $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
-$logged_in = false;
 $second_query_produced = "";
 // Correlate radio with filter.
 
@@ -33,10 +31,69 @@ function get_recent_click() {
 
 // --------------- Login / Log out Section ------------------------
 
-// Log out message - must occur before logging out
-if (isset($_SESSION["log_msg"])) {
-  if ($_SESSION["log_msg"]) {
-    $_SESSION["log_msg"] = false;
+// Login DB Check
+$sql = "CREATE TABLE IF NOT EXISTS login (login_id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30), password VARCHAR(30));";
+$conn = db_connect();
+if ($conn) {
+  mysqli_query($conn, $sql);
+	mysqli_close($conn);
+}
+
+if (get_recent_click() == 5) {
+  // Login Validation
+  if (isset($_POST["username"]) && isset($_POST["password"])) {
+    if (!$_POST["username"] == "" && !$_POST["password"] == "") {
+      $username = sanitise_input($_POST["username"]);
+      $password = sanitise_input($_POST["password"]);
+    } else {
+      echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+    }
+  } else {
+    echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+  }
+
+  // Login
+  if (isset($username) && isset($password)) {
+    if (attempt_log_in($username, $password)) {
+      $_SESSION["username"] = $username;
+      $_SESSION["password"] = $password;
+      $_SESSION["login_msg"] = true;
+      $logged_in = true;
+      $_POST["action"] = 0; // Reset pressed option to avoid Logging in again
+      header("refresh:0");
+    } else {
+      echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
+    }
+  }
+}
+
+
+// Check login details against database
+function attempt_log_in($username, $password) {
+		$conn = db_connect();
+		$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
+		return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
+}
+
+// Log login message
+if (isset($_SESSION["login_msg"])) {
+  if ($_SESSION["login_msg"]) {
+    $_SESSION["login_msg"] = false;
+    print "<h2 class='log_in_notif'>Logged in as, ".$_SESSION["username"]."</h2>";
+  }
+}
+
+// Check Login
+if (isset($_SESSION["username"])) {
+  $logged_in = true;
+} else {
+  $logged_in = false;
+}
+
+// Log out message
+if (isset($_SESSION["logout_msg"])) {
+  if ($_SESSION["logout_msg"]) {
+    $_SESSION["logout_msg"] = false;
     print "<h2 class='log_in_notif'>You've been logged out.</h2>";
   }
 }
@@ -45,93 +102,18 @@ if (isset($_SESSION["log_msg"])) {
 if (get_recent_click() == 6) {
    unset($_SESSION['username']);
    unset($_SESSION['password']);
-   $_SESSION["log_msg"] = true;
+   $_SESSION["logout_msg"] = true;
 	 $logged_in = false; // Set db acces to false
-   $_POST["action"] = 0; // Must reset preset option to avoid infinite loop on refresh
+   $_POST["action"] = 0; // Must reset pressed option to avoid infinite loop on refresh
    header("refresh:0");
 }
 
-// log in
-if (get_recent_click() == 5) {
-	if (isset($_POST["username"])) {
-		$username = sanitise_input($_POST["username"]);
-	}
-	if (isset($_POST["password"])) {
-		$password = sanitise_input($_POST["password"]);
-	}
-	if (isset($username) == true and isset($password) == true) {
-		if ($username == "" or $password == "") {
-			echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
-		}
-		else {
-			// echo "<p>debug: Attempting log in</p>";
-			log_in_available();
-			if (attempt_log_in($username, $password, false) == true) {
-				$logged_in = true;
-			};
-		}
-	}
-}
-
-if (!isset($_SESSION["username"])) {
-	$logged_in = false;
-} else { // Attempt login
-	$sanitised_user = sanitise_input($_SESSION["username"]);
-	if (get_recent_click() != 6) {
-		if (log_in_available() == true) {
-			if (attempt_log_in(sanitise_input($_SESSION["username"]), sanitise_input($_SESSION["password"]), true) == true) {
-				echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
-				echo"<hr/>";
-				$logged_in = true;
-			}
-		}
-	}
-}
-
-function log_in_available() {
-	$sql_connect = db_connect();
-	$table = "passwords";
-	$creation_query = "CREATE TABLE IF NOT EXISTS login  (
-							login_id INT AUTO_INCREMENT PRIMARY KEY,
-							username VARCHAR(30),
-							password VARCHAR(30)
-						);";
-	$creation_login = mysqli_query($sql_connect, $creation_query);
-	if ($creation_login) {
-		mysqli_close($sql_connect);
-		return true;
-	}
-	else {
-		echo"<h3>Cannot connect to login servers, cannot login, try again later.</h3>";
-		return false;
-	}
-}
-
-function attempt_log_in($username, $password, $recheck) {
-		$sql_connect = db_connect();
-		$login_query = "SELECT COUNT('username') FROM login WHERE password='$password' AND username='$username'";
-		//echo"<p>$login_query</p>";
-		$login_establishment = mysqli_query($sql_connect, $login_query);
-		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
-		if ($output_refinement == 1) {
-			if ($recheck == false) {
-				echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
-			}
-			$_SESSION["username"] = $username;
-			$_SESSION["password"] = $password;
-			return true;
-		}
-		else {
-			session_destroy();
-			if ($recheck == false) {
-				echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
-			}
-			else {
-				echo"<h2 class='fail_log'>Password was changed whilst logged in. Retry log in.</h2>";
-			}
-			echo"</hr>";
-			return false;
-		}
+// Log out message
+if (isset($_SESSION["logout_msg"])) {
+  if ($_SESSION["logout_msg"]) {
+    $_SESSION["logout_msg"] = false;
+    print "<h2 class='log_in_notif'>You've been logged out.</h2>";
+  }
 }
 
 // ---------------- END ----------------
