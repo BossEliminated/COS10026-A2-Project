@@ -19,6 +19,13 @@ function get_recent_click() {
       return($action_val);
     }
   }
+	else {
+		if (isset($_SESSION["prev_page"])) {
+		$session_number = sanitise_input($_SESSION["prev_page"]);
+		//echo"<p>$session_number</p>";
+		return($session_number);
+	  }
+  }
   return false;
 }
 
@@ -101,6 +108,7 @@ if (isset($_SESSION["logout_msg"])) {
 if (get_recent_click() == 6) {
    unset($_SESSION['username']);
    unset($_SESSION['password']);
+   $_SESSION["prev_page"] = 0;
    $_SESSION["logout_msg"] = true;
    header("refresh:0");
 }
@@ -396,6 +404,9 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 						}
 					}
 				}
+			}
+			if (count($sufficient_ids) == 1) {
+				 echo"<h3>No results found! Filter may be too strict!</h3>";
 			}
 			// Compare Unique IDS
 			if ($found_second_id == true) {// stop if hit
@@ -750,6 +761,13 @@ if (isset($_POST["filter_all"])) { // Does user want to filter data?
 $Page_Accessed_Properly = get_recent_click();
 if (!isset($main_page)) {
 	header("location: manage.php");
+}
+
+
+if (get_recent_click()) {
+	$_SESSION["prev_page"] = get_recent_click();
+	$temp_prev_page_num = $_SESSION["prev_page"];
+	//echo"<p>$temp_prev_page_num</p>";
 }
 
 if ($logged_in == true) {
