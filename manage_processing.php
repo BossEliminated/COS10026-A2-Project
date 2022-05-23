@@ -5,7 +5,7 @@ $notsearched = true;
 $attemptstable = "id";
 $scoring_table = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
-$attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
+$attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=3 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
 $second_query_produced = "";
@@ -275,8 +275,8 @@ function manual_change_display($mode, $page_num) {
 	echo"<h2>Specific Change Request</h2>";
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
-	echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='1' max='2' placeholder='Attempt'/>";
 	if ($mode == "modify") {
+		echo"<label> Attempt: </label><input type='number' name='manual_change_attempt' size='10' min='1' max='2' placeholder='Attempt'/>";
 		echo"</br>";
 		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
 	}
@@ -396,9 +396,9 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 							$found_second_id = true;
 							//echo($first_table_id);
 							//echo"<p>________________________________</p>";
-							$test = $secondary_associative_return["unique_id"];
-							$test = $secondary_associative_return["score"];
-							echo($test);
+							//$test = $secondary_associative_return["unique_id"];
+							//$test = $secondary_associative_return["score"];
+							//echo($test);
 							//echo"<p>_________________________</p>";
 							array_push($ids_already_used, $first_table_id);
 						}
@@ -408,7 +408,6 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 						}
 					}
 				}
-				echo"<p>end of pointer movig</p>";
 			}
 			// Compare Unique IDS
 			if ($found_second_id == true) {// stop if hit
@@ -461,6 +460,7 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 }
 
 function convert_student_number_to_unique_id($attemptstable, $database, $student_number) {
+	$conversion_finish = false;
 	if (explode("AND", $student_number)[0] != $student_number) {
 		$numberonly = explode("AND", $student_number)[0];
 		echo"<p>num only: $numberonly</p>";
@@ -468,14 +468,17 @@ function convert_student_number_to_unique_id($attemptstable, $database, $student
 	}
 
 	$query_builder = "SELECT unique_id from $attemptstable WHERE $student_number";
+	$query_builder = str_replace(":", "=", $query_builder);
 	echo"<p>student number after change:$student_number</p>";
 	$id_data = mysqli_query($database, $query_builder);
 	if ($id_data) {
 	echo"<p>$query_builder</p>";
 	$assoc_given = mysqli_fetch_assoc($id_data);
 	print_r($assoc_given);
-	$conversion_finish = $assoc_given["unique_id"];
-	echo"<p>conversion result: $conversion_finish</p>";
+	if ($assoc_given) {
+		$conversion_finish = $assoc_given["unique_id"];
+		echo"<p>conversion result: $conversion_finish</p>";
+	}
 	return $conversion_finish;
 	}
 	else {
@@ -488,7 +491,6 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 	echo"<p>$manual manual</p>";
 	$add_attempts = false;
 	$attempt_only_search = false;
-	echo"<p>modification request</p>"; // Need to convert student number into unique_id
 	$database = db_connect(); // Attempts table gives student number.
 	$attempts_section = explode("AND", $manual);
 	//$debug_one = "<p>$attempts_section[0]</p>";
@@ -498,31 +500,34 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 	if ($attempts_section[0] != $manual) {
 		$attempts = $attempts_section[1];
 		$add_attempts = true;
+		echo"<p>add attempts true</p>";
 	}
-	$debugone = strpos("attempt", $manual);
+	$debugone = strpos($manual, "attempt");
 	$debugtwo = $manual;
-	echo"<p>is attempt</p>";
+	echo"<p>___</p>";
 	echo"<p>$debugone</p>";
-	echo"<p>$debugtwo</p>";
-	echo"<p>is attempt $add_attempts</p>";
-	if (strpos("attempt", $manual) and $add_attempts == false) { // If attempts only
-		echo"<p>Attempt only search DEBUG</p>";
+	echo"<p>$add_attempts</p>";
+	echo"<p>___</p>";
+	
+	if ((strpos($manual, "attempt") == "0") and ($add_attempts == false)) { // If attempts only
+	echo"<p>attempt only check</p>";
 		$attempt_only_search = true;
 	}
 	else
 	{
+		echo"<p>conversion check</p>";
 		$unique_id = convert_student_number_to_unique_id($id_table, $database, $manual);
 	}
 	
 	if ($id_val != 0) {
-		$id_val = convert_student_number_to_unique_id($id_table, $database, "student_number=$id_val");
+		$id_val = convert_student_number_to_unique_id($id_table, $database, "unique_id=$id_val");
 	}
-	if ($add_attempts = true) {
+	if ($add_attempts == true) {
 		$unique_id = ($unique_id . " AND" . $attempts);
 		$id_val = ($unique_id . " AND" . $attempts);
 	}
 	
-	if ($attempts_only_search) {
+	if ($attempt_only_search == true) {
 		$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE $manual";
 		echo"<p>$sql_query</p>";
 		$attemptmodify = mysqli_query($database, $sql_query);
@@ -554,22 +559,16 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 }
 
 
-function delete_attempt($attemptstable, $id_val, $manual) {
+function delete_attempt($attemptstable, $scoring_table, $id_val, $manual) {
 	$database = db_connect();
-	if ($manual == false) {
-		$sql_query = "DELETE FROM $attemptstable WHERE id=$id_val";
+	$unique_id = convert_student_number_to_unique_id($attemptstable, $database, $manual);
+	if ($unique_id != false) {
+		$sql_query = "DELETE FROM $attemptstable WHERE unique_id=$unique_id";
+		$sql_query_two = "DELETE FROM $scoring_table WHERE unique_id=$unique_id";
+		//echo"<p>$sql_query</p>";
+		$attemptdelete = mysqli_query($database, $sql_query);
+		$attemptdelete_two = mysqli_query($database, $sql_query_two);
 	}
-	else {
-		$sql_query = "DELETE FROM $attemptstable WHERE ";
-		if (strpos($manual, "and")) {
-			$manual = str_replace("and", "AND", $manual);
-			$manual = str_replace(":", "=", $manual);
-		}
-		$manual = str_replace(":", "=", $manual);
-		$sql_query = $sql_query . $manual;
-		echo"<p>Query Sent: $sql_query</p>"; // INFO QUERY
-	}
-	$attemptdelete = mysqli_query($database, $sql_query);
 	$affected_row_num = mysqli_affected_rows($database);
 	if ($affected_row_num > 0) {
 		echo"<h3>Data was deleted!</h2>";
@@ -713,10 +712,10 @@ else {
 			if (sanitise_input($_POST["confirmation"]) == "true") {
 				//echo"<p>im true</p>";
 				if (isset($_POST["what_searched"])) {
-					delete_attempt($attemptstable, $which_selected, sanitise_input(($_POST["what_searched"])));
+					delete_attempt($attemptstable, $scoring_table, $which_selected, sanitise_input(($_POST["what_searched"])));
 				}
 				else {
-					delete_attempt($attemptstable, $which_selected, false);
+					delete_attempt($attemptstable, $scoring_table, $which_selected, false);
 				}
 			}
 		}
