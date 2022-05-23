@@ -4,6 +4,7 @@ include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
 $attemptstable = "id";
+$scoring_table = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
@@ -405,8 +406,8 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 			$associative_return = mysqli_fetch_assoc($returned_data);
 			$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
 			$first_table_id = $associative_return["unique_id"];
-			echo"<p>$first_table_id is first id</p>";
-			print_r($sufficient_ids);
+			//echo"<p>$first_table_id is first id</p>";
+			//print_r($sufficient_ids);
 			mysqli_data_seek($secondary_table, 0); // Reset second pointer
 			$found_second_id = false;
 			if (array_search($first_table_id, $sufficient_ids)) {
@@ -482,23 +483,96 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 	  mysqli_free_result($returned_data);
 }
 
-function modify_attempt($attemptstable, $id_val, $score_desired, $manual) {
-	echo"<p>modification request</p>";
-	$database = db_connect();
-	if ($manual == false) {
-		$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE id=$id_val";
+function convert_student_number_to_unique_id($attemptstable, $database, $student_number) {
+	if (explode("AND", $student_number)[0] != $student_number) {
+		$numberonly = explode("AND", $student_number)[0];
+		echo"<p>num only: $numberonly</p>";
+		$student_number = $numberonly;
+	}
+
+	$query_builder = "SELECT unique_id from $attemptstable WHERE $student_number";
+	echo"<p>student number after change:$student_number</p>";
+	$id_data = mysqli_query($database, $query_builder);
+	if ($id_data) {
+	echo"<p>$query_builder</p>";
+	$assoc_given = mysqli_fetch_assoc($id_data);
+	print_r($assoc_given);
+	$conversion_finish = $assoc_given["unique_id"];
+	echo"<p>conversion result: $conversion_finish</p>";
+	return $conversion_finish;
 	}
 	else {
-		$sql_query = "UPDATE $attemptstable SET score=$score_desired WHERE ";
-		$sql_query = ($sql_query . str_replace(":", "=", $manual));
+		return false;
+	}
+}
+
+
+function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $manual) {
+	echo"<p>$manual manual</p>";
+	$add_attempts = false;
+	$attempt_only_search = false;
+	echo"<p>modification request</p>"; // Need to convert student number into unique_id
+	$database = db_connect(); // Attempts table gives student number.
+	$attempts_section = explode("AND", $manual);
+	//$debug_one = "<p>$attempts_section[0]</p>";
+	//$debug_two = "<p>$manual</p>";
+	//echo $debug_one;
+	//echo $debug_two;
+	if ($attempts_section[0] != $manual) {
+		$attempts = $attempts_section[1];
+		$add_attempts = true;
+	}
+	$debugone = strpos("attempt", $manual);
+	$debugtwo = $manual;
+	echo"<p>is attempt</p>";
+	echo"<p>$debugone</p>";
+	echo"<p>$debugtwo</p>";
+	echo"<p>is attempt $add_attempts</p>";
+	if (strpos("attempt", $manual) and $add_attempts == false) { // If attempts only
+		echo"<p>Attempt only search DEBUG</p>";
+		$attempt_only_search = true;
+	}
+	else
+	{
+		$unique_id = convert_student_number_to_unique_id($id_table, $database, $manual);
+	}
+	
+	if ($id_val != 0) {
+		$id_val = convert_student_number_to_unique_id($id_table, $database, "student_number=$id_val");
+	}
+	if ($add_attempts = true) {
+		$unique_id = ($unique_id . " AND" . $attempts);
+		$id_val = ($unique_id . " AND" . $attempts);
+	}
+	
+	if ($attempts_only_search) {
+		$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE $manual";
 		echo"<p>$sql_query</p>";
-	}
-	$attemptmodify = mysqli_query($database, $sql_query);
-	if ($attemptmodify) {
-		echo"<h2>Dataset successfully modified!</h2>";
+		$attemptmodify = mysqli_query($database, $sql_query);
+		if ($attemptmodify) {
+			echo"<h2>Dataset successfully modified!</h2>";
+		}
+		else {
+			echo"<h2>Dataset could not be modified, may not exist!</h2>";
+		}
 	}
 	else {
-		echo"<h2>Dataset could not be modified, may not exist!</h2>";
+		if ($unique_id) {
+			if ($manual == false) {
+				$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE unique_id=$id_val";
+			}
+			else {
+				$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE unique_id=$unique_id";
+				echo"<p>$sql_query</p>";
+			}
+			$attemptmodify = mysqli_query($database, $sql_query);
+			if ($attemptmodify) {
+				echo"<h2>Dataset successfully modified!</h2>";
+			}
+			else {
+				echo"<h2>Dataset could not be modified, may not exist!</h2>";
+			}
+		}
 	}
 }
 
@@ -678,13 +752,13 @@ else {
 					$attempt_var_name = "attempt";
 					if (isset($_POST["modify_request"])) {
 						if ($_POST["manual_change_id"] != "" and $_POST["manual_change_attempt"] != "") {
-							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$id_var_name=" . ($_POST["manual_change_id"]) . " AND $attempt_var_name=" . ($_POST["manual_change_attempt"])));
+							modify_attempt($attemptstable, $scoring_table, 0, $score_desired, sanitise_input("$id_var_name=" . ($_POST["manual_change_id"]) . " AND $attempt_var_name=" . ($_POST["manual_change_attempt"])));
 						}
 						elseif ($_POST["manual_change_id"] != "") {
-							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$id_var_name=" .($_POST["manual_change_id"])));
+							modify_attempt($attemptstable, $scoring_table, 0, $score_desired, sanitise_input("$id_var_name=" .($_POST["manual_change_id"])));
 						}
 						elseif($_POST["manual_change_attempt"] != "") {
-							modify_attempt($attemptstable, 0, $score_desired, sanitise_input("$attempt_var_name=" .($_POST["manual_change_attempt"])));
+							modify_attempt($attemptstable, $scoring_table, 0, $score_desired, sanitise_input("$attempt_var_name=" .($_POST["manual_change_attempt"])));
 						}
 					}
 					else {
