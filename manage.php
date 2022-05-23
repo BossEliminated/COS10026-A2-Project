@@ -7,31 +7,30 @@
     <div class="manage-flex-content">
       <div class="manage-menu">
         <form method="post" action="manage.php">
-          <!-- <button class="manage-hide" type="submit" name="action" value="5"></button> -->
+          <button class="manage-hide" type="submit" name="action" value="5"></button>
           <button type="submit" name="action" value="1">List All attempts</button>
           <button type="submit" name="action" value="2">List half attempts</button>
           <button type="submit" name="action" value="3">Delete attempts</button>
           <button type="submit" name="action" value="4">Manage Score</button>
           <hr class="manage-menu-hr" />
           <div class="manage-id-field">
-            <!-- Do not print these if logged in -->
             <label for="student_id">
               <input name="username" type="text" placeholder="Username" />
             </label>
             <label for="student_name">
               <input name="password" type="password" placeholder="Password" />
             </label>
-            <!-- <p class="">If loged in Put User Name here</p> -->
           </div>
-          <button type="submit" name="action" value="5">Login/Sign Up</button>
-          <!-- Show logout button if loged in -->
-		  <?php 
-		  if (isset($_POST["action"])) {
-			  if (isset($_SESSION["username"]) == true and $_POST["action"] != 6) {
-				echo"<button type='submit' name='action' value='6'>Logout</button>";
-			  }
-		  }
-		  ?>
+          <?php
+          if (isset($_POST["action"])) {
+            if (isset($_SESSION["username"]) == true and $_POST["action"] != 6) {
+              echo"<button type='submit' name='action' value='6'>Logout</button>";
+            }
+          }
+          if (!isset($_SESSION["username"])) {
+            print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
+          }
+          ?>
         </form>
         <div style="height: 500px;"></div>
       </div>
