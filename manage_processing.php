@@ -1,5 +1,4 @@
 <?php
-//session_start();
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
@@ -9,7 +8,6 @@ $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=2 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 $index_of_radio_buttons = 2;
-$logged_in = false;
 $second_query_produced = "";
 // Correlate radio with filter.
 
@@ -32,97 +30,94 @@ function get_recent_click() {
   return false;
 }
 
+// --------------- Login / Log out Section ------------------------
 
-
-
-
-if (!isset($_SESSION["username"])) {
-	$logged_in = false;
-}
-else { // Attempt login
-	$sanitised_user = sanitise_input($_SESSION["username"]);
-	if (get_recent_click() != 6) {
-		if (log_in_available() == true) {
-			if (attempt_log_in(sanitise_input($_SESSION["username"]), sanitise_input($_SESSION["password"]), true) == true) {
-				echo "<h5 class='log_in_notif'>Logged in as $sanitised_user !</h5>";
-				echo"<hr/>";
-				$logged_in = true;
-			}
-		}
-	}
+// Login DB Check
+$sql = "CREATE TABLE IF NOT EXISTS login (login_id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30), password VARCHAR(30));";
+$conn = db_connect();
+if ($conn) {
+  mysqli_query($conn, $sql);
+	mysqli_close($conn);
 }
 
-function log_in_available() {
-	$sql_connect = db_connect();
-	$table = "passwords";
-	$creation_query = "CREATE TABLE IF NOT EXISTS login  (
-							login_id INT AUTO_INCREMENT PRIMARY KEY,
-							username VARCHAR(30),
-							password VARCHAR(30)
-						);";
-	$creation_login = mysqli_query($sql_connect, $creation_query);
-	if ($creation_login) {
-		mysqli_close($sql_connect);
-		return true;
-	}
-	else {
-		echo"<h3>Cannot connect to login servers, cannot login, try again later.</h3>";
-		return false;
-	}
-}
-
-function attempt_log_in($username, $password, $recheck) {
-		$sql_connect = db_connect();
-		$login_query = "SELECT COUNT('username') FROM login WHERE password='$password' AND username='$username'";
-		//echo"<p>$login_query</p>";
-		$login_establishment = mysqli_query($sql_connect, $login_query);
-		$output_refinement = mysqli_fetch_all($login_establishment)[0][0];
-		if ($output_refinement == 1) {
-			if ($recheck == false) {
-				echo"<h2 class='log_in_notif'>Logged in as, $username</h2>";
-			}
-			$_SESSION["username"] = $username;
-			$_SESSION["password"] = $password;
-			return true;
-		}
-		else {
-			session_destroy();
-			if ($recheck == false) {
-				echo"<h2 class='fail_log'>Failed to log in, username or password may be incorrect</h2>";
-			}
-			else {
-				echo"<h2 class='fail_log'>Password was changed whilst logged in. Retry log in.</h2>";
-			}
-			echo"</hr>";
-			return false;
-		}
-}
-
-
-// Initiate log in phase
 if (get_recent_click() == 5) {
-	if (isset($_POST["username"])) {
-		$username = sanitise_input($_POST["username"]);
-	}
-	if (isset($_POST["password"])) {
-		$password = sanitise_input($_POST["password"]);
-	}
-	if (isset($username) == true and isset($password) == true) {
-		if ($username == "" or $password == "") {
-			echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
-		}
-		else {
-			//echo"<p>DEBUG: Attempting log in</p>";
-			log_in_available();
-			if (attempt_log_in($username, $password, false) == true) {
-				$logged_in = true;
-			};
-		}
-	}
+  // Login Validation
+  if (isset($_POST["username"]) && isset($_POST["password"])) {
+    if (!$_POST["username"] == "" && !$_POST["password"] == "") {
+      $username = sanitise_input($_POST["username"]);
+      $password = sanitise_input($_POST["password"]);
+    } else {
+      echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+    }
+  } else {
+    echo"<h2 class='fail_log'>Username/Password input left blank!</h2>";
+  }
+
+  // Login
+  if (isset($username) && isset($password)) {
+    if (attempt_log_in($username, $password)) {
+      $_SESSION["username"] = $username;
+      $_SESSION["password"] = $password;
+      $_SESSION["login_msg"] = true;
+      $logged_in = true;
+      $_POST["action"] = 0; // Reset pressed option to avoid Logging in again
+      header("refresh:0");
+    } else {
+      echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
+    }
+  }
 }
 
 
+// Check login details against database
+function attempt_log_in($username, $password) {
+		$conn = db_connect();
+		$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
+		return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
+}
 
+// Log login message
+if (isset($_SESSION["login_msg"])) {
+  if ($_SESSION["login_msg"]) {
+    $_SESSION["login_msg"] = false;
+    print "<h2 class='log_in_notif'>Logged in as, ".$_SESSION["username"]."</h2>";
+  }
+}
+
+// Check Login
+if (isset($_SESSION["username"])) {
+  $logged_in = true;
+} else {
+  $logged_in = false;
+}
+
+// Log out message
+if (isset($_SESSION["logout_msg"])) {
+  if ($_SESSION["logout_msg"]) {
+    $_SESSION["logout_msg"] = false;
+    print "<h2 class='log_in_notif'>You've been logged out.</h2>";
+  }
+}
+
+// Log out
+if (get_recent_click() == 6) {
+   unset($_SESSION['username']);
+   unset($_SESSION['password']);
+   $_SESSION["logout_msg"] = true;
+	 $logged_in = false; // Set db acces to false
+   $_POST["action"] = 0; // Must reset pressed option to avoid infinite loop on refresh
+   header("refresh:0");
+}
+
+// Log out message
+if (isset($_SESSION["logout_msg"])) {
+  if ($_SESSION["logout_msg"]) {
+    $_SESSION["logout_msg"] = false;
+    print "<h2 class='log_in_notif'>You've been logged out.</h2>";
+  }
+}
+
+// ---------------- END ----------------
 
 //Input fields
 function load_filter_inputs($logged_in) {
@@ -152,24 +147,6 @@ function load_filter_inputs($logged_in) {
 		echo"</section>";
 	}
 }
-//
-
-function debug_check() {
-	foreach ($_POST as $param_name => $param_val) {
-    print "<p>Name: $param_name, Value: $param_val</p>";
-}
-	// foreach ($variable as $a) {
-	// 	if isset($_POST[$a]) {
-	// 		print ($_POST[$a]);
-	// 	}
-	// }
-}
-
-//debug_check();
-
-
-
-
 
 function filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons) {
 	$filter_provided_array = [];
@@ -206,7 +183,7 @@ function filter_considerations($filter_fields, $attempts_filter, $index_of_radio
 	return $filter_provided_array;
 }
 
-function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter, $index_of_radio_buttons, $radio_mode) { // id_refer is query used., filters set are results of POST 
+function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter, $index_of_radio_buttons, $radio_mode) { // id_refer is query used., filters set are results of POST
 	$anyfiltering_done = false;
 	for ($basic_counter = 0; $basic_counter < count($filters_set); $basic_counter++) {
 		//echo"<p>$filters_set[$basic_counter]</p>";
@@ -344,7 +321,7 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 		$temp_id_holder = mysqli_fetch_assoc($secondary_table)["unique_id"];
 		//echo"<p>$temp_id_holder second</p>";
 		array_push($column_second_unique_identifier, $temp_id_holder);
-		
+
 	}
 	for ($array_compare_index = 0; $array_compare_index < count($column_first_unique_identifier); $array_compare_index++) {
 		for ($array_compare_index_secondary = 0; $array_compare_index_secondary < count($column_second_unique_identifier); $array_compare_index_secondary++) {
@@ -389,13 +366,13 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 			// First
           $local_name = $secondary_all_fields[$t]->name;
 		  //echo"<p>$local_name</p>";
-		  //echo"<p>$local_name</p>"; 
+		  //echo"<p>$local_name</p>";
 		  if (array_search($local_name, $desired_headers) != false) {
 			array_push($column_second_nums_generate, $t);
 			echo"<th>$local_name</th>";
 		  }
 		}
-        
+
         echo"</tr>";
 		echo"</thead>";
       // End Header
@@ -770,14 +747,6 @@ else {
 	}
 }
 
-if (get_recent_click() == 6) { // Log out
-	 session_destroy();
-	 $logged_in = false;
-	 echo"<h2 class='log_in_notif'>You've been logged out.</h2>";
-}
-
-
-
 if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$filters_set = filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons);
 	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true, $index_of_radio_buttons, false); // for text input;
@@ -791,27 +760,17 @@ else {
 	$query_produced = false;
 }
 
-
-
-
 if (get_recent_click()) {
 	$_SESSION["prev_page"] = get_recent_click();
 	$temp_prev_page_num = $_SESSION["prev_page"];
 	//echo"<p>$temp_prev_page_num</p>";
 }
 
-
-
-
 // Check which page.
 $Page_Accessed_Properly = get_recent_click();
 if (!isset($main_page)) {
 	header("location: manage.php");
 }
-
-
-
-
 
 if ($logged_in == true) {
 	if (get_recent_click() == 1) {
@@ -857,5 +816,13 @@ if ($notsearched == true and $logged_in == true) {
   echo"<h2>No search has occured</h2>";
 }
 
+function debug_check() {
+	foreach ($_POST as $param_name => $param_val) {
+    print "<p>Name: $param_name, Value: $param_val</p>";
+  }
+  print("<br/>");
+}
+
+// debug_check();
 
 ?>
