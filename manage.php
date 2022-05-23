@@ -24,17 +24,13 @@
                   <input name='password' type='password' placeholder='Password' />
                 </label>
               </div>";
+              print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
             } else {
               print "
               <div class='manage-id-field'>
                 <p>".$_SESSION["username"]."</p>
               </div>";
-            }
-            if (isset($_SESSION["username"])) {
-              echo"<button type='submit' name='action' value='6'>Logout</button>";
-            }
-            if (!isset($_SESSION["username"])) {
-              print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
+              print "<button type='submit' name='action' value='6'>Logout</button>";
             }
           ?>
         </form>

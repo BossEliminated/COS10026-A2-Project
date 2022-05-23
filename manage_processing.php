@@ -7,23 +7,21 @@ $scoring_table = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
 $attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=3 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
+
+// Correlate radio with filter.
 $index_of_radio_buttons = 2;
 $second_query_produced = "";
-// Correlate radio with filter.
 
-// Functions required for log in
 function get_recent_click() {
   if (isset($_POST["action"])) {
 	$action_val = sanitise_input($_POST["action"]);
     if (is_numeric($action_val)) {
+      $_SESSION["prev_page"] = $action_val;
       return($action_val);
     }
-  }
-	else {
+  }	elseif (isset($_SESSION["prev_page"])) {
 		if (isset($_SESSION["prev_page"])) {
-		$session_number = sanitise_input($_SESSION["prev_page"]);
-		//echo"<p>$session_number</p>";
-		return($session_number);
+		return($_SESSION["prev_page"]);
 	  }
   }
   return false;
@@ -63,10 +61,12 @@ if (get_recent_click() == 5) {
   // Login
   if (isset($username) && isset($password)) {
     if (attempt_log_in($username, $password)) {
+      $logged_in = true;
       $_SESSION["username"] = $username;
       $_SESSION["password"] = $password;
       $_SESSION["login_msg"] = true;
-      $logged_in = true;
+      unset($_SESSION["prev_page"]);
+      unset($_POST['action']);
       header("refresh:0");
     } else {
       echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
@@ -106,11 +106,12 @@ if (isset($_SESSION["logout_msg"])) {
 
 // Log out
 if (get_recent_click() == 6) {
-   unset($_SESSION['username']);
-   unset($_SESSION['password']);
-   $_SESSION["prev_page"] = 0;
-   $_SESSION["logout_msg"] = true;
-   header("refresh:0");
+  unset($_SESSION['username']);
+  unset($_SESSION['password']);
+  $_SESSION["logout_msg"] = true;
+  unset($_SESSION["prev_page"]);
+  unset($_POST['action']);
+  header("refresh:0");
 }
 
 // ---------------- END ----------------
@@ -219,9 +220,6 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter,
 				$base_query = ($base_query . " AND ");
 			}
 			$test = $id_refer[$counter];
-			//print_r($id_refer);
-			//print_r($filters_set);
-			//echo"<p>does it have =? $test</p>";
 			if (strpos($id_refer[$counter], "=")) { // Verbatim
 				$temp_string = "(";
 				if ($counter == $index_of_radio_buttons) {
@@ -237,17 +235,13 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter,
 				$temp_string = "(";
 				$temp_string = ($temp_string . $id_refer[$counter]);
 				$seperator = '"';
-				//echo"<p>$temp_string</p>";
 				$temp_string = str_replace("OR", " = $seperator$filters_set[$counter]$seperator OR ", $temp_string);
-				//echo"<p>$temp_string</p>";
 				$temp_string = ($temp_string . " = $seperator$filters_set[$counter]$seperator" . ")");
 				$base_query = ($base_query . $temp_string);
 			}
 			elseif (strpos($id_refer[$counter], "AND")) { // Deduction of filter
 				$temp_string = "(";
 				$temp_string = ($temp_string . $id_refer[$counter]);
-				//echo"<p>$temp_string</p>";
-				//echo"<p>$temp_string</p>";
 				$base_query = ($base_query . $temp_string . ")");
 			}
 			else {
@@ -258,8 +252,6 @@ function modify_query_based_on_filter($id_refer, $filters_set, $is_first_filter,
 	echo"<p>Sent Query: $base_query</p>";
 	return $base_query;
 }
-
-
 
 function manual_change_display($mode, $page_num) {
 	if ($mode == "delete") {
@@ -302,160 +294,138 @@ function display_results_in_table($returned_data, $secondary_table, $first_query
 	$rows_available = mysqli_num_rows($returned_data);
 	$rows_secondary_available = mysqli_num_rows($secondary_table);
 	// Repeat
-    $all_fields = mysqli_fetch_fields($returned_data);
-    $secondary_all_fields = mysqli_fetch_fields($secondary_table);
+  $all_fields = mysqli_fetch_fields($returned_data);
+  $secondary_all_fields = mysqli_fetch_fields($secondary_table);
 	// Compare if both results exist, hence if Radio is searched then only radio ID unique will show for both tables.
 	$column_first_unique_identifier = ["head"];
 	$column_second_unique_identifier = ["head"];
 	$sufficient_ids = [];
 	for ($id_collector_counter = 0; $id_collector_counter < $rows_available; $id_collector_counter++) {
 		$temp_id_holder = mysqli_fetch_assoc($returned_data)["unique_id"];
-				//echo"<p>$temp_id_holder first</p>";
 		array_push($column_first_unique_identifier, $temp_id_holder);
 	}
 	for ($id_collector_counter = 0; $id_collector_counter < $rows_secondary_available; $id_collector_counter++) {
 		$temp_id_holder = mysqli_fetch_assoc($secondary_table)["unique_id"];
-		//echo"<p>$temp_id_holder second</p>";
 		array_push($column_second_unique_identifier, $temp_id_holder);
-
 	}
 	for ($array_compare_index = 0; $array_compare_index < count($column_first_unique_identifier); $array_compare_index++) {
 		for ($array_compare_index_secondary = 0; $array_compare_index_secondary < count($column_second_unique_identifier); $array_compare_index_secondary++) {
 			$debug_first = $column_first_unique_identifier[$array_compare_index];
 			$debug_second = $column_second_unique_identifier[$array_compare_index_secondary];
-			//echo"<p>$debug_first == $debug_second</p>";
 			if ($column_first_unique_identifier[$array_compare_index] == $column_second_unique_identifier[$array_compare_index_secondary]) {
 				array_push ($sufficient_ids, $column_first_unique_identifier[$array_compare_index]);
 			}
 		}
 	}
-	//
-	//
 	mysqli_data_seek($returned_data, 0);
 	mysqli_data_seek($secondary_table, 0);
 	$all_fields = mysqli_fetch_fields($returned_data); // This has Name
-    $secondary_all_fields = mysqli_fetch_fields($secondary_table); // This has ID/attempts
+  $secondary_all_fields = mysqli_fetch_fields($secondary_table); // This has ID/attempts
 	$starter = 0;
 	if ($mode == "half") {
 		$starter = round($rows_available / 2);
 	}
-	 echo"<table class='manage_table'>"; // Create Headers
-		echo"<thead>";
-        echo"<tr>";
-		$desired_headers = ["", "student_number", "first_name", "last_name", "created", "attempt", "score"];
-		$column_first_nums_generate = ["head"];
-		$column_second_nums_generate = ["head"];
-		for ($t = 0; $t < count($all_fields); $t++) {
-		  // Secondary
-		  if ($t < (count($all_fields))) {
-			$local_name = $all_fields[$t]->name;
-			//echo"<p>$local_name</p>";
-			//print_r($desired_headers);
-			if (array_search($local_name, $desired_headers) != false) {
-				//echo"<p>ran</p>";
-				array_push($column_first_nums_generate, $t);
-				echo"<th>$local_name</th>";
-			}
-		  }
-		}
-        for ($t = 0; $t < count($secondary_all_fields); $t++) {
-			// First
-          $local_name = $secondary_all_fields[$t]->name;
-		  //echo"<p>$local_name</p>";
-		  //echo"<p>$local_name</p>";
-		  if (array_search($local_name, $desired_headers) != false) {
-			array_push($column_second_nums_generate, $t);
-			echo"<th>$local_name</th>";
-		  }
-		}
+	echo"<table class='manage_table'>"; // Create Headers
+	echo"<thead>";
+  echo"<tr>";
+	$desired_headers = ["", "student_number", "first_name", "last_name", "created", "attempt", "score"];
+	$column_first_nums_generate = ["head"];
+	$column_second_nums_generate = ["head"];
+  for ($t = 0; $t < count($all_fields); $t++) {
+    // Secondary
+    if ($t < (count($all_fields))) {
+    	$local_name = $all_fields[$t]->name;
+    	if (array_search($local_name, $desired_headers) != false) {
+    		array_push($column_first_nums_generate, $t);
+    		echo"<th>$local_name</th>";
+    	}
+    }
+  }
+  for ($t = 0; $t < count($secondary_all_fields); $t++) {
+    // First
+    $local_name = $secondary_all_fields[$t]->name;
+    if (array_search($local_name, $desired_headers) != false) {
+      array_push($column_second_nums_generate, $t);
+      echo"<th>$local_name</th>";
+    }
+  }
+  echo"</tr>";
+	echo"</thead>";
+  // Header End
 
-        echo"</tr>";
-		echo"</thead>";
-      // End Header
-	  $ids_already_used = ["head"];
-	  if ($rows_available != 0) { // Go through rows
-		  for ($i=$starter;$i<$rows_available;$i++) {
-			echo"<tr>";
-			$associative_return = mysqli_fetch_assoc($returned_data);
-			$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
-			$first_table_id = $associative_return["unique_id"];
-			//echo"<p>$first_table_id is first id</p>";
-			//print_r($sufficient_ids);
-			mysqli_data_seek($secondary_table, 0); // Reset second pointer
-			$found_second_id = false;
-			if (array_search($first_table_id, $sufficient_ids)) {
-				// Find and place pointer at second.
-				for ($index_searcher = 1; $index_searcher < count($column_second_nums_generate) + 2;$index_searcher++) {
-					//echo("<h3>$index_searcher</h3>");
-					if ($found_second_id == false) {
-						if (($first_table_id) == $secondary_associative_return["unique_id"] and !array_search($first_table_id, $ids_already_used)) {
-							$found_second_id = true;
-							//echo($first_table_id);
-							//echo"<p>________________________________</p>";
-							//$test = $secondary_associative_return["unique_id"];
-							//$test = $secondary_associative_return["score"];
-							//echo($test);
-							//echo"<p>_________________________</p>";
-							array_push($ids_already_used, $first_table_id);
-						}
-						else {
-							//echo"<p>moved pointer $index_searcher</p>";
-							$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
-						}
+  $ids_already_used = ["head"];
+  if ($rows_available != 0) { // Go through rows
+	  for ($i=$starter;$i<$rows_available;$i++) {
+		echo"<tr>";
+		$associative_return = mysqli_fetch_assoc($returned_data);
+		$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
+		$first_table_id = $associative_return["unique_id"];
+		mysqli_data_seek($secondary_table, 0); // Reset second pointer
+		$found_second_id = false;
+		if (array_search($first_table_id, $sufficient_ids)) {
+			// Find and place pointer at second.
+			for ($index_searcher = 1; $index_searcher < count($column_second_nums_generate) + 2;$index_searcher++) {
+				//echo("<h3>$index_searcher</h3>");
+				if ($found_second_id == false) {
+					if (($first_table_id) == $secondary_associative_return["unique_id"] and !array_search($first_table_id, $ids_already_used)) {
+						$found_second_id = true;
+						//echo($first_table_id);
+						//echo"<p>________________________________</p>";
+						//$test = $secondary_associative_return["unique_id"];
+						//$test = $secondary_associative_return["score"];
+						//echo($test);
+						//echo"<p>_________________________</p>";
+						array_push($ids_already_used, $first_table_id);
+					}
+					else {
+						//echo"<p>moved pointer $index_searcher</p>";
+						$secondary_associative_return = mysqli_fetch_assoc($secondary_table);
 					}
 				}
 			}
-			if (count($sufficient_ids) == 1) {
-				 echo"<h3>No results found! Filter may be too strict!</h3>";
-			}
-			// Compare Unique IDS
-			if ($found_second_id == true) {// stop if hit
-				for ($annoying_index = 0; $annoying_index < 2; $annoying_index++) {
-					for ($t = 0; $t < count($all_fields); $t++) {
-						  //
-							$return_data = "";
-							if ($annoying_index == 0) {
-								if (array_search($t, $column_first_nums_generate)) {
-									$local_name = $all_fields[$t]->name;
-									$return_data = $associative_return[$local_name];
-								}
-							}
-							else {
-									if (array_search($t, $column_second_nums_generate)) {
-										$local_name = $secondary_all_fields[$t]->name;
-										$return_data = $secondary_associative_return[$local_name];
-										//echo"<p>$return_data</p>";
-								}
-							}
-						  //
-						  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
-							  echo"<form method='POST' action='manage.php'>";
-							  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-							  if ($mode == "manage") {
-								  echo"
-												<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input>
-											</td>";
-							  }
-							  echo"<input type='hidden' name='action' value='$page_num'>";
-							  echo"</form>";
-						  }
-						  else {
-							  if ($return_data != "") {
-								echo"<td class='manage_table_info'>$return_data</td>";
-							  }
-						  }
+		}
+		if (count($sufficient_ids) == 1) {
+			 echo"<h3>No results found! Filter may be too strict!</h3>";
+		}
+		// Compare Unique IDS
+		if ($found_second_id == true) { // stop if hit
+			for ($annoying_index = 0; $annoying_index < 2; $annoying_index++) {
+				for ($t = 0; $t < count($all_fields); $t++) {
+					$return_data = "";
+					if ($annoying_index == 0) {
+						if (array_search($t, $column_first_nums_generate)) {
+							$local_name = $all_fields[$t]->name;
+							$return_data = $associative_return[$local_name];
+						}
+					} else {
+							if (array_search($t, $column_second_nums_generate)) {
+								$local_name = $secondary_all_fields[$t]->name;
+								$return_data = $secondary_associative_return[$local_name];
+						}
 					}
+				  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
+					  echo"<form method='POST' action='manage.php'>";
+					  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+					  if ($mode == "manage") {
+						  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
+					  }
+					  echo"<input type='hidden' name='action' value='$page_num'>";
+					  echo"</form>";
+				  } else {
+					  if ($return_data != "") {
+              echo"<td class='manage_table_info'>$return_data</td>";
+					  }
+				  }
 				}
 			}
-			//$return_data = $associative_return["first_name"];
-			echo"</tr>";
-		  }
+		}
+    echo"</tr>";
 	  }
-	  else {
-		 echo"<h3>No results found! Filter may be too strict!</h3>";
-	  }
-      echo"</table>";
-	  mysqli_free_result($returned_data);
+  } else {
+    echo"<h3>No results found! Filter may be too strict!</h3>";
+  }
+  echo"</table>";
+	mysqli_free_result($returned_data);
 }
 
 function convert_student_number_to_unique_id($attemptstable, $database, $student_number) {
@@ -485,17 +455,12 @@ function convert_student_number_to_unique_id($attemptstable, $database, $student
 	}
 }
 
-
 function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $manual) {
 	echo"<p>$manual manual</p>";
 	$add_attempts = false;
 	$attempt_only_search = false;
 	$database = db_connect(); // Attempts table gives student number.
 	$attempts_section = explode("AND", $manual);
-	//$debug_one = "<p>$attempts_section[0]</p>";
-	//$debug_two = "<p>$manual</p>";
-	//echo $debug_one;
-	//echo $debug_two;
 	if ($attempts_section[0] != $manual) {
 		$attempts = $attempts_section[1];
 		$add_attempts = true;
@@ -507,13 +472,11 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 	echo"<p>$debugone</p>";
 	echo"<p>$add_attempts</p>";
 	echo"<p>___</p>";
-	
+
 	if ((strpos($manual, "attempt") == "0") and ($add_attempts == false)) { // If attempts only
-	echo"<p>attempt only check</p>";
+	   echo"<p>attempt only check</p>";
 		$attempt_only_search = true;
-	}
-	else
-	{
+	} else {
 		echo"<p>conversion check</p>";
 		$unique_id = convert_student_number_to_unique_id($id_table, $database, $manual);
 	}
@@ -532,12 +495,10 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 		$attemptmodify = mysqli_query($database, $sql_query);
 		if ($attemptmodify) {
 			echo"<h2>Dataset successfully modified!</h2>";
-		}
-		else {
+		} else {
 			echo"<h2>Dataset could not be modified, may not exist!</h2>";
 		}
-	}
-	else {
+	} else {
 		if ($unique_id) {
 			if ($manual == false) {
 				$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE unique_id=$id_val";
@@ -557,14 +518,12 @@ function modify_attempt($id_table, $scoring_table, $id_val, $score_desired, $man
 	}
 }
 
-
 function delete_attempt($attemptstable, $scoring_table, $id_val, $manual) {
 	$database = db_connect();
 	$unique_id = convert_student_number_to_unique_id($attemptstable, $database, $manual);
 	if ($unique_id != false) {
 		$sql_query = "DELETE FROM $attemptstable WHERE unique_id=$unique_id";
 		$sql_query_two = "DELETE FROM $scoring_table WHERE unique_id=$unique_id";
-		//echo"<p>$sql_query</p>";
 		$attemptdelete = mysqli_query($database, $sql_query);
 		$attemptdelete_two = mysqli_query($database, $sql_query_two);
 	}
@@ -596,81 +555,68 @@ function confirmation($id_val, $search_val) {
 function update_query($old_query, $new_query_filters) {
 	if ($new_query_filters != false) {
 		$old_query = ($old_query . " " . $new_query_filters );
-		//echo"<p>New query produced $old_query</p>";
 		return $old_query;
 	}
 	return $old_query;
 }
 
 function list_all_attempts($attemptstable, $query_produced, $secondary_query) {
-    $sql_connection = db_connect();
-    $sql_query = "SELECT * from $attemptstable";
-	//echo"<p>Query specification $query_produced</p>";
-	$sql_query = update_query($sql_query, $query_produced);
-    $returned_data = mysqli_query($sql_connection, $sql_query);
-    #$test_var = count($all_fields);
-	$secondary_data = create_secondary($secondary_query);
-    #echo"<p>$test_var</p>";
-    if ($returned_data) {
-     display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "all", 1);
-    }
-    else {
-      $query_failure = true;
-    }
+  $sql_connection = db_connect();
+  $sql_query = "SELECT * from $attemptstable";
+  $sql_query = update_query($sql_query, $query_produced);
+  $returned_data = mysqli_query($sql_connection, $sql_query);
+  $secondary_data = create_secondary($secondary_query);
+  if ($returned_data) {
+    display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "all", 1);
+  }
+  else {
+    $query_failure = true;
+  }
 }
-
 
 function list_half_attempts($attemptstable, $query_produced, $secondary_query) {
-	$sql_connection = db_connect();
-    $sql_query = "SELECT * from $attemptstable";
-	$sql_query = update_query($sql_query, $query_produced);
-    $returned_data = mysqli_query($sql_connection, $sql_query);
-	$secondary_data = 	create_secondary($secondary_query);
-    #$test_var = count($all_fields);
-    #echo"<p>$test_var</p>";
-    if ($returned_data) {
-     display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "half", 2);
-    }
-    else {
-      $query_failure = true;
-    }
+  $sql_connection = db_connect();
+  $sql_query = "SELECT * from $attemptstable";
+  $sql_query = update_query($sql_query, $query_produced);
+  $returned_data = mysqli_query($sql_connection, $sql_query);
+  $secondary_data = 	create_secondary($secondary_query);
+  if ($returned_data) {
+    display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "half", 2);
+  }
+  else {
+    $query_failure = true;
+  }
 }
 
-
 function manage_score($attemptstable, $query_produced, $secondary_query) {
-	$sql_connection = db_connect();
-    $sql_query = "SELECT * from $attemptstable";
-	$sql_query = update_query($sql_query, $query_produced);
-    $returned_data = mysqli_query($sql_connection, $sql_query);
-	$secondary_data = create_secondary($secondary_query);
-    #$test_var = count($all_fields);
-    #echo"<p>$test_var</p>";
-    if ($returned_data) {
-     display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "manage", 4);
-    }
-    else {
-      $query_failure = true;
-    }
+  $sql_connection = db_connect();
+  $sql_query = "SELECT * from $attemptstable";
+  $sql_query = update_query($sql_query, $query_produced);
+  $returned_data = mysqli_query($sql_connection, $sql_query);
+  $secondary_data = create_secondary($secondary_query);
+  if ($returned_data) {
+    display_results_in_table($returned_data, $secondary_data, $sql_query, $secondary_query, "manage", 4);
+  }
+  else {
+    $query_failure = true;
+  }
 }
 
 function delete_attempts($attemptstable, $query_produced, $secondary_query) {
-	$sql_connection = db_connect();
-    $sql_query = "SELECT * from $attemptstable";
-	$sql_query = update_query($sql_query, $query_produced);
-    $returned_data = mysqli_query($sql_connection, $sql_query);
-	$secondary_data = create_secondary($secondary_query);
-    #$test_var = count($all_fields);
-    #echo"<p>$test_var</p>";
-    if ($returned_data) {
-     display_results_in_table($returned_data,$secondary_data, $sql_query, $secondary_query, "delete", 3);
-    }
-    else {
-      $query_failure = true;
-    }
+  $sql_connection = db_connect();
+  $sql_query = "SELECT * from $attemptstable";
+  $sql_query = update_query($sql_query, $query_produced);
+  $returned_data = mysqli_query($sql_connection, $sql_query);
+  $secondary_data = create_secondary($secondary_query);
+  if ($returned_data) {
+    display_results_in_table($returned_data,$secondary_data, $sql_query, $secondary_query, "delete", 3);
+  }
+  else {
+    $query_failure = true;
+  }
 }
 
 // Start of Main Sequence
-
 // Check if a deletion was prompted.
 if (!isset($_POST["confirmation"]) and get_recent_click() == 3) { // Confirmation given by user? NO? Then prompt confirmation.
 	if (isset($_POST["which_selected"]) or isset($_POST["modify_request"])) {
@@ -699,8 +645,7 @@ if (!isset($_POST["confirmation"]) and get_recent_click() == 3) { // Confirmatio
 			confirmation(sanitise_input($_POST["which_selected"]), false);
 		}
 	}
-}
-else {
+} else {
 	if (isset($_POST["which_selected"]) or isset($_POST["modify_request"])) {
 		if (isset($_POST["which_selected"])) {
 			$which_selected = sanitise_input($_POST["which_selected"]);
@@ -717,8 +662,7 @@ else {
 					delete_attempt($attemptstable, $scoring_table, $which_selected, false);
 				}
 			}
-		}
-		elseif (get_recent_click() == 4) {
+		} elseif (get_recent_click() == 4) {
 			echo"<p>this is a test marker, remove when done</p>";
 			$score_desired = sanitise_input($_POST["desired_score"]);
 			if (is_numeric($score_desired)) {
@@ -750,7 +694,6 @@ if (isset($_POST["filter_all"])) { // Does user want to filter data?
 	$query_produced = modify_query_based_on_filter($id_refer, $filters_set, true, $index_of_radio_buttons, false); // for text input;
 	$query_started = true;
 	$second_query_produced = modify_query_based_on_filter($attempts_filter, $filters_set, $query_started, $index_of_radio_buttons, true); // For Radio Buttons
-	//$query_produced = ($query_produced. " " . $second_query_produced);
 	echo"<p>first query $query_produced</p>";
 	echo"<p>secondary query $second_query_produced</p>";
 } else {
@@ -763,11 +706,9 @@ if (!isset($main_page)) {
 	header("location: manage.php");
 }
 
-
 if (get_recent_click()) {
 	$_SESSION["prev_page"] = get_recent_click();
 	$temp_prev_page_num = $_SESSION["prev_page"];
-	//echo"<p>$temp_prev_page_num</p>";
 }
 
 if ($logged_in == true) {
@@ -800,8 +741,7 @@ if ($logged_in == true) {
 	  manage_score($attemptstable, $query_produced, $second_query_produced);
 	  $notsearched = false;
 	}
-}
-else {
+} else {
 		echo"<p>$logged_in</p>";
 		echo"<section>";
 		echo"</br>";
@@ -815,7 +755,7 @@ if ($notsearched == true and $logged_in == true) {
 }
 
 function debug_check() {
-  if (isset($_POST)) {
+  if (!isset($_POST) or !count($_POST)) {
     print "<h2>No post set</h2>";
   } else {
     foreach ($_POST as $param_name => $param_val) {
