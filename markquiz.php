@@ -51,6 +51,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 	if (count($post_id_values_array) == count($post_id_inputs)) {
 		$name_char_issues = false;
 		$name_length_issues = false;
+		$names_number_issues = false;
 		foreach ($post_id_values_array as $key => $value) {
 			$error = 0;
 			if ($post_id_inputs[$key] == "ID") {
@@ -58,12 +59,14 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 					$error = 1;
 					print "<p>ID not a number</p>";
 				}
-				if (strlen($value) < 7 or strlen($value) > 10) {  // Check number not between 7 to 10
+				if (strlen($value) < 7 or strlen($value) > 10) { // Check number not between 7 to 10
 					$error = 1;
 					print "<p>ID must be between 7 to 10</p>";
 				}
 			} elseif ($post_id_inputs[$key] == "given_name" or $post_id_inputs[$key] == "family_name") {
-				if (strlen($value) > 30) {  // Check number not between 7 to 10
+
+				// Check number is less then 30
+				if (strlen($value) > 30) {
 					if ($name_length_issues == false) {
 						$error = 1;
 						$name_length_issues = "<p>$post_id_inputs[$key]";
@@ -72,6 +75,19 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 						$name_length_issues .= " and $post_id_inputs[$key]";
 					}
 				}
+
+				// Check names have no numbers
+				if (preg_match("/\d/", $value)) {
+					if ($names_number_issues == false) {
+						$error = 1;
+						$names_number_issues = "<p>$post_id_inputs[$key]";
+					} else {
+						$error = 1;
+						$names_number_issues .= " and $post_id_inputs[$key]";
+					}
+				}
+
+				// Check names for hyphen or space
 				if (preg_match("/[\- ]+/", $value)) {
 					if ($name_char_issues == false) {
 						$error = 1;
@@ -82,14 +98,21 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 					}
 				}
 			}
+			// If there is an error set the input value to fallback
 			if ($error == 1) { $post_id_values_array[$key] = 'fallback'; }
 		}
+
+		// Print out recorded issues for both first or last name
 		if ($name_char_issues) {
-			print "Spaces or hyphens not allowed in your ".$name_char_issues."</P>";
+			print "Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
+		}
+		if ($names_number_issues) {
+			print $names_number_issues." cannot include numbers</p>";
 		}
 		if ($name_length_issues) {
 			print $name_length_issues." must be 30 or less characters</p>";
 		}
+
 	} else {
 	 print "Error: ID data validation invalid array length";
 	}
@@ -189,7 +212,7 @@ function print_wrong_answers($results) {
 	}
 
 	if ($incorrect > 0) {
-		print "<br /><h2>Incorrect:</h2>";
+		print "<h2>Incorrect:</h2>";
 	}
 
 	foreach ($results as $key => $value) {
@@ -245,8 +268,12 @@ if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
 
 	if (!fallback_count($validated_post_id_values_array) > 0) {
 		$score = score($results);
-		save_db_data($validated_post_id_values_array, $score);
-		print ("<p>Score: ".$score."/5</p>");
+		if ($score == 0) {
+			print ("<h2>You scored 0, try again</h2>");
+		} else {
+			save_db_data($validated_post_id_values_array, $score);
+			print ("<p>Score: ".$score."/5</p>");
+		}
 		print_wrong_answers($results);
 	}
 	print ('</div>');

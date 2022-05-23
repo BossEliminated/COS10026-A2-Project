@@ -4,6 +4,10 @@ Purpose: Deliver our Apache server content in a manner that is easy and beautifu
 */
 
 /* -------------------- Global -------------------- */
+:root {
+  --main-bg-color: #005759;
+}
+
 body { /*Nick T - Removes body default margin*/
   background: gainsboro;
   margin: 0px;
@@ -317,7 +321,7 @@ th.declinegrowthtable{ /*Chris*/
   text-align: center;
   font-family: serif;
   margin: 70px;
-  color: #005759;
+  color: var(--main-bg-color);
 }
 
 .quiz-title { /*Nick T*/
@@ -339,7 +343,7 @@ th.declinegrowthtable{ /*Chris*/
   margin: 25px 0px;
   padding: 10px;
   border: none;
-  color: #005759;
+  color: var(--main-bg-color);
 }
 
 .quiz-question { /*Nick T*/
@@ -351,6 +355,11 @@ th.declinegrowthtable{ /*Chris*/
   border-radius: 0.5rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 30px;
+  color: var(--main-bg-color);
+}
+
+.quiz-results p { /*Nick T*/
+  color: black;
 }
 
 .quiz-button { /*Nick T*/
@@ -382,7 +391,7 @@ th.declinegrowthtable{ /*Chris*/
   flex-basis: 25%;
   padding-top: 20px;
   max-width: 200px;
-  background-color: #005759;
+  background-color: var(--main-bg-color);
 }
 
 .manage-content{ /*Nick T*/
@@ -450,7 +459,7 @@ table.manage_table { /*Nick T*/
 }
 
 table.manage_table thead { /*Nick T*/
-  background-color: #005759;
+  background-color: var(--main-bg-color);
   color: white;
 }
 
@@ -580,7 +589,7 @@ table.manage_table tr td:last-child { /*Nick T*/
 
 .php-enh-body {
   background-color: white;
-  color: #005759;
+  color: var(--main-bg-color);
 }
 
 .php-enh-main {
@@ -628,7 +637,7 @@ table.manage_table tr td:last-child { /*Nick T*/
 
 /* .php-enh-hr {
   height: 0.1em;
-  background-color: #005759;
+  background-color: var(--main-bg-color);
   margin-bottom: 30px;
   width: 100%;
 } */
