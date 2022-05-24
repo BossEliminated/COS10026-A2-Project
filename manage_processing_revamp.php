@@ -501,7 +501,6 @@ if ($logged_in == true) {
 	  $notsearched = false;
 	}
 } else {
-		echo"<p>$logged_in</p>";
 		echo"<section>";
 		echo"</br>";
 		echo"<h2>Log in, to view results</h2>";
