@@ -21,7 +21,6 @@ function get_recent_click() {
   return false;
 }
 
-
 function sanitise_and_combine($post_value) {
 	if (isset($_POST[$post_value])) {
 		if (($_POST[$post_value]) != "") {
@@ -34,7 +33,6 @@ function sanitise_and_combine($post_value) {
 		return false;
 	}
 }
-
 
 function query_build($filter_fields, $modifier_bool) {
 	// Initialize to prevent errors.
@@ -134,9 +132,8 @@ if (get_recent_click() == 5) {
       $_SESSION["username"] = $username;
       $_SESSION["password"] = $password;
       $_SESSION["login_msg"] = true;
-      unset($_SESSION["prev_page"]);
+      $_SESSION["prev_page"] = 1;
       unset($_POST['action']);
-	  $_SESSION["prev_page"] = 1;
       header("refresh:0");
     } else {
       echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
