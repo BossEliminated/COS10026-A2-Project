@@ -37,7 +37,6 @@
         <div style="height: 500px;"></div>
       </div>
       <div class="manage-content">
-        <h1>Management Page</h1>
           <section>
             <table>
               <?php

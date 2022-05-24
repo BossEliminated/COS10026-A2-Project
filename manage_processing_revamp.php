@@ -2,14 +2,11 @@
 include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
-$attemptstable = "id";
-$scoring_table = "attempts";
 $filter_fields = ["student_id", "student_name", "mark_filter"];
 //$attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=3 AND attempt=2"];
 $id_refer = ["student_number", "first_nameORlast_name"];
 
 // Correlate radio with filter.
-$index_of_radio_buttons = 2;
 $second_query_produced = "";
 
 function get_recent_click() {
@@ -65,12 +62,19 @@ function query_build($filter_fields, $modifier_bool) {
 		$base_query = ($base_query . " AND " . "student_number='$student_id_input'");
 	}
 	if ($student_name_input) {
-		echo"<p>hi</p>";
-		$base_query = ($base_query . " AND " . "(first_name='$student_name_input' OR last_name='$student_name_input')");
+		$name_split_array = explode(" ", $student_name_input);
+		print_r($name_split_array);
+		if (count($name_split_array) > 1) {
+			$first_name = $name_split_array[0];
+			$second_name = $name_split_array[1];
+			$base_query = ($base_query . " AND " . "(first_name LIKE '%$first_name%' AND last_name LIKE '%$second_name%')");
+		}
+		else {
+			$base_query = ($base_query . " AND " . "(first_name LIKE '%$student_name_input%' OR last_name LIKE '%$student_name_input%')");
+		}
+		
 	}
-	echo"<p>$mark_filter_selected</p>";
 	if ($mark_filter_selected != 0 and $mark_filter_selected) {
-		echo"<p>hi</p>";
 		if ($mark_filter_selected == 1) {
 			$base_query = ($base_query . " AND " . "(score=5 AND attempt=1)");
 		}
@@ -81,7 +85,6 @@ function query_build($filter_fields, $modifier_bool) {
 			echo"<p>Error detected in mark fltering selection</p>";
 		}
 	}
-	// Specific Search Request
 	if ($modifier_id) {
 		$base_query = ($base_query . " AND " . "student_number='$modifier_id'");
 	}
@@ -137,6 +140,7 @@ if (get_recent_click() == 5) {
       $_SESSION["login_msg"] = true;
       unset($_SESSION["prev_page"]);
       unset($_POST['action']);
+	  $_SESSION["prev_page"] = 1;
       header("refresh:0");
     } else {
       echo"<h2 class='fail_log'>Failed to log in, username or password is incorrect</h2>";
@@ -147,8 +151,13 @@ if (get_recent_click() == 5) {
 // Check login details against database
 function attempt_log_in($username, $password) {
 	$conn = db_connect();
+	if ($conn) {
 	$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
 	return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
+	}
+	else {
+		return false;
+	}
 }
 
 // Check Login
@@ -215,40 +224,6 @@ function load_filter_inputs($logged_in) {
 	}
 }
 
-function filter_considerations($filter_fields, $attempts_filter, $index_of_radio_buttons) {
-	$filter_provided_array = [];
-	//print_r($filter_fields);
-	$debug = count($filter_fields);
-	for ($counter=0;$counter<count($filter_fields);$counter++) {
-		//echo"<p>loop $counter</p>";
-		if (isset($_POST[$filter_fields[$counter]])) {
-				//$debug = $_POST[$filter_fields[$counter]];
-				if (trim($_POST[$filter_fields[$counter]]) != "") {
-					//echo"<p>$counter<p>";
-					if ($counter == $index_of_radio_buttons) {
-						//$result = $attempts_filter[$_POST[$filter_fields[$counter]]];
-						//echo $result;
-						//echo"<p> sent on </p>";
-						//$debug = $filter_fields[2];
-						//echo$debug;
-						//echo"<p>$counter</p>";
-						//echo"<p>add on</p>";
-						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
-					}
-					else {
-						array_push($filter_provided_array, sanitise_input($_POST[$filter_fields[$counter]]));
-					}
-				}
-				else {
-					array_push($filter_provided_array, "NO_FILT");
-				}
-		}
-		else {
-			array_push($filter_provided_array, "NO_FILT");
-		}
-	}
-	return $filter_provided_array;
-}
 
 
 function manual_change_display($mode, $page_num) {
@@ -334,8 +309,9 @@ function display_results_in_table($main_data, $mode, $page_num) {
 
 
 
-function modify_attempt($id_table, $query_produced, $desired_score) {
+function modify_attempt($query_produced, $desired_score) {
 	$database = db_connect(); // Attempts table gives student number.
+	if ($database) {
 	//$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE $manual";
 	$sql_query = "UPDATE id, attempts SET attempts.score=$desired_score WHERE id.unique_id = attempts.unique_id";
 	 //$sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
@@ -347,11 +323,16 @@ function modify_attempt($id_table, $query_produced, $desired_score) {
 		} else {
 			echo"<h2>Dataset could not be modified, may not exist!</h2>";
 		}
+	}
+	else {
+		  echo"<h3>Could not connect to database</h3>";
+	}
 }
 
 function delete_attempt($query_produced) {
 	if ($query_produced) {
 		$database = db_connect();
+		if ($database) {
 		//$sql_query = "DELETE FROM $attemptstable WHERE unique_id=$unique_id";
 		$sql_query = "DELETE id,attempts FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 		$sql_query = ($sql_query . $query_produced);
@@ -366,6 +347,10 @@ function delete_attempt($query_produced) {
 		}
 	}
 	else {
+			  echo"<h3>Could not connect to database</h3>";
+	}
+	}
+	else {
 		echo"<p>Improper search</p>";
 	}
 }
@@ -375,59 +360,79 @@ function delete_attempt($query_produced) {
 
 function list_all_attempts($query_produced) {
   $sql_connection = db_connect();
-  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-  $sql_query = ($sql_query . $query_produced);
-  $returned_data = mysqli_query($sql_connection, $sql_query);
-  if ($returned_data) {
-    display_results_in_table($returned_data, "all", 1);
+  if ($sql_connection) {
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = ($sql_query . $query_produced);
+	  $returned_data = mysqli_query($sql_connection, $sql_query);
+	  if ($returned_data) {
+		display_results_in_table($returned_data, "all", 1);
+	  }
+	  else {
+		$query_failure = true;
+	  }
   }
   else {
-    $query_failure = true;
+	  echo"<h3>Could not connect to database</h3>";
   }
 }
 
 function list_half_attempts($query_produced) {
   $sql_connection = db_connect();
-  echo"<p>$query_produced</p>";
-  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-   $sql_query = ($sql_query . $query_produced);
-  $returned_data = mysqli_query($sql_connection, $sql_query);
-  if ($returned_data) {
-	 if (!$query_produced) {
-		display_results_in_table($returned_data, "half", 2);
-	 }
-	 else {
-		display_results_in_table($returned_data, "all", 1);
-	 }
+  if ($sql_connection) {
+	  echo"<p>$query_produced</p>";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	   $sql_query = ($sql_query . $query_produced);
+	  $returned_data = mysqli_query($sql_connection, $sql_query);
+	  if ($returned_data) {
+		 if (!$query_produced) {
+			display_results_in_table($returned_data, "half", 2);
+		 }
+		 else {
+			display_results_in_table($returned_data, "all", 1);
+		 }
+	  }
+	  else {
+		$query_failure = true;
+	  }
   }
   else {
-    $query_failure = true;
+	  	  echo"<h3>Could not connect to database</h3>";
   }
 }
 
 function manage_score($query_produced) {
   $sql_connection = db_connect();
-  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-   $sql_query = ($sql_query . $query_produced);
-  $returned_data = mysqli_query($sql_connection, $sql_query);
-  if ($returned_data) {
-    display_results_in_table($returned_data, "manage", 4);
+  if ($sql_connection) {
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	   $sql_query = ($sql_query . $query_produced);
+	  $returned_data = mysqli_query($sql_connection, $sql_query);
+	  if ($returned_data) {
+		display_results_in_table($returned_data, "manage", 4);
+	  }
+	  else {
+		$query_failure = true;
+	  }
   }
   else {
-    $query_failure = true;
+	  echo"<h3>Could not connect to database</h3>";
   }
 }
 
 function delete_attempts($query_produced) {
   $sql_connection = db_connect();
-  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-  $sql_query = ($sql_query . $query_produced);
-  $returned_data = mysqli_query($sql_connection, $sql_query);
-  if ($returned_data) {
-    display_results_in_table($returned_data, "delete", 3);
+  if ($sql_connection) {
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = ($sql_query . $query_produced);
+	  $returned_data = mysqli_query($sql_connection, $sql_query);
+	  if ($returned_data) {
+		display_results_in_table($returned_data, "delete", 3);
+	  }
+	  else {
+		$query_failure = true;
+	  }
   }
   else {
-    $query_failure = true;
+	  echo"<h3>Could not connect to database</h3>";
   }
 }
 
@@ -445,7 +450,12 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) {
 	}
 	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) {
 		$desired_score = sanitise_input($_POST["desired_score"]);
-		modify_attempt($query_secondary_produce, $desired_score);
+		if ($desired_score < 5) {
+			modify_attempt($query_secondary_produce, $desired_score);
+		}
+		else {
+			echo"<h3>Incorrect score desired value sent to server.</h3>";
+		}
 	}
 }	// A request for deletion made
 
@@ -453,6 +463,7 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) {
 $Page_Accessed_Properly = get_recent_click();
 if (!isset($main_page)) {
 	header("location: manage.php");
+	exit();
 }
 
 if (get_recent_click()) {
@@ -500,7 +511,7 @@ if ($logged_in == true) {
 }
 
 if ($notsearched == true and $logged_in == true) {
-  echo"<h2>No search has occured</h2>";
+  echo"<h2>Please select an option.</h2>";
 }
 
 function debug_check() {
