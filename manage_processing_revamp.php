@@ -59,7 +59,6 @@ function query_build($filter_fields, $modifier_bool) {
 	}
 	if ($student_name_input) {
 		$name_split_array = explode(" ", $student_name_input);
-		print_r($name_split_array);
 		if (count($name_split_array) > 1) {
 			$first_name = $name_split_array[0];
 			$second_name = $name_split_array[1];
