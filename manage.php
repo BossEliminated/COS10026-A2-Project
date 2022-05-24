@@ -24,7 +24,7 @@
                   <input name='password' type='password' placeholder='Password' />
                 </label>
               </div>";
-              print "<button type='submit' name='action' value='5'>Login/Sign Up</button>";
+              print "<button type='submit' name='action' value='5'>Login</button>";
             } else {
               print "
               <div class='manage-id-field'>
