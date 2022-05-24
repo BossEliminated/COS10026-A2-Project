@@ -104,7 +104,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 
 		// Print out recorded issues for both first or last name
 		if ($name_char_issues) {
-			print "Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
+			print "<p>Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
 		}
 		if ($names_number_issues) {
 			print $names_number_issues." cannot include numbers</p>";
