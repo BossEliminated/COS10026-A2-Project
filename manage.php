@@ -42,7 +42,7 @@
             <table>
               <?php
                 $main_page = true;
-                include_once './manage_processing.php';
+                include_once './manage_processing_revamp.php';
               ?>
             </table>
           </section>
