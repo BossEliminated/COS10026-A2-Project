@@ -6,7 +6,12 @@ function db_connect() {
 	$dbname = "a_patchy_team";
 
 	try {
-		$conn = new mysqli($servername, $username, $password, $dbname);
+		$conn = @mysqli_connect($servername, $username, $password, $dbname);
+    // Mercury server null response handle
+    if ($conn == false) {
+      print("<p>MySQLi Connection Error</p>");
+			return false;
+    }
 	} catch(Exception $e) {
 		if ($e->getCode() == 1049) {
 			// Check Database Exists
@@ -46,6 +51,18 @@ function db_connect() {
 			first_name varchar(256) NOT NULL,
 			last_name varchar(256) NOT NULL,
 			student_number float(11) NOT NULL
+		)";
+		mysqli_query($conn, $sql);
+	}
+
+	// Check Login Table Exists
+	$sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$dbname' AND table_name = 'login'";
+	if (!mysqli_fetch_array(mysqli_query($conn, $sql))[0]) {
+		echo '<p>MySQLi Created Login Table</p>';
+		$sql = "CREATE TABLE IF NOT EXISTS login (
+			login_id INT AUTO_INCREMENT PRIMARY KEY,
+			username VARCHAR(30),
+			password VARCHAR(30)
 		)";
 		mysqli_query($conn, $sql);
 	}

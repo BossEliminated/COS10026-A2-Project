@@ -28,15 +28,6 @@ function get_recent_click() {
 }
 
 // --------------- Login / Log out Section ------------------------
-
-// Login DB Check
-$sql = "CREATE TABLE IF NOT EXISTS login (login_id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30), password VARCHAR(30));";
-$conn = db_connect();
-if ($conn) {
-  mysqli_query($conn, $sql);
-	mysqli_close($conn);
-}
-
 // Login message - Must be before set
 if (isset($_SESSION["login_msg"])) {
   if ($_SESSION["login_msg"]) {
@@ -79,6 +70,7 @@ function attempt_log_in($username, $password) {
 	$conn = db_connect();
 	$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
 	return mysqli_fetch_array(mysqli_query($conn, $sql))['COUNT(*)'];
+  mysqli_close($conn);
 }
 
 // Check Login

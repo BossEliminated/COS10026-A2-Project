@@ -96,13 +96,25 @@ function query_build($filter_fields, $modifier_bool) {
 
 // --------------- Login / Log out Section ------------------------
 
-// Login DB Check
-$sql = "CREATE TABLE IF NOT EXISTS login (login_id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30), password VARCHAR(30));";
+// DB Login deafult password Check
 $conn = db_connect();
-if ($conn) {
+$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
+$deafult_login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
+$sql = "SELECT COUNT(*) FROM `login` WHERE 1";
+$login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
+
+if (!$deafult_login_count && !$login_count) {
+  $sql = "INSERT INTO `login`(`username`, `password`) VALUES ('admin','pass')";
   mysqli_query($conn, $sql);
-	mysqli_close($conn);
+  $_SESSION["deafult_login_msg"] = true;
+  header("refresh:0");
+} elseif ($deafult_login_count && $login_count > 1) {
+  $sql = "DELETE FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
+  mysqli_query($conn, $sql);
+  unset($_SESSION["deafult_login_msg"]);
+  header("refresh:0");
 }
+mysqli_close($conn);
 
 // Login message - Must be before set
 if (isset($_SESSION["login_msg"])) {

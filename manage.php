@@ -32,6 +32,15 @@
               </div>";
               print "<button type='submit' name='action' value='6'>Logout</button>";
             }
+            if (isset($_SESSION["deafult_login_msg"])) {
+              print "
+              <div class='manage-id-field'>
+                <p>Please change default login in my SQL.</p>
+                <br>
+                <p>Username: admin</p>
+                <p>Password: pass</p>
+              </div>";
+            }
           ?>
         </form>
         <div style="height: 500px;"></div>
