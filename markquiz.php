@@ -57,11 +57,11 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 			if ($post_id_inputs[$key] == "ID") {
 				if (!is_numeric($value)) { // Check value is a number
 					$error = 1;
-					print "<p>ID not a number</p>";
+					print "<p class='id-validation'>ID not a number</p>";
 				}
 				if (strlen($value) < 7 or strlen($value) > 10) { // Check number not between 7 to 10
 					$error = 1;
-					print "<p>ID must be between 7 to 10</p>";
+					print "<p class='id-validation'>ID must be between 7 to 10</p>";
 				}
 			} elseif ($post_id_inputs[$key] == "given_name" or $post_id_inputs[$key] == "family_name") {
 
@@ -69,7 +69,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 				if (strlen($value) > 30) {
 					if ($name_length_issues == false) {
 						$error = 1;
-						$name_length_issues = "<p>$post_id_inputs[$key]";
+						$name_length_issues = "<p class='id-validation'>$post_id_inputs[$key]";
 					} else {
 						$error = 1;
 						$name_length_issues .= " and $post_id_inputs[$key]";
@@ -80,7 +80,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 				if (preg_match("/\d/", $value)) {
 					if ($names_number_issues == false) {
 						$error = 1;
-						$names_number_issues = "<p>$post_id_inputs[$key]";
+						$names_number_issues = "<p class='id-validation'>$post_id_inputs[$key]";
 					} else {
 						$error = 1;
 						$names_number_issues .= " and $post_id_inputs[$key]";
@@ -104,7 +104,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 
 		// Print out recorded issues for both first or last name
 		if ($name_char_issues) {
-			print "<p>Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
+			print "<p class='id-validation'>Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
 		}
 		if ($names_number_issues) {
 			print $names_number_issues." cannot include numbers</p>";
@@ -114,7 +114,7 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 		}
 
 	} else {
-	 print "Error: ID data validation invalid array length";
+	 print "<h2>Error: ID data validation invalid array length</h2>";
 	}
 	return $post_id_values_array;
 }
@@ -167,12 +167,12 @@ function score($results) {
 function save_db_data($id, $score){
 	$conn = db_connect();
 	if ($conn == true) {
-		// Check if user exists
-		$sql = "SELECT COUNT(*) FROM id WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
-		$user_exists = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
+		// Check if student number exists
+		$sql = "SELECT COUNT(*) FROM id WHERE student_number = '$id[0]'";
+		$student_number_exists = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
 
 		// Create User
-		if ($user_exists == 0) {
+		if ($student_number_exists == 0) {
 			$unique_id = rand().rand();
 			$sql = "INSERT INTO `id`(`unique_id`, `first_name`, `last_name`, `student_number`) VALUES ('$unique_id', '$id[1]', '$id[2]', '$id[0]')";
 			$conn->query($sql);
@@ -183,20 +183,28 @@ function save_db_data($id, $score){
 		}
 
 		// For existing user update attempt details
-		if ($user_exists >= 1) {
-			// Get unique_id for attempts table
-			$sql = "SELECT `unique_id` FROM `id` WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
-			$unique_id = $conn->query($sql)->fetch_array()[0];
-			// Get number of attempts
-			$sql = "SELECT `attempt` FROM `attempts` WHERE `unique_id` = '$unique_id'";
-			$attempts = $conn->query($sql)->fetch_assoc()["attempt"];
-			// Update attempts
-			if ($attempts < 2) {
-				$sql_update_attempts = "UPDATE `attempts` SET `attempt` ='".$attempts+1 ."', `score` = '$score' WHERE `unique_id` = '$unique_id'";
-				$conn->query($sql_update_attempts);
-				print("<h2>Second attempt submitted</h2>");
+		if ($student_number_exists >= 1) {
+			// Check first and last name match the student ID
+			$sql = "SELECT COUNT(*) FROM id WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
+			$name_check = $conn->query($sql)->fetch_assoc()["COUNT(*)"];
+
+			if ($name_check) {
+				// Get unique_id for attempts table
+				$sql = "SELECT `unique_id` FROM `id` WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";
+				$unique_id = $conn->query($sql)->fetch_array()[0];
+				// Get number of attempts
+				$sql = "SELECT `attempt` FROM `attempts` WHERE `unique_id` = '$unique_id'";
+				$attempts = $conn->query($sql)->fetch_assoc()["attempt"];
+				// Update attempts
+				if ($attempts < 2) {
+					$sql_update_attempts = "UPDATE `attempts` SET `attempt` ='".$attempts+1 ."', `score` = '$score' WHERE `unique_id` = '$unique_id'";
+					$conn->query($sql_update_attempts);
+					print("<h2>Second attempt submitted</h2>");
+				} else {
+					print ("<h2>Maximum Attempts Reached</h2>");
+				}
 			} else {
-				print ("<h2>Maximum Attempts Reached</h2>");
+				print("<h2>The student ID belongs to another person</h2>");
 			}
 		}
 		$conn->close();

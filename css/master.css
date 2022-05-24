@@ -376,6 +376,11 @@ th.declinegrowthtable{ /*Chris*/
   margin-bottom: 25px;
 }
 
+.id-validation{
+  font-size: 1.2em;
+  font-family: emoji;
+}
+
 /* ----------------- Manage ---------------- */
 
 .manage-body { /*Nick T*/

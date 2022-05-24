@@ -70,7 +70,7 @@ function query_build($filter_fields, $modifier_bool) {
 		else {
 			$base_query = ($base_query . " AND " . "(first_name LIKE '%$student_name_input%' OR last_name LIKE '%$student_name_input%')");
 		}
-		
+
 	}
 	if ($mark_filter_selected != 0 and $mark_filter_selected) {
 		if ($mark_filter_selected == 1) {
@@ -93,12 +93,6 @@ function query_build($filter_fields, $modifier_bool) {
 	if ($search_via_attempt) {
 		$base_query = ($base_query . " AND " . "attempt='$search_via_attempt'");
 	}
-	
-	
-	
-	
-	//
-		
 	return $base_query;
 }
 
@@ -226,8 +220,6 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 	}
 }
 
-
-
 function manual_change_display($mode, $page_num) { // Box for sites that require manual change.
 	if ($mode == "delete") {
 		$button_text = "Delete";
@@ -250,12 +242,10 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 	echo"</form>";
 }
 
-
-
 function display_results_in_table($main_data, $mode, $page_num) { // Load all tables.
 	$rows_available = mysqli_num_rows($main_data); // How many rows.
 
-	$all_fields = mysqli_fetch_fields($main_data); 
+	$all_fields = mysqli_fetch_fields($main_data);
 	$starter = 0;
 	if ($mode == "half") {
 		$starter = round($rows_available / 2);
@@ -305,10 +295,8 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
 	mysqli_free_result($main_data);
 }
 
-
-
 function modify_attempt($query_produced, $desired_score) { // Attempt to modify attempt.
-	$database = db_connect(); 
+	$database = db_connect();
 	if ($desired_score) {
 		if ($query_produced)  {
 			if ($database) {
@@ -358,9 +346,6 @@ function delete_attempt($query_produced) { // Delete given info.
 		echo"<p>Improper search</p>";
 	}
 }
-
-
-
 
 function list_all_attempts($query_produced) { // Basic search all results.
   $sql_connection = db_connect();
@@ -441,10 +426,7 @@ function delete_attempts($query_produced) { // Page for deletion (does not invol
 
 // Start of Main Sequence
 // Check if a deletion was prompted.
-
 $query_produced = query_build($filter_fields, false);
-
-
 if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a change input given, continue.
 	$query_secondary_produce = query_build($filter_fields, true);
 	$type_of_action = sanitise_input($_POST["action"]);
