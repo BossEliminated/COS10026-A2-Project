@@ -3,10 +3,7 @@ include 'db_connect.php';
 include 'sanitise_framework.php';
 $notsearched = true;
 $filter_fields = ["student_id", "student_name", "mark_filter"];
-//$attempts_filter = ["id=id", "score=5 AND attempt=1", "score<=3 AND attempt=2"];
-$id_refer = ["student_number", "first_nameORlast_name"];
 
-// Correlate radio with filter.
 $second_query_produced = "";
 
 function get_recent_click() {
@@ -46,7 +43,7 @@ function query_build($filter_fields, $modifier_bool) {
 	$mark_filter_selected = false;
 	$modifier_id = false;
 	$search_via_attempt = false;
-	
+	$unique_id = false;
 	$base_query = "";
 	if ($modifier_bool == false) {
 		$student_id_input = sanitise_and_combine($filter_fields[0]);
@@ -56,6 +53,7 @@ function query_build($filter_fields, $modifier_bool) {
 	else {
 		$modifier_id = sanitise_and_combine("manual_change_id");
 		$search_via_attempt = sanitise_and_combine("attempt_search");
+		$unique_id = sanitise_and_combine("unique_id_search");
 	}
 	//
 	if ($student_id_input) {
@@ -87,6 +85,10 @@ function query_build($filter_fields, $modifier_bool) {
 	}
 	if ($modifier_id) {
 		$base_query = ($base_query . " AND " . "student_number='$modifier_id'");
+	}
+	if ($unique_id) {
+		$base_query = ($base_query . " AND " . "attempts.unique_id='$unique_id'");
+		$base_query = ($base_query . " AND " . "id.unique_id='$unique_id'");
 	}
 	if ($search_via_attempt) {
 		$base_query = ($base_query . " AND " . "attempt='$search_via_attempt'");
@@ -196,7 +198,7 @@ if (get_recent_click() == 6) {
 // ---------------- END ----------------
 
 //Input fields
-function load_filter_inputs($logged_in) {
+function load_filter_inputs($logged_in) { // Load filtering input boxes at start of page
 	if ($logged_in == true) {
 			  echo'<form method="post" action="manage.php">
 				<label for="student_id">Student ID </label>
@@ -215,7 +217,7 @@ function load_filter_inputs($logged_in) {
 			  </form>
 			  <hr />';
 	}
-	else {
+	else { // Not logged in, view prompt to log in
 		echo"<section>";
 		echo"</br>";
 		echo"<h2>Log in, to view results</h2>";
@@ -226,7 +228,7 @@ function load_filter_inputs($logged_in) {
 
 
 
-function manual_change_display($mode, $page_num) {
+function manual_change_display($mode, $page_num) { // Box for sites that require manual change.
 	if ($mode == "delete") {
 		$button_text = "Delete";
 	}
@@ -237,6 +239,7 @@ function manual_change_display($mode, $page_num) {
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
 	if ($mode == "modify") {
+		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
 		echo"<label> Attempt: </label><input type='number' name='attempt_search' size='10' min='1' max='2' placeholder='Attempt'/>";
 		echo"</br>";
 		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
@@ -249,10 +252,10 @@ function manual_change_display($mode, $page_num) {
 
 
 
-function display_results_in_table($main_data, $mode, $page_num) {
-	$rows_available = mysqli_num_rows($main_data);
+function display_results_in_table($main_data, $mode, $page_num) { // Load all tables.
+	$rows_available = mysqli_num_rows($main_data); // How many rows.
 
-	$all_fields = mysqli_fetch_fields($main_data); // This has Name
+	$all_fields = mysqli_fetch_fields($main_data); 
 	$starter = 0;
 	if ($mode == "half") {
 		$starter = round($rows_available / 2);
@@ -271,25 +274,20 @@ function display_results_in_table($main_data, $mode, $page_num) {
   if ($rows_available != 0) { // Go through rows
 	  for ($i=$starter;$i<$rows_available;$i++) {
 		echo"<tr>";
-		$associative_return = mysqli_fetch_assoc($main_data);
-		//$first_table_id = $associative_return["unique_id"];
-		$found_second_id = false;
-		// Compare Unique IDS // stop if hit
+		$associative_return = mysqli_fetch_assoc($main_data); // Fetch the row.
 				for ($t = 0; $t < count($all_fields); $t++) {
 					$return_data = "";
 						$local_name = $all_fields[$t]->name;
 						$return_data = $associative_return[$local_name];
-						//echo"<p>$local_name</p>";
-						$temporary_student_number = $associative_return["student_number"];
-						//echo"<p>$temporary_student_number</p>";
+						$temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
 				  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
 					  echo"<form method='POST' action='manage.php'>";
 					  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
 					  if ($mode == "manage") {
 						  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
 					  }
-					  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>";
-					  echo"<input type='hidden' name='action' value='$page_num'>";
+					  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+					  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
 					  echo"</form>";
 				  } else {
 					  if ($return_data != "") {
@@ -309,34 +307,40 @@ function display_results_in_table($main_data, $mode, $page_num) {
 
 
 
-function modify_attempt($query_produced, $desired_score) {
-	$database = db_connect(); // Attempts table gives student number.
-	if ($database) {
-	//$sql_query = "UPDATE $scoring_table SET score=$score_desired WHERE $manual";
-	$sql_query = "UPDATE id, attempts SET attempts.score=$desired_score WHERE id.unique_id = attempts.unique_id";
-	 //$sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-   $sql_query = ($sql_query . $query_produced);
-   echo"<p>final modifiy quiery $sql_query</p>";
-	$attemptmodify = mysqli_query($database, $sql_query);
-		if ($attemptmodify) {
-			echo"<h2>Dataset successfully modified!</h2>";
-		} else {
-			echo"<h2>Dataset could not be modified, may not exist!</h2>";
+function modify_attempt($query_produced, $desired_score) { // Attempt to modify attempt.
+	$database = db_connect(); 
+	if ($desired_score) {
+		if ($query_produced)  {
+			if ($database) {
+			$sql_query = "UPDATE id, attempts SET attempts.score=$desired_score WHERE id.unique_id = attempts.unique_id"; // Set score.
+		   $sql_query = ($sql_query . $query_produced); // Adds to WHERE query.
+			$attemptmodify = mysqli_query($database, $sql_query);
+			$affected = mysqli_affected_rows($database);
+				if ($affected > 0) {
+					echo"<h2>Dataset successfully modified!</h2>";
+				} else {
+					echo"<h2>Dataset could not be modified, may not exist!</h2>";
+				}
+			}
+			else {
+				  echo"<h3>Could not connect to database</h3>";
+			}
+		}
+		else {
+			echo"<h3>Required inputs not provided!</h3>";
 		}
 	}
 	else {
-		  echo"<h3>Could not connect to database</h3>";
+		echo"<h3>Score value not provided</h3>";
 	}
 }
 
-function delete_attempt($query_produced) {
+function delete_attempt($query_produced) { // Delete given info.
 	if ($query_produced) {
 		$database = db_connect();
 		if ($database) {
-		//$sql_query = "DELETE FROM $attemptstable WHERE unique_id=$unique_id";
 		$sql_query = "DELETE id,attempts FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 		$sql_query = ($sql_query . $query_produced);
-		echo"<p>whole query delete: $sql_query</p>";
 		$attemptdelete = mysqli_query($database, $sql_query);
 		$affected_row_num = mysqli_affected_rows($database);
 		if ($affected_row_num > 0) {
@@ -358,7 +362,7 @@ function delete_attempt($query_produced) {
 
 
 
-function list_all_attempts($query_produced) {
+function list_all_attempts($query_produced) { // Basic search all results.
   $sql_connection = db_connect();
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
@@ -376,10 +380,9 @@ function list_all_attempts($query_produced) {
   }
 }
 
-function list_half_attempts($query_produced) {
+function list_half_attempts($query_produced) { // Send to display all tables, that half search ONLY if there is no filter in place.
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  echo"<p>$query_produced</p>";
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	   $sql_query = ($sql_query . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
@@ -400,7 +403,7 @@ function list_half_attempts($query_produced) {
   }
 }
 
-function manage_score($query_produced) {
+function manage_score($query_produced) { // Page for changing score (does not involve actual modification)
   $sql_connection = db_connect();
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
@@ -418,7 +421,7 @@ function manage_score($query_produced) {
   }
 }
 
-function delete_attempts($query_produced) {
+function delete_attempts($query_produced) { // Page for deletion (does not involve deleting data)
   $sql_connection = db_connect();
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
@@ -442,13 +445,13 @@ function delete_attempts($query_produced) {
 $query_produced = query_build($filter_fields, false);
 
 
-if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) {
+if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a change input given, continue.
 	$query_secondary_produce = query_build($filter_fields, true);
 	$type_of_action = sanitise_input($_POST["action"]);
-	if ($type_of_action == 3) {
+	if ($type_of_action == 3) { // If delete process given, load deletion
 		delete_attempt($query_secondary_produce);
 	}
-	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) {
+	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) { // If modification request and score given then modify.
 		$desired_score = sanitise_input($_POST["desired_score"]);
 		if ($desired_score < 5) {
 			modify_attempt($query_secondary_produce, $desired_score);
@@ -472,21 +475,21 @@ if (get_recent_click()) {
 }
 
 if ($logged_in == true) {
-	if (get_recent_click() == 1) {
+	if (get_recent_click() == 1) { // If page clicked list all attempts
 	  echo"<h2>Show all attempts page</h2>";
 	  load_filter_inputs($logged_in);
 	  list_all_attempts($query_produced);
 	  $notsearched = false;
 	}
 
-	if (get_recent_click() == 2) {
+	if (get_recent_click() == 2) { // If page clicked list half attempts
 	  echo"<h2>Show half attempts page</h2>";;
 	  load_filter_inputs($logged_in);
 	  list_half_attempts($query_produced);
 	  $notsearched = false;
 	}
 
-	if (get_recent_click() == 3) {
+	if (get_recent_click() == 3) { // If page clicked, delete page
 	  echo"<h2>Delete page</h2>";
 	  load_filter_inputs($logged_in);
 	  manual_change_display("delete", 3);
@@ -494,7 +497,7 @@ if ($logged_in == true) {
 	  $notsearched = false;
 	}
 
-	if (get_recent_click() == 4) {
+	if (get_recent_click() == 4) { // If page clicked, modify inputs
 	  echo"<h2>Modify page</h2>";
 	  load_filter_inputs($logged_in);
 	  manual_change_display("modify", 4);
