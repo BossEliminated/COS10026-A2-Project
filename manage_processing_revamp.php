@@ -453,7 +453,7 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a cha
 	}
 	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) { // If modification request and score given then modify.
 		$desired_score = sanitise_input($_POST["desired_score"]);
-		if ($desired_score < 5) {
+		if ($desired_score <= 5) {
 			modify_attempt($query_secondary_produce, $desired_score);
 		}
 		else {
