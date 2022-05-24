@@ -112,6 +112,9 @@ if (!$deafult_login_count && !$login_count) {
   mysqli_query($conn, $sql);
   unset($_SESSION["deafult_login_msg"]);
   header("refresh:0");
+} elseif ($deafult_login_count && $login_count && !isset($_SESSION["deafult_login_msg"])) {
+  $_SESSION["deafult_login_msg"] = true;
+  header("refresh:0");
 } elseif (isset($_SESSION["deafult_login_msg"]) && !$deafult_login_count) {
   unset($_SESSION["deafult_login_msg"]);
   header("refresh:0");
