@@ -246,7 +246,7 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 				<input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
 				<label for="mark_filtering_less_than">Scored less than 50% on second Attempt </label>
 				<br />
-				<input type="submit" name="filter_all" value="Submit" />
+				<input class="manage_button_filter_all" type="submit" name="filter_all" value="Submit" />
 			  </form>
 			  <hr />';
 	}

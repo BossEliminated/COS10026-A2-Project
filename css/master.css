@@ -490,6 +490,12 @@ table.manage_table tr td:last-child { /*Nick T*/
 	color:red;
 }
 
+.manage_button_filter_all {
+  background-color: white;
+  border: 3px solid var(--main-bg-color);
+  border-radius: 5px;
+}
+
 /* --------------------- Enhancements Page ------------------------*/
 
 #segment_enhancements_starter{
