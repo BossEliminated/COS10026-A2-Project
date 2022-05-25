@@ -283,55 +283,59 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 
 function display_results_in_table($main_data, $mode, $page_num) { // Load all tables.
 	$rows_available = mysqli_num_rows($main_data); // How many rows.
-
 	$all_fields = mysqli_fetch_fields($main_data);
 	$starter = 0;
-	if ($mode == "half") {
-		$starter = round($rows_available / 2);
-	}
-	echo"<table class='manage_table'>"; // Create Headers
-	echo"<thead>";
-  echo"<tr>";
-  for ($t = 0; $t < count($all_fields); $t++) {
-    // Secondary
-    if ($t < (count($all_fields))) {
-    	$local_name = $all_fields[$t]->name;
-    		echo"<th>$local_name</th>";
-    }
+
+  // For printing half results count rows and devide by two
+  if ($mode == "half") {
+    $rows_available = round($rows_available / 2);
   }
-  	echo"</thead>";
-  if ($rows_available != 0) { // Go through rows
-	  for ($i=$starter;$i<$rows_available;$i++) {
+
+  if ($rows_available == 0) { // Go through rows
+    echo"<h3>No results found! Filter may be too strict!</h3>";
+  } else {
+    // Print results table
+    echo"<table class='manage_table'>"; // Create Headers
+    echo"<thead>";
+    echo"<tr>";
+    for ($t = 0; $t < count($all_fields); $t++) {
+      // Secondary
+      if ($t < (count($all_fields))) {
+        $local_name = $all_fields[$t]->name;
+          echo"<th>$local_name</th>";
+      }
+    }
+    echo"</thead>";
+
+    //
+    for ($i=0;$i<$rows_available;$i++) {
 		echo"<tr>";
 		$associative_return = mysqli_fetch_assoc($main_data); // Fetch the row.
-				for ($t = 0; $t < count($all_fields); $t++) {
-					$return_data = "";
-						$local_name = $all_fields[$t]->name;
-						$return_data = $associative_return[$local_name];
-						$temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
-				  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
-					  echo"<form method='POST' action='manage.php'>";
-					  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-					  if ($mode == "manage") {
-						  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
-					  }
-					  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
-					  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
-					  echo"</form>";
-				  } else {
-					  if ($return_data != "") {
-              echo"<td class='manage_table_info'>$return_data</td>";
-					  }
-				  }
-				}
-				echo"</tr>";
-	 }
-  }
-	else {
-		echo"<h3>No results found! Filter may be too strict!</h3>";
+		for ($t = 0; $t < count($all_fields); $t++) {
+      $return_data = "";
+      $local_name = $all_fields[$t]->name;
+      $return_data = $associative_return[$local_name];
+      $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
+		  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
+			  echo"<form method='POST' action='manage.php'>";
+			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+			  if ($mode == "manage") {
+				  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
+			  }
+			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
+			  echo"</form>";
+		  } else {
+			  if ($return_data != "") {
+          echo"<td class='manage_table_info'>$return_data</td>";
+			  }
+		  }
+		}
+		echo "</tr>";
+    }
+    echo"</table>";
 	}
-  echo"</table>";
-	mysqli_free_result($main_data);
+  mysqli_free_result($main_data);
 }
 
 function modify_attempt($query_produced, $desired_score) { // Attempt to modify attempt.
@@ -409,22 +413,20 @@ function list_half_attempts($query_produced) { // Send to display all tables, th
   $sql_connection = db_connect();
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-	   $sql_query = ($sql_query . $query_produced);
+	  $sql_query = ($sql_query . " -- " . $query_produced);
+    // echo"<h3>Debug half query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
-		 if (!$query_produced) {
-			display_results_in_table($returned_data, "half", 2);
-		 }
-		 else {
-			display_results_in_table($returned_data, "all", 1);
-		 }
+      if (!$query_produced) { // What is query_produced? XYZ
+      display_results_in_table($returned_data, "half", 2);
+      } else {
+      display_results_in_table($returned_data, "all", 1); // Why would list_half_attempts print all attempts? XYZ
+      }
+	  } else {
+      $query_failure = true;
 	  }
-	  else {
-		$query_failure = true;
-	  }
-  }
-  else {
-	  	  echo"<h3>Could not connect to database</h3>";
+  } else {
+    echo"<h3>Could not connect to database</h3>";
   }
 }
 
