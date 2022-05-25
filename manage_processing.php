@@ -173,7 +173,6 @@ function attempt_log_in($username, $password) {
 	}
 }
 
-
 function log_out() {
   unset($_SESSION['username']);
   unset($_SESSION['password']);
@@ -207,7 +206,6 @@ if (isset($_SESSION["logout_msg"])) {
 }
 
 // Password changed while logged in
-
 if (isset($_SESSION["password_msg_change"])) {
   if ($_SESSION["password_msg_change"]) {
     print "<h2 class='fail_log'>Username or password issue, please login again.</h2>";
