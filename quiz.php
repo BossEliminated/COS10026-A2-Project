@@ -27,14 +27,14 @@
           <legend class="quiz-question">Q2) Which operating systems does Apache run on?</legend>
           <label><input type="checkbox" name="quiz-question-2[]" value="Windows" checked />Windows</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="Linux" checked />Linux</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="MacOS" />MacOS</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="MacOS" checked />MacOS</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q3) Which variety of features that Apache supports?</legend>
           <label><input type="checkbox" name="quiz-question-3[]" value="Ipv6_Support" checked />Ipv6 Support</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" />SSL Secure Server</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" />Root SSH Access</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G_support" checked />Ipv23G support</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" checked />SSL Secure Server</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" checked />Root SSH Access</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G_support" />Ipv23G support</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Morse_Code_Support" />Morse Code Support</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
@@ -56,9 +56,9 @@
             Select here
             <select name="quiz-question-5">
               <option value="">Please Select </option>
-              <option value="1994" selected>1994</option>
+              <option value="1994">1994</option>
               <option value="1995">1995</option>
-              <option value="1996">1996</option>
+              <option value="1996" selected >1996</option>
               <option value="1997">1997</option>
             </select>
           </label>
