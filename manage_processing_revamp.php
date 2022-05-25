@@ -90,6 +90,7 @@ function query_build($filter_fields, $modifier_bool) {
 	if ($search_via_attempt) {
 		$base_query = ($base_query . " AND " . "attempt='$search_via_attempt'");
 	}
+	echo"<h3>DEBUG: $base_query</h3>";
 	return $base_query;
 }
 
@@ -161,6 +162,7 @@ if (get_recent_click() == 5) {
 
 // Check login details against database
 function attempt_log_in($username, $password) {
+	$_SESSION["password_msg_change"] = false;
 	$conn = db_connect();
 	if ($conn) {
 	$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = '$username' AND `password` = '$password'";
@@ -171,9 +173,27 @@ function attempt_log_in($username, $password) {
 	}
 }
 
+
+function log_out() {
+  unset($_SESSION['username']);
+  unset($_SESSION['password']);
+  unset($_SESSION["prev_page"]);
+  unset($_POST['action']);
+  header("refresh:0");
+  exit();
+}
+
 // Check Login
-if (isset($_SESSION["username"])) {
-  $logged_in = true;
+if (isset($_SESSION["username"]) and isset($_SESSION["password"])) {
+  $username = sanitise_input($_SESSION["username"]);
+  $password = sanitise_input($_SESSION["password"]);
+  if (attempt_log_in($username, $password)) {
+	    $logged_in = true;
+  }
+  else {
+	  $_SESSION["password_msg_change"] = true;
+	  log_out();
+  }
 } else {
   $logged_in = false;
 }
@@ -183,6 +203,15 @@ if (isset($_SESSION["logout_msg"])) {
   if ($_SESSION["logout_msg"]) {
     $_SESSION["logout_msg"] = false;
     print "<h2 class='log_in_notif'>You've been logged out.</h2>";
+  }
+}
+
+// Password changed while logged in
+
+if (isset($_SESSION["password_msg_change"])) {
+  if ($_SESSION["password_msg_change"]) {
+    print "<h2 class='fail_log'>Password changed while logged in, please retry login.</h2>";
+	$_SESSION["password_msg_change"] = false;
   }
 }
 
@@ -196,12 +225,7 @@ if (isset($_SESSION["logout_msg"])) {
 
 // Log out
 if (get_recent_click() == 6) {
-  unset($_SESSION['username']);
-  unset($_SESSION['password']);
-  $_SESSION["logout_msg"] = true;
-  unset($_SESSION["prev_page"]);
-  unset($_POST['action']);
-  header("refresh:0");
+	log_out();
 }
 
 // ---------------- END ----------------
@@ -367,6 +391,7 @@ function list_all_attempts($query_produced) { // Basic search all results.
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
+	  echo"<h3>DEBUG whole query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
 		display_results_in_table($returned_data, "all", 1);
