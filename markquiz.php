@@ -275,9 +275,8 @@ function print_wrong_answers($results) {
 				if ($count_wrong == 0) { // Missing correct value check
 					$multi_choice .= "Missing an answer";
 				}
-				print "<p>Q".$key+1 .") ".$multi_choice;
+				print "<p>Q".($key+1).") ".$multi_choice;
 			}
-
 		}
 	}
 }
