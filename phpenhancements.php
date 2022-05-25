@@ -30,14 +30,22 @@
         <hr class="php-enh-hr"> -->
         <div class="php-enh-content">
           <h2>Beyond security requirements</h2>
-          <p>Whilst briefly covered in how a login system could take input, the course does not require a login system and does not explicitly show into blocking results or having a seperate login table along with other tables regarding data</p>
+          <p>Whilst briefly covered in how a login system could take input, the course does not require a login system and does not explicitly show into blocking unauthorized requests or having a seperate login table along with other tables regarding data.</p>
         </div>
       </div>
 	  </br>
 	 <div class="php-enh-content-flex">
         <div class="php-enh-content">
           <h2>Data structure implementation</h2>
-          <p>A new data structure was implemented through having two seperate tables representing the information of the user, connected by numeric_id, which is looked for in searching.</p>
+		  <h3>Quiz Insertion</h3>
+          <p>A new data structure was implemented through having two seperate tables representing the information of the user, connected by numeric_id, which is looked for in searching. The base for this implementation was in quiz page, which a sufficient input was then placed into two tables being id,attempts. This required sending two queries <p>First Query:</p><code>$sql = "INSERT INTO `id`(`unique_id`, `first_name`, `last_name`, `student_number`) VALUES ('$unique_id', '$id[1]', '$id[2]', '$id[0]')";</code> Second Query:
+			<code>
+			$sql = "INSERT INTO `attempts`(`unique_id`, `attempt`, `score`) VALUES ('$unique_id', '1', '$score')";</code>
+			For changes to existing data, a unique identifier had to be used that both tables held that referenced each other. <code>$sql = "SELECT `unique_id` FROM `id` WHERE first_name = '$id[1]' AND last_name = '$id[2]' AND student_number = '$id[0]'";</code>
+			The unique identifier returned is then acted upon utilising a WHERE statement.
+			</p>
+			<h3>Manage Page</h3>
+			<p>The manage page utilises multi-table queries to make searching tables far easier than searching each table manually and comparing the results. Having a multi table query allows a WHERE condition to apply to both tables, as if WHERE=student_number was applied to a single table without this column, it would return nothing. Combining both tables utilised the multi-table query. <code>"SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";</code> In this multi table query the column that belongs to a certain table can be collected by (table_name).(column_name) to which getting data from tables using <strong>FROM</strong> collects from both tables using "FROM table1,table2" <p>WHERE checking if both unique_id fields are the same ensure that data from different unique ids are not presented together in the same row.</p></p>
         </div>
         <!-- <hr class="php-enh-hr">
         <hr class="php-enh-hr"> -->

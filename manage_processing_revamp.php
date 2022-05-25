@@ -97,30 +97,31 @@ function query_build($filter_fields, $modifier_bool) {
 
 // DB Login deafult password Check
 $conn = db_connect();
-$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
-$deafult_login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
-$sql = "SELECT COUNT(*) FROM `login` WHERE 1";
-$login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
+if ($conn) {
+	$sql = "SELECT COUNT(*) FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
+	$deafult_login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
+	$sql = "SELECT COUNT(*) FROM `login` WHERE 1";
+	$login_count = mysqli_fetch_array(mysqli_query($conn, $sql))[0];
 
-if (!$deafult_login_count && !$login_count) {
-  $sql = "INSERT INTO `login`(`username`, `password`) VALUES ('admin','pass')";
-  mysqli_query($conn, $sql);
-  $_SESSION["deafult_login_msg"] = true;
-  header("refresh:0");
-} elseif ($deafult_login_count && $login_count > 1) {
-  $sql = "DELETE FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
-  mysqli_query($conn, $sql);
-  unset($_SESSION["deafult_login_msg"]);
-  header("refresh:0");
-} elseif ($deafult_login_count && $login_count && !isset($_SESSION["deafult_login_msg"])) {
-  $_SESSION["deafult_login_msg"] = true;
-  header("refresh:0");
-} elseif (isset($_SESSION["deafult_login_msg"]) && !$deafult_login_count) {
-  unset($_SESSION["deafult_login_msg"]);
-  header("refresh:0");
+	if (!$deafult_login_count && !$login_count) {
+	  $sql = "INSERT INTO `login`(`username`, `password`) VALUES ('admin','pass')";
+	  mysqli_query($conn, $sql);
+	  $_SESSION["deafult_login_msg"] = true;
+	  header("refresh:0");
+	} elseif ($deafult_login_count && $login_count > 1) {
+	  $sql = "DELETE FROM `login` WHERE `username` = 'admin' AND `password` = 'pass'";
+	  mysqli_query($conn, $sql);
+	  unset($_SESSION["deafult_login_msg"]);
+	  header("refresh:0");
+	} elseif ($deafult_login_count && $login_count && !isset($_SESSION["deafult_login_msg"])) {
+	  $_SESSION["deafult_login_msg"] = true;
+	  header("refresh:0");
+	} elseif (isset($_SESSION["deafult_login_msg"]) && !$deafult_login_count) {
+	  unset($_SESSION["deafult_login_msg"]);
+	  header("refresh:0");
+	}
+	mysqli_close($conn);
 }
-mysqli_close($conn);
-
 // Login message - Must be before set
 if (isset($_SESSION["login_msg"])) {
   if ($_SESSION["login_msg"]) {
