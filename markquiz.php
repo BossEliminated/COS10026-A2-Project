@@ -245,7 +245,7 @@ function print_wrong_answers($results) {
 	foreach ($results as $key => $value) {
 		if($value[0] == 0) {
 			if (!is_array($value[1])) {
-				print "<p>Q".$key+1 .") ";
+				print "<p>Q".($key+1).") ";
 				if ($value[1] == 'fallback') {
 					print("No input</p>");
 				} else {
