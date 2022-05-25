@@ -17,38 +17,36 @@
           <label>Family Name<input type="text" name="family_name" value="Test" /></label>
         </fieldset>
         <fieldset class="quiz-fieldset">
-          <legend class="quiz-question">Q1) Whats main Apache attack tool, which exploits a bug in Apache software?</legend>
-          <label><input type="radio" name="quiz-question-1" value="slowloris" checked />Slowloris</label>
-          <label><input type="radio" name="quiz-question-1" value="phishing" />Phishing</label>
-          <label><input type="radio" name="quiz-question-1" value="mimt" />MITM</label>
-          <label><input type="radio" name="quiz-question-1" value="SQL" />SQL Injection</label>
+          <legend class="quiz-question">Q1) Which is a competitor to Apache?</legend>
+          <label><input type="radio" name="quiz-question-1" value="NGINX" checked />NGINX </label>
+          <label><input type="radio" name="quiz-question-1" value="Microsoft_Edge" />Microsoft Edge</label>
+          <label><input type="radio" name="quiz-question-1" value="MicroLP" />MicroLP</label>
+          <label><input type="radio" name="quiz-question-1" value="BL2" />BL2</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
-          <legend class="quiz-question">Q2) Apache provides a variety of MultiProcessing Modules (MPMs), which allow it to run on which of following modes?</legend>
-          <label><input type="checkbox" name="quiz-question-2[]" value="process-based_mode" checked />Process-based mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="hybrid_mode" checked />Hybrid (process and thread) mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="event-hybrid_mode" />Event-hybrid mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="professional_mode" />Professional mode</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="key_mode" />Keys Mode</label>
+          <legend class="quiz-question">Q2) Which operating systems does Apache run on?</legend>
+          <label><input type="checkbox" name="quiz-question-2[]" value="Windows" checked />Windows</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="Linux" checked />Linux</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="MacOS" />MacOS</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q3) Which variety of features that Apache supports?</legend>
-          <label><input type="checkbox" name="quiz-question-3[]" value="bob" checked />Bob</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="dave" />Dave</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="tree" />Tree</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="sky" checked />Sky</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="games" />Games</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv6_Support" checked />Ipv6 Support</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" />SSL Secure Server</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" />Root SSH Access</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G_support" checked />Ipv23G support</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Morse_Code_Support" />Morse Code Support</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
-          <legend class="quiz-question">Q4) In which year was the Apache HTTP Server codebase, relicensed to the Apache 2.0 License?</legend>
+          <legend class="quiz-question">Q4) What year was Apache's first version released?</legend>
           <label>
             Select Here
             <select name="quiz-question-4">
               <option value="">Please Select</option>
-              <option value="2004" selected>2004</option>
-              <option value="2010">2010</option>
-              <option value="1998">1998</option>
-              <option value="2015">2015</option>
+              <option value="1995" selected>1995</option>
+              <option value="1994">1994</option>
+              <option value="1992">1992</option>
+              <option value="2001">2001</option>
             </select>
           </label>
         </fieldset>
