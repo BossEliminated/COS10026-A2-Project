@@ -238,6 +238,7 @@ function print_wrong_answers($results) {
 	}
 
 	if ($incorrect > 0) {
+		print "<br />";
 		print "<h2>Incorrect:</h2>";
 	}
 
@@ -281,6 +282,20 @@ function print_wrong_answers($results) {
 	}
 }
 
+function get_attempts($validated_post_id_values_array) {
+	$conn = db_connect();
+	if ($conn == true) {
+		$sql = "SELECT `unique_id` FROM `id` WHERE first_name = '$validated_post_id_values_array[1]' AND last_name = '$validated_post_id_values_array[2]' AND student_number = '$validated_post_id_values_array[0]'";
+		$unique_id = $conn->query($sql)->fetch_array();
+		if ($unique_id != NULL) {
+			$sql = "SELECT `attempt` FROM `attempts` WHERE `unique_id` = '$unique_id[0]'";
+			return $conn->query($sql)->fetch_assoc()["attempt"];
+		}
+		return "Error";
+	}
+	$conn->close();
+}
+
 $post_id_inputs = ['ID','given_name','family_name'];
 $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
 $answers = ['slowloris',['process-based_mode','hybrid_mode'],['bob','sky'],'2004','1994'];
@@ -298,7 +313,10 @@ if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
 			print ("<h2>You scored 0, try again</h2>");
 		} else {
 			save_db_data($validated_post_id_values_array, $score);
-			print ("<p>Score: ".$score."/5</p>");
+			print "<p>ID: $validated_post_id_values_array[0]</p>";
+			print "<p>Name: $validated_post_id_values_array[1] $validated_post_id_values_array[2]</p>";
+			print "<p>Attempts: ".get_attempts($validated_post_id_values_array)."</p>";
+			print "<p>Score: ".$score."/5</p>";
 		}
 		print_wrong_answers($results);
 	}
