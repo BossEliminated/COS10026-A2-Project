@@ -291,8 +291,8 @@ function print_attempts($validated_post_id_values_array) {
 			$sql = "SELECT `attempt` FROM `attempts` WHERE `unique_id` = '$unique_id[0]'";
 			print "<p>Attempts: ".$conn->query($sql)->fetch_assoc()["attempt"]."</p>";
 		}
+		$conn->close();
 	}
-	$conn->close();
 }
 
 $post_id_inputs = ['ID','given_name','family_name'];
