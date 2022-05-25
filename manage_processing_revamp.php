@@ -530,7 +530,6 @@ if ($logged_in == true) {
 	}
 } else {
 		echo"<section>";
-		echo"</br>";
 		echo"<h2>Log in, to view results</h2>";
 		echo"<p>If you believe this is an error, please contact your server administrator</p>";
 		echo"</section>";
