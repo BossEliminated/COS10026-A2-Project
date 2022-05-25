@@ -298,7 +298,9 @@ if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
 			print ("<h2>You scored 0, try again</h2>");
 		} else {
 			save_db_data($validated_post_id_values_array, $score);
+			
 			print ("<p>Score: ".$score."/5</p>");
+			
 		}
 		print_wrong_answers($results);
 	}

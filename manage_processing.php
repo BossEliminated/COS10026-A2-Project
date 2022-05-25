@@ -413,8 +413,7 @@ function list_half_attempts($query_produced) { // Send to display all tables, th
   $sql_connection = db_connect();
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
-	  $sql_query = ($sql_query . " -- " . $query_produced);
-    // echo"<h3>Debug half query: $sql_query</h3>";
+	  $sql_query = ($sql_query . " " . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
       if (!$query_produced) { // If just showing results, do normal half mode, else show all.
