@@ -417,10 +417,10 @@ function list_half_attempts($query_produced) { // Send to display all tables, th
     // echo"<h3>Debug half query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
-      if (!$query_produced) { // What is query_produced? XYZ
+      if (!$query_produced) { // If just showing results, do normal half mode, else show all.
       display_results_in_table($returned_data, "half", 2);
       } else {
-      display_results_in_table($returned_data, "all", 1); // Why would list_half_attempts print all attempts? XYZ
+      display_results_in_table($returned_data, "all", 1); // Show all results, if it is filtering.
       }
 	  } else {
       $query_failure = true;
@@ -469,6 +469,13 @@ function delete_attempts($query_produced) { // Page for deletion (does not invol
 // Start of Main Sequence
 // Check if a deletion was prompted.
 $query_produced = query_build($filter_fields, false);
+
+if (isset($_POST["filter_all"])) {
+	if ($query_produced == "") {
+		echo"<h3>No filtering provided! Provide filtering specifications!</h3>";
+	}
+}
+
 if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a change input given, continue.
 	$query_secondary_produce = query_build($filter_fields, true);
 	$type_of_action = sanitise_input($_POST["action"]);
@@ -477,7 +484,7 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a cha
 	}
 	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) { // If modification request and score given then modify.
 		$desired_score = sanitise_input($_POST["desired_score"]);
-		if ($desired_score <= 5) {
+		if ($desired_score <= 5 and $desired_score >= 0) {
 			modify_attempt($query_secondary_produce, $desired_score);
 		}
 		else {
