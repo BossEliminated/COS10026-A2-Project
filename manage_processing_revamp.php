@@ -90,7 +90,7 @@ function query_build($filter_fields, $modifier_bool) {
 	if ($search_via_attempt) {
 		$base_query = ($base_query . " AND " . "attempt='$search_via_attempt'");
 	}
-	echo"<h3>DEBUG: $base_query</h3>";
+	// echo"<h3>Debug: $base_query</h3>";
 	return $base_query;
 }
 
@@ -210,7 +210,7 @@ if (isset($_SESSION["logout_msg"])) {
 
 if (isset($_SESSION["password_msg_change"])) {
   if ($_SESSION["password_msg_change"]) {
-    print "<h2 class='fail_log'>Password changed while logged in, please retry login.</h2>";
+    print "<h2 class='fail_log'>Username or password issue, please login again.</h2>";
 	$_SESSION["password_msg_change"] = false;
   }
 }
@@ -391,7 +391,7 @@ function list_all_attempts($query_produced) { // Basic search all results.
   if ($sql_connection) {
 	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
-	  echo"<h3>DEBUG whole query: $sql_query</h3>";
+	  // echo"<h3>Debug whole query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
 		display_results_in_table($returned_data, "all", 1);

@@ -50,7 +50,7 @@ function db_connect() {
 			unique_id varchar(256) NOT NULL,
 			first_name varchar(256) NOT NULL,
 			last_name varchar(256) NOT NULL,
-			student_number float(11) NOT NULL
+			student_number double NOT NULL
 		)";
 		mysqli_query($conn, $sql);
 	}

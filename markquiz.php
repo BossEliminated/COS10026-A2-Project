@@ -52,10 +52,14 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 		$name_char_issues = false;
 		$name_length_issues = false;
 		$names_number_issues = false;
+		$names_empty_issues = false;
 		foreach ($post_id_values_array as $key => $value) {
 			$error = 0;
 			if ($post_id_inputs[$key] == "ID") {
-				if (!is_numeric($value)) { // Check value is a number
+				if (empty($value)) { // Empty check
+					$error = 1;
+					print "<p class='id-validation'>ID field empty</p>";
+				} elseif (!is_numeric($value)) { // Check value is a number
 					$error = 1;
 					print "<p class='id-validation'>ID not a number</p>";
 				}
@@ -64,6 +68,17 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 					print "<p class='id-validation'>ID must be between 7 to 10</p>";
 				}
 			} elseif ($post_id_inputs[$key] == "given_name" or $post_id_inputs[$key] == "family_name") {
+
+				// Empty check
+				if (empty($value)) {
+					if ($names_empty_issues == false) {
+						$error = 1;
+						$names_empty_issues = "<p class='id-validation'>$post_id_inputs[$key]";
+					} else {
+						$error = 1;
+						$names_empty_issues .= " and $post_id_inputs[$key]";
+					}
+				}
 
 				// Check number is less then 30
 				if (strlen($value) > 30) {
@@ -103,6 +118,9 @@ function id_data_validation($post_id_values_array, $post_id_inputs){
 		}
 
 		// Print out recorded issues for both first or last name
+		if ($names_empty_issues) {
+			print $names_empty_issues." field empty</p>";
+		}
 		if ($name_char_issues) {
 			print "<p class='id-validation'>Spaces or hyphens are not allowed in your ".$name_char_issues."</P>";
 		}
