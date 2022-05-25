@@ -50,7 +50,7 @@
             <table>
               <?php
                 $main_page = true;
-                include_once './manage_processing_revamp.php';
+                include_once './manage_processing.php';
               ?>
             </table>
           </section>
