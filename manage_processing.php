@@ -75,8 +75,11 @@ function query_build($filter_fields, $modifier_bool) {
 		}
 		elseif ($mark_filter_selected == 2) {
 			$base_query = ($base_query . " AND " . "(score < 3 AND attempt=2)");
-		}
-		else {
+		} elseif ($mark_filter_selected == 3) {
+			$base_query = ($base_query . " AND " . "(attempt=1)");
+		} elseif ($mark_filter_selected == 4) {
+			$base_query = ($base_query . " AND " . "(attempt=2)");
+		}	else {
 			echo"<p>Error detected in mark fltering selection</p>";
 		}
 	}
@@ -237,14 +240,16 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 				<label for="student_name">Student Name </label>
 				<input name="student_name" id="student_name" type="text" placeholder="Name" />
 				<br />
-				<input type="radio" name="mark_filter" id="no_filter" value="0" />
-				<label for="no_filter">No Filtering</label>
 				<input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
 				<label for="mark_filtering_hundred">Scored 100% on first Attempt</label>
 				<input type="radio" name="mark_filter" id="mark_filtering_less_than" value="2"/>
 				<label for="mark_filtering_less_than">Scored less than 50% on second Attempt </label>
+        <input type="radio" name="mark_filter" id="first_attempts" value="3"/>
+        <label for="first_attempts">First Attempts </label>
+        <input type="radio" name="mark_filter" id="second_attempts" value="4"/>
+				<label for="second_attempts">Second Attempts </label>
 				<br />
-				<input class="manage_button_filter_all" type="submit" name="filter_all" value="Submit" />
+				<input class="manage_button_filter_all" type="submit" name="filter_all" value="Apply Filter" />
 			  </form>
 			  <hr />';
 	}
@@ -469,7 +474,7 @@ $query_produced = query_build($filter_fields, false);
 
 if (isset($_POST["filter_all"])) {
 	if ($query_produced == "") {
-		echo"<h3>No filtering provided! Provide filtering specifications!</h3>";
+		echo"<h3>No filter provided, please select a filter.</h3>";
 	}
 }
 
