@@ -550,6 +550,16 @@ button.manage-change-button {
   white-space: nowrap;
 }
 
+.manage-change-complete {
+  color: #00a205;
+  margin-bottom: 20px;
+}
+
+.manage-change-fail {
+  color: red;
+  margin-bottom: 20px;
+}
+
 /* --------------------- Enhancements Page ------------------------*/
 
 #segment_enhancements_starter{

@@ -367,9 +367,9 @@ function modify_attempt($query_produced, $desired_score) { // Attempt to modify 
 			$attemptmodify = mysqli_query($database, $sql_query);
 			$affected = mysqli_affected_rows($database);
 				if ($affected > 0) {
-					echo"<h2>Dataset successfully modified!</h2>";
+					echo"<h2 class='manage-change-complete'>Dataset successfully modified!</h2>";
 				} else {
-					echo"<h2>Dataset could not be modified, may not exist!</h2>";
+					echo"<h2 class='manage-change-fail'>Dataset could not be modified, issue occurred!</h2>";
 				}
 			}
 			else {
@@ -394,7 +394,7 @@ function delete_attempt($query_produced) { // Delete given info.
 		$attemptdelete = mysqli_query($database, $sql_query);
 		$affected_row_num = mysqli_affected_rows($database);
 		if ($affected_row_num > 0) {
-			echo"<h3>Data was deleted!</h2>";
+			echo"<h2 class='manage-change-complete'>Data was deleted!</h2>";
 		}
 		else {
 			echo"<h3>No data deleted, found no corresponding results!</h2>";
