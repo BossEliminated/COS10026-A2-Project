@@ -332,10 +332,10 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
         if (($mode == "manage") and $t == 0 and $return_data != "") {
           // Set score table values to buttons
             if ($associative_return["score"]) {
-              $associative_return["score"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_1' value='1'></form>";
+              $associative_return["score"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='which_score' value='1'><input type='hidden' name='set_score_1' value='1'></form>";
             }
             if ($associative_return["score_2"] != "-") {
-              $associative_return["score_2"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_2' value='1'></form>";
+              $associative_return["score_2"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='which_score' value='2'><input type='hidden' name='set_score_2' value='1'></form>";
             }
           echo"<td>$return_data</td>";
   		  } elseif (($mode == "delete") and $t == 0 and $return_data != "") {
@@ -357,12 +357,17 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
   mysqli_free_result($main_data);
 }
 
-function modify_attempt($query_produced, $desired_score) { // Attempt to modify attempt.
+function modify_attempt($query_produced, $desired_score, $which_score) { // Attempt to modify attempt.
 	$database = db_connect();
 	if ($desired_score) {
 		if ($query_produced)  {
 			if ($database) {
+				if ($which_score == 1) {
 			$sql_query = "UPDATE id, attempts SET attempts.score=$desired_score WHERE id.unique_id = attempts.unique_id"; // Set score.
+				}
+				elseif ($which_score == 2) {
+					$sql_query = "UPDATE id, attempts SET attempts.score_2=$desired_score WHERE id.unique_id = attempts.unique_id"; // Set score.
+				}
 		   $sql_query = ($sql_query . $query_produced); // Adds to WHERE query.
 			$attemptmodify = mysqli_query($database, $sql_query);
 			$affected = mysqli_affected_rows($database);
@@ -500,10 +505,11 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a cha
 	if ($type_of_action == 3) { // If delete process given, load deletion
 		delete_attempt($query_secondary_produce);
 	}
-	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) { // If modification request and score given then modify.
+	elseif ($type_of_action == 4 and isset($_POST["desired_score"]) and ($_POST["which_score"])) { // If modification request and score given then modify.
 		$desired_score = sanitise_input($_POST["desired_score"]);
+		$which_score = sanitise_input($_POST["which_score"]);
 		if ($desired_score <= 5 and $desired_score >= 0) {
-			modify_attempt($query_secondary_produce, $desired_score);
+			modify_attempt($query_secondary_produce, $desired_score, $which_score);
 		}
 		else {
 			echo"<h3>Incorrect score desired value sent to server.</h3>";
