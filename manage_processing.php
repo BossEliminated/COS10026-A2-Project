@@ -306,6 +306,7 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
     echo"<table class='manage_table'>"; // Create Headers
     echo"<thead>";
     echo"<tr>";
+	echo"<th>Delete</th>";
       for ($t = 0; $t < count($all_fields); $t++) {
       // Secondary
       if ($t < (count($all_fields))) {
@@ -323,13 +324,21 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
       if ($associative_return["attempt"] == 1) {
         $associative_return["score_2"] = "-";
       }
-
+		$return_data = $associative_return["first_name"];
+		$temporary_student_number = $associative_return["student_number"];
+		if (($mode == "delete")) {
+  			  echo"<td><form method='POST' action='manage.php'>";
+  			  echo"<button type='submit' name='which_selected' value='$return_data'>X</button>";
+  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+  			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
+  			  echo"</form></td>";
+		}
   		for ($t = 0; $t < count($all_fields); $t++) {
         $return_data = "";
         $local_name = $all_fields[$t]->name;
         $return_data = $associative_return[$local_name];
         $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
-
+	
         // Dup becase you code is wack
         if (($mode == "manage") and $t == 0 and $return_data != "") {
           // Set score table values to buttons
@@ -340,12 +349,6 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
               $associative_return["score_2"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='which_score' value='2'></form>";
             }
           echo"<td>$return_data</td>";
-  		  } elseif (($mode == "delete") and $t == 0 and $return_data != "") {
-  			  echo"<td><form method='POST' action='manage.php'>";
-  			  echo"<button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
-  			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
-  			  echo"</form></td>";
   		  } else {
           echo"<td>$return_data</td>";
   		  }
