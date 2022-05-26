@@ -50,7 +50,6 @@ function query_build($filter_fields, $modifier_bool) {
 	}
 	else {
 		$modifier_id = sanitise_and_combine("manual_change_id");
-		$search_via_attempt = sanitise_and_combine("attempt_search");
 		$unique_id = sanitise_and_combine("unique_id_search");
 	}
 	//
@@ -267,17 +266,17 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 
 function manual_change_display($mode, $page_num) { // Box for sites that require manual change.
 	if ($mode == "delete") {
+			echo"<h2>Delete by ID</h2>";
 		$button_text = "Delete";
 	}
 	elseif ($mode == "modify") {
+		echo"<h2>Specific Modification Request</h2>";
 		$button_text = "Change Score";
 	}
-	echo"<h2>Specific Change Request</h2>";
 	echo"<form method='POST' action='manage.php'>";
 	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
 	if ($mode == "modify") {
 		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
-		echo"<label> Attempt: </label><input type='number' name='attempt_search' size='10' min='1' max='2' placeholder='Attempt'/>";
 		echo"</br>";
 		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
 		echo"<select name='which_score' id='which_score'>
