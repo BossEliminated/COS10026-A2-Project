@@ -574,6 +574,15 @@ button.manage-change-button {
 .manage-filter-options > * {
   margin-right: 5px;
 }
+
+.manage-delete-row {
+  text-align: center;
+}
+
+.manage-delete-row button > img {
+  width: 20px;
+  cursor: pointer;
+}
 /* --------------------- Enhancements Page ------------------------*/
 
 #segment_enhancements_starter{

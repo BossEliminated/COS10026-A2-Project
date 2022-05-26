@@ -236,8 +236,8 @@ if (get_recent_click() == 6) {
 function load_filter_inputs($logged_in) { // Load filtering input boxes at start of page
 	if ($logged_in == true) {
 			  echo'<form method="post" action="manage.php">
-				<label for="student_id">Student ID </label>
-				<input name="student_id" id="student_id" type="text" placeholder="Student ID" />
+				<label for="student_id">Apache ID </label>
+				<input name="student_id" id="student_id" type="text" placeholder="Apache ID" />
 				<label for="student_name">Student Name </label>
 				<input name="student_name" id="student_name" type="text" placeholder="Name" />
 				<br />
@@ -272,10 +272,10 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 	echo"<form method='POST' action='manage.php'>";
 	echo"<div class='manage-filter-options'>";
 	if ($mode == "delete") {
-		echo"<h2 class='stickler'>Delete by ID</h2>";
+		echo"<h2 class='stickler'>Delete by ID:</h2>";
 		$button_text = "Delete";
 	}
-	echo"<input type='text' name='manual_change_id' placeholder='Student Id'/>";
+	echo"<input type='text' name='manual_change_id' placeholder='Apache ID'/>";
 	if ($mode == "modify") {
 		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
 		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
@@ -330,9 +330,9 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
 		$return_data = $associative_return["first_name"];
 		$temporary_student_number = $associative_return["student_number"];
 		if (($mode == "delete")) {
-  			  echo"<td><form method='POST' action='manage.php'>";
+  			  echo"<td class='manage-delete-row'><form method='POST' action='manage.php'>";
   			  echo"<button type='submit' class='manage-change-button' name='which_selected' value='$return_data'><img class='manage-change-button-img' src='img/x-clipart.png'></button>";
-  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send Apache ID
   			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
   			  echo"</form></td>";
 		}
@@ -340,7 +340,7 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
         $return_data = "";
         $local_name = $all_fields[$t]->name;
         $return_data = $associative_return[$local_name];
-        $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
+        $temporary_student_number = $associative_return["student_number"]; // Store Apache ID temporarily.
 
         // Dup becase you code is wack
         if (($mode == "manage") and $t == 0 and $return_data != "") {
