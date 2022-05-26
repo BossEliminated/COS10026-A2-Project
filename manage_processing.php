@@ -331,7 +331,7 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
 		$temporary_student_number = $associative_return["student_number"];
 		if (($mode == "delete")) {
   			  echo"<td class='manage-delete-row'><form method='POST' action='manage.php'>";
-  			  echo"<button type='submit' class='manage-change-button' name='which_selected' value='$return_data'><img class='manage-change-button-img' src='img/x-clipart.png'></button>";
+  			  echo"<button type='submit' class='manage-change-button' name='which_selected' value='$return_data'><img src='img/x-clipart.png'></button>";
   			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send Apache ID
   			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
   			  echo"</form></td>";

@@ -29,6 +29,10 @@ a { /*Nick T*/
   color: black;
 }
 
+button {
+  cursor: pointer;
+}
+
 .tooltip { /*Chris, Nick T*/
 	font-size: 18px;
   display: none;
@@ -447,7 +451,6 @@ th.declinegrowthtable{ /*Chris*/
   background: #00686a;
   border: 2px solid #004a4c;
   border-width: 2px 0px;
-  cursor: pointer;
   color: white;
   margin: 5px 0px;
   font-size: 1.2em;
@@ -549,7 +552,6 @@ button.manage-change-button {
   width: 18px;
   padding-left: 4px;
   vertical-align: middle;
-  cursor: pointer;
 }
 
 .manage-change-score-fourm {
@@ -581,7 +583,8 @@ button.manage-change-button {
 }
 
 .manage-delete-row button > img {
-  width: 20px;
+  width: 17px;
+  vertical-align: middle;
 }
 /* --------------------- Enhancements Page ------------------------*/
 
