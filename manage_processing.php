@@ -332,10 +332,10 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
         if (($mode == "manage") and $t == 0 and $return_data != "") {
           // Set score table values to buttons
             if ($associative_return["score"]) {
-              $associative_return["score"] =  "<form method='POST' action='manage.php'><input type='number' value=".$associative_return['score']." name='desired_score' min='1' max='5'></input><button type='submit' name='which_selected'>.</button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_1' value='1'></form>";
+              $associative_return["score"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_1' value='1'></form>";
             }
             if ($associative_return["score_2"] != "-") {
-              $associative_return["score_2"] =  "<form method='POST' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button type='submit' name='which_selected'>.</button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_2' value='1'></form>";
+              $associative_return["score_2"] =  "<form method='POST' class='manage-change-score-fourm' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button class='manage-change-button' type='submit' name='which_selected'><img class='manage-change-button-img' src='img/change.png'></button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_2' value='1'></form>";
             }
           echo"<td>$return_data</td>";
   		  } elseif (($mode == "delete") and $t == 0 and $return_data != "") {
@@ -574,6 +574,6 @@ function debug_check() {
   }
 }
 
-debug_check();
+// debug_check();
 
 ?>

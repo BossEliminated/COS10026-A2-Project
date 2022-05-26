@@ -534,6 +534,21 @@ table.manage_table th {
   margin-right: 10px;
 }
 
+button.manage-change-button {
+  background-color: Transparent;
+  background-repeat:no-repeat;
+  border: none;
+  padding: 0px;
+}
+.manage-change-button-img {
+  width: 20px;
+  padding-left: 2px;
+}
+
+.manage-change-score-fourm {
+  white-space: nowrap;
+}
+
 /* --------------------- Enhancements Page ------------------------*/
 
 #segment_enhancements_starter{
