@@ -279,10 +279,10 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
 		echo"<label> Attempt: </label><input type='number' name='attempt_search' size='10' min='1' max='2' placeholder='Attempt'/>";
 		echo"</br>";
-		echo"<label> New Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
-		echo"<label> Attempt Score Selection: </label><select name='which_score' id='which_score'>
-		<option value='1'>1</option>
-		<option value='2'>2</option>
+		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
+		echo"<select name='which_score' id='which_score'>
+		<option value='1'>Attempt 1</option>
+		<option value='2'>Attempt 2</option>
 		</select>";
 	}
 	echo"<button type='submit' name='modify_request' value='true'>$mode</button>";
