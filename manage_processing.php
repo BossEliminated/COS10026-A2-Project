@@ -322,6 +322,19 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
         $associative_return["score_2"] = "-";
       }
 
+      // Set score table values to buttons
+      if ($mode == "manage") {
+        // echo"";
+        if ($associative_return["score"]) {
+          // echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+          $associative_return["score"] = "<form method='POST' action='manage.php'><input type='number' value='".$associative_return['score']."' name='desired_score' min='1' max='5'></input><button name='which_selected' type='submit'>.</button></form>";
+        }
+        if ($associative_return["score_2"] != "-") {
+          $associative_return["score_2"] = "<form method='POST' action='manage.php'><input type='number' value='".$associative_return['score_2']."' name='desired_score' min='1' max='5'></input><button name='which_selected' type='submit'>.</button></form>";
+        }
+      }
+
+
   		for ($t = 0; $t < count($all_fields); $t++) {
         $return_data = "";
         $local_name = $all_fields[$t]->name;
