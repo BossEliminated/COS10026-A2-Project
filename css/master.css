@@ -376,9 +376,46 @@ th.declinegrowthtable{ /*Chris*/
   margin-bottom: 25px;
 }
 
-.id-validation{
+.id-validation { /*Nick T*/
   font-size: 1.2em;
   font-family: emoji;
+}
+
+.quiz-details-input { /*Nick T*/
+  display: flex;
+}
+
+.quiz-details-input input { /*Nick T*/
+  width: 100%;
+  margin: 0 10px;
+}
+
+.quiz-details-input p { /*Nick T*/
+  white-space: nowrap;
+}
+
+.quiz-details-flex { /*Nick T*/
+  display: flex;
+}
+
+.quiz-details-flex label:last-child input { /*Nick T*/
+  margin-right: 0px;
+}
+
+@media only screen and (max-width: 760px) {
+  .quiz-details-flex {
+    display: inline-block;
+  }
+  .quiz-details-input {
+    margin-bottom: 5px;
+  }
+  .quiz-details-flex label:last-child {
+    margin-bottom: 0px;
+  }
+  .quiz-details-input input {
+    margin: 0px;
+    margin-left: 10px;
+  }
 }
 
 /* ----------------- Manage ---------------- */

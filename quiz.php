@@ -11,10 +11,12 @@
     <div class="quiz-content">
       <form method="post" action="#results"> <!-- Disabled Validation -->
         <fieldset class="quiz-fieldset">
-          <legend class="quiz-question">Student Details</legend>
-          <label>Apache ID<input type="text" name="ID" value="324234238" /></label>
-          <label>Given Name<input type="text" name="given_name" value="BOB" /></label>
-          <label>Family Name<input type="text" name="family_name" value="Test" /></label>
+          <legend class="quiz-question">Details</legend>
+          <div class="quiz-details-flex">
+            <label class="quiz-details-input"><p>Apache ID</p><input type="text" name="ID" value="324234238" /></label>
+            <label class="quiz-details-input"><p>Given Name</p><input type="text" name="given_name" value="BOB" /></label>
+            <label class="quiz-details-input"><p>Family Name</p><input type="text" name="family_name" value="Test" /></label>
+          </div>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q1) Which is a competitor to Apache?</legend>
