@@ -374,7 +374,7 @@ function modify_attempt($query_produced, $desired_score, $which_score) { // Atte
 			$sql_query = "UPDATE id, attempts SET attempts.score=$desired_score WHERE id.unique_id = attempts.unique_id"; // Set score.
 				}
 				elseif ($which_score == 2) {
-					$sql_query = "UPDATE id, attempts SET attempts.score_2=$desired_score WHERE id.unique_id = attempts.unique_id"; // Set score.
+					$sql_query = "UPDATE id, attempts SET attempts.score_2=$desired_score WHERE id.unique_id = attempts.unique_id AND attempts.attempt > 1"; // Set score.
 				}
 		   $sql_query = ($sql_query . $query_produced); // Adds to WHERE query.
 			$attemptmodify = mysqli_query($database, $sql_query);
