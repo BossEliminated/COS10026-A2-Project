@@ -215,7 +215,7 @@ function save_db_data($id, $score){
 				$attempts = $conn->query($sql)->fetch_assoc()["attempt"];
 				// Update attempts
 				if ($attempts < 2) {
-					$sql_update_attempts = "UPDATE `attempts` SET `attempt` ='".($attempts+1)."', `score_2` = '$score' WHERE `unique_id` = '$unique_id'";
+					$sql_update_attempts = "UPDATE `attempts` SET `attempt` ='".($attempts+1)."', `score` = '$score' WHERE `unique_id` = '$unique_id'";
 					$conn->query($sql_update_attempts);
 					print("<h2>Second attempt submitted</h2>");
 				} else {

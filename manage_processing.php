@@ -391,7 +391,7 @@ function delete_attempt($query_produced) { // Delete given info.
 function list_all_attempts($query_produced) { // Basic search all results.
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
 	  // echo"<h3>Debug whole query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
@@ -410,7 +410,7 @@ function list_all_attempts($query_produced) { // Basic search all results.
 function list_half_attempts($query_produced) { // Send to display all tables, that half search ONLY if there is no filter in place.
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . " " . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
@@ -430,7 +430,7 @@ function list_half_attempts($query_produced) { // Send to display all tables, th
 function manage_score($query_produced) { // Page for changing score (does not involve actual modification)
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	   $sql_query = ($sql_query . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
@@ -448,7 +448,7 @@ function manage_score($query_produced) { // Page for changing score (does not in
 function delete_attempts($query_produced) { // Page for deletion (does not involve deleting data)
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
