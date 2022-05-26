@@ -36,7 +36,8 @@ function db_connect() {
 			`unique_id` varchar(256) NOT NULL,
 			`created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			`attempt` int(11) NOT NULL,
-			`score` int(11) NOT NULL
+			`score` int(11) NOT NULL,
+			`score_2` int(11) NOT NULL
 		)";
 		mysqli_query($conn, $sql);
 	}

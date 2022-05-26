@@ -79,6 +79,8 @@ function query_build($filter_fields, $modifier_bool) {
 			$base_query = ($base_query . " AND " . "(attempt=1)");
 		} elseif ($mark_filter_selected == 4) {
 			$base_query = ($base_query . " AND " . "(attempt=2)");
+		}	elseif ($mark_filter_selected == 5) {
+      echo"<h3>Filter Removed</h3>";
 		}	else {
 			echo"<p>Error detected in mark fltering selection</p>";
 		}
@@ -250,6 +252,7 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 				<label for="second_attempts">Second Attempts </label>
 				<br />
 				<input class="manage_button_filter_all" type="submit" name="filter_all" value="Apply Filter" />
+        <button class="manage_button_filter_all" type="submit" name="mark_filter" value="5">Remove Filter</button>
 			  </form>
 			  <hr />';
 	}
@@ -301,7 +304,7 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
     echo"<table class='manage_table'>"; // Create Headers
     echo"<thead>";
     echo"<tr>";
-    for ($t = 0; $t < count($all_fields); $t++) {
+      for ($t = 0; $t < count($all_fields); $t++) {
       // Secondary
       if ($t < (count($all_fields))) {
         $local_name = $all_fields[$t]->name;
@@ -310,30 +313,37 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
     }
     echo"</thead>";
 
-    //
     for ($i=0;$i<$rows_available;$i++) {
-		echo"<tr>";
-		$associative_return = mysqli_fetch_assoc($main_data); // Fetch the row.
-		for ($t = 0; $t < count($all_fields); $t++) {
-      $return_data = "";
-      $local_name = $all_fields[$t]->name;
-      $return_data = $associative_return[$local_name];
-      $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
-		  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
-			  echo"<form method='POST' action='manage.php'>";
-			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-			  if ($mode == "manage") {
-				  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
-			  }
-			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
-			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
-			  echo"</form>";
-		  } else {
-			  if ($return_data != "") {
-          echo"<td class='manage_table_info'>$return_data</td>";
-			  }
-		  }
-		}
+	    echo"<tr>";
+	    $associative_return = mysqli_fetch_assoc($main_data); // Fetch the row.
+
+      // Set score_2 to hyphen if attempt is 1
+      if ($associative_return["attempt"] == 1) {
+        $associative_return["score_2"] = "-";
+      }
+
+  		for ($t = 0; $t < count($all_fields); $t++) {
+        $return_data = "";
+        $local_name = $all_fields[$t]->name;
+
+        $return_data = $associative_return[$local_name];
+        $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
+  		  if (($mode == "delete" or $mode == "manage") and $t == 0 and $return_data != "") {
+  			  echo"<form method='POST' action='manage.php'>";
+  			  echo"<td><button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+  			  if ($mode == "manage") {
+  				  echo"<input type='number' placeholder='Score' name='desired_score' min='1' max='5'></input></td>";
+  			  }
+  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+  			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
+  			  echo"</form>";
+  		  } else {
+  			  if ($return_data != "") {
+
+            echo"<td>$return_data</td>";
+  			  }
+  		  }
+  		}
 		echo "</tr>";
     }
     echo"</table>";
@@ -396,7 +406,7 @@ function delete_attempt($query_produced) { // Delete given info.
 function list_all_attempts($query_produced) { // Basic search all results.
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
 	  // echo"<h3>Debug whole query: $sql_query</h3>";
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
@@ -415,7 +425,7 @@ function list_all_attempts($query_produced) { // Basic search all results.
 function list_half_attempts($query_produced) { // Send to display all tables, that half search ONLY if there is no filter in place.
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . " " . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
@@ -435,7 +445,7 @@ function list_half_attempts($query_produced) { // Send to display all tables, th
 function manage_score($query_produced) { // Page for changing score (does not involve actual modification)
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	   $sql_query = ($sql_query . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
@@ -453,7 +463,7 @@ function manage_score($query_produced) { // Page for changing score (does not in
 function delete_attempts($query_produced) { // Page for deletion (does not involve deleting data)
   $sql_connection = db_connect();
   if ($sql_connection) {
-	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
+	  $sql_query = "SELECT id.`first_name`, id.`last_name`, id.`student_number`, attempts.`created`, attempts.`attempt`, attempts.`score`, attempts.`score_2` FROM id, attempts WHERE id.unique_id = attempts.unique_id";
 	  $sql_query = ($sql_query . $query_produced);
 	  $returned_data = mysqli_query($sql_connection, $sql_query);
 	  if ($returned_data) {
