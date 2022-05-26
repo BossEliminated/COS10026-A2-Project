@@ -328,14 +328,6 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
         $return_data = $associative_return[$local_name];
         $temporary_student_number = $associative_return["student_number"]; // Store student id temporarily.
 
-  		  if (($mode == "delete") and $t == 0 and $return_data != "") {
-  			  echo"<td><form method='POST' action='manage.php'>";
-  			  echo"<button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
-  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
-  			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
-  			  echo"</form><td>";
-  		  }
-
         // Dup becase you code is wack
         if (($mode == "manage") and $t == 0 and $return_data != "") {
           // Set score table values to buttons
@@ -346,9 +338,13 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
               $associative_return["score_2"] =  "<form method='POST' action='manage.php'><input type='number' value=".$associative_return['score_2']." name='desired_score' min='1' max='5'></input><button type='submit' name='which_selected'>.</button><input type='hidden' name='manual_change_id' value='$temporary_student_number'><input type='hidden' name='action' value='$page_num'><input type='hidden' name='set_score_2' value='1'></form>";
             }
           echo"<td>$return_data</td>";
-
-
-  		  } elseif ($return_data != "") {
+  		  } elseif (($mode == "delete") and $t == 0 and $return_data != "") {
+  			  echo"<td><form method='POST' action='manage.php'>";
+  			  echo"<button type='submit' name='which_selected' value='$return_data'>$return_data</button>";
+  			  echo"<input type='hidden' name='manual_change_id' value='$temporary_student_number'>"; // Send student id
+  			  echo"<input type='hidden' name='action' value='$page_num'>"; // Sent action type.
+  			  echo"</form></td>";
+  		  } else {
           echo"<td>$return_data</td>";
   		  }
 
