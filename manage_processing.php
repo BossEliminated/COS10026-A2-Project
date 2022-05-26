@@ -306,7 +306,9 @@ function display_results_in_table($main_data, $mode, $page_num) { // Load all ta
     echo"<table class='manage_table'>"; // Create Headers
     echo"<thead>";
     echo"<tr>";
-	echo"<th>Delete</th>";
+	if ($mode == "delete") {
+		echo"<th>Delete</th>";
+	}
       for ($t = 0; $t < count($all_fields); $t++) {
       // Secondary
       if ($t < (count($all_fields))) {
