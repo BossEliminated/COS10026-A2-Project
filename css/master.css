@@ -540,6 +540,11 @@ button.manage-change-button {
   border: none;
   padding: 0px;
 }
+
+.stickler {
+	display:inline;
+}
+
 .manage-change-button-img {
   width: 18px;
   padding-left: 4px;

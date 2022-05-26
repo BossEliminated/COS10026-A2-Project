@@ -265,16 +265,17 @@ function load_filter_inputs($logged_in) { // Load filtering input boxes at start
 }
 
 function manual_change_display($mode, $page_num) { // Box for sites that require manual change.
-	if ($mode == "delete") {
-			echo"<h2>Delete by ID</h2>";
-		$button_text = "Delete";
-	}
-	elseif ($mode == "modify") {
+	if ($mode == "modify") {
 		echo"<h2>Specific Modification Request</h2>";
 		$button_text = "Change Score";
 	}
 	echo"<form method='POST' action='manage.php'>";
-	echo"<div class='manage-filter-options'><label>Apache ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
+	echo"<div class='manage-filter-options'>";
+	if ($mode == "delete") {
+		echo"<h2 class='stickler'>Delete by ID</h2>";
+		$button_text = "Delete";
+	}
+	echo"<input type='text' name='manual_change_id' placeholder='Student Id'/>";
 	if ($mode == "modify") {
 		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
 		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
