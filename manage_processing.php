@@ -274,19 +274,18 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 		$button_text = "Change Score";
 	}
 	echo"<form method='POST' action='manage.php'>";
-	echo"<label>Student ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
+	echo"<div class='manage-filter-options'><label>Apache ID: </label><input type='text' name='manual_change_id' placeholder='Student Id'/>";
 	if ($mode == "modify") {
 		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
-		echo"</br>";
 		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
-		echo"<select name='which_score' id='which_score'>
+		echo"<select class='manage-dropdown' name='which_score' id='which_score'>
 		<option value='1'>Attempt 1</option>
 		<option value='2'>Attempt 2</option>
 		</select>";
 	}
 	echo"<button type='submit' name='modify_request' value='true'>$mode</button>";
 	echo"<input type='hidden' name='action' value='$page_num'/>";
-	echo"<hr>";
+	echo"</div><hr>";
 	echo"</form>";
 }
 
