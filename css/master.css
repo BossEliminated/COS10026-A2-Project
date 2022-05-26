@@ -549,6 +549,7 @@ button.manage-change-button {
   width: 18px;
   padding-left: 4px;
   vertical-align: middle;
+  cursor: pointer;
 }
 
 .manage-change-score-fourm {
@@ -581,7 +582,6 @@ button.manage-change-button {
 
 .manage-delete-row button > img {
   width: 20px;
-  cursor: pointer;
 }
 /* --------------------- Enhancements Page ------------------------*/
 
