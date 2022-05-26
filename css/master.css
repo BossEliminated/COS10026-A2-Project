@@ -518,6 +518,10 @@ table.manage_table tr td:last-child { /*Nick T*/
   border: none;
 }
 
+table.manage_table th {
+  padding: 2px 10px;
+}
+
 .log_in_notif { /*Chris*/
 	color:rgb(12,139,188);
 	display:inline;
