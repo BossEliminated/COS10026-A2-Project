@@ -505,14 +505,19 @@ if (isset($_POST["manual_change_id"]) and isset($_POST["action"])) { // If a cha
 	if ($type_of_action == 3) { // If delete process given, load deletion
 		delete_attempt($query_secondary_produce);
 	}
-	elseif ($type_of_action == 4 and isset($_POST["desired_score"]) and ($_POST["which_score"])) { // If modification request and score given then modify.
+	elseif ($type_of_action == 4 and isset($_POST["desired_score"])) { // If modification request and score given then modify.
 		$desired_score = sanitise_input($_POST["desired_score"]);
-		$which_score = sanitise_input($_POST["which_score"]);
+		if (isset($_POST["which_score"])) {
+			$which_score = sanitise_input($_POST["which_score"]);
+		}
+		else {
+			$which_score = 1;
+		}
 		if ($desired_score <= 5 and $desired_score >= 0) {
 			modify_attempt($query_secondary_produce, $desired_score, $which_score);
 		}
 		else {
-			echo"<h3>Incorrect score desired value sent to server.</h3>";
+			echo"<h3 class='fail_log'>Score value out of range!</h3>";
 		}
 	}
 }	// A request for deletion made
