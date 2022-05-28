@@ -28,16 +28,16 @@
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q2) Which operating systems does Apache run on?</legend>
           <label><input type="checkbox" name="quiz-question-2[]" value="Windows" checked />Windows</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="Windows_95" />Windows 95</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="Linux" checked />Linux</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="MacOS" checked />MacOS</label>
-          <label><input type="checkbox" name="quiz-question-2[]" value="Windows_95" />Windows 95</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q3) Which variety of features dose Apache support?</legend>
           <label><input type="checkbox" name="quiz-question-3[]" value="Ipv6" checked />Ipv6</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" checked />SSL Secure Server</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" checked />Root SSH Access</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G" />Ipv23G</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" checked />Root SSH Access</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="YARN" />YARN</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Ada" />Ada</label>
         </fieldset>
