@@ -236,9 +236,9 @@ if (get_recent_click() == 6) {
 function load_filter_inputs($logged_in) { // Load filtering input boxes at start of page
 	if ($logged_in == true) {
 			  echo'<form method="post" action="manage.php">
-				<label for="student_id">Apache ID </label>
-				<input name="student_id" id="student_id" type="text" placeholder="Apache ID" />
-				<label for="student_name">Student Name </label>
+				<label for="student_id">Student Number: </label>
+				<input name="student_id" id="student_id" type="text" placeholder="Student Number" />
+				<label for="student_name"> First or last name: </label>
 				<input name="student_name" id="student_name" type="text" placeholder="Name" />
 				<br />
 				<input type="radio" name="mark_filter" id="mark_filtering_hundred" value="1" />
@@ -275,9 +275,12 @@ function manual_change_display($mode, $page_num) { // Box for sites that require
 		echo"<h2 class='stickler'>Delete by ID:</h2>";
 		$button_text = "Delete";
 	}
-	echo"<input type='text' name='manual_change_id' placeholder='Apache ID'/>";
+  if ($mode == "modify") {
+		echo"<label>Student Number: </label>";
+  }
+	echo"<input type='text' name='manual_change_id' placeholder='Student Number'/>";
 	if ($mode == "modify") {
-		echo"<label>Unique Table ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>";
+		// echo"<label>ID: </label><input type='text' name='unique_id_search' placeholder='Unique Id'/>"; // Currently Issues with Unique Id Search
 		echo"<label>Score: </label><input type='number' name='desired_score' min='0' max='5' size='6' placeholder='Score'/>";
 		echo"<select class='manage-dropdown' name='which_score' id='which_score'>
 		<option value='1'>Attempt 1</option>
