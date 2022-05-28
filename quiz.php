@@ -38,8 +38,8 @@
           <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" checked />SSL Secure Server</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" checked />Root SSH Access</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G" />Ipv23G</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Ada" />Ada</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="YARN" />YARN</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ada" />Ada</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q4) What year was Apache's first version released?</legend>
