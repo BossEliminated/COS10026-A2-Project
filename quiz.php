@@ -30,14 +30,16 @@
           <label><input type="checkbox" name="quiz-question-2[]" value="Windows" checked />Windows</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="Linux" checked />Linux</label>
           <label><input type="checkbox" name="quiz-question-2[]" value="MacOS" checked />MacOS</label>
+          <label><input type="checkbox" name="quiz-question-2[]" value="Windows_95" />Windows 95</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
-          <legend class="quiz-question">Q3) Which variety of features that Apache supports?</legend>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv6_Support" checked />Ipv6 Support</label>
+          <legend class="quiz-question">Q3) Which variety of features dose Apache support?</legend>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv6" checked />Ipv6</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="SSL_Secure_Server" checked />SSL Secure Server</label>
           <label><input type="checkbox" name="quiz-question-3[]" value="Root_SSH_Access" checked />Root SSH Access</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G_support" />Ipv23G support</label>
-          <label><input type="checkbox" name="quiz-question-3[]" value="Morse_Code_Support" />Morse Code Support</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ipv23G" />Ipv23G</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="Ada" />Ada</label>
+          <label><input type="checkbox" name="quiz-question-3[]" value="YARN" />YARN</label>
         </fieldset>
         <fieldset class="quiz-fieldset">
           <legend class="quiz-question">Q4) What year was Apache's first version released?</legend>

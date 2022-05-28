@@ -296,7 +296,7 @@ function print_attempts($validated_post_id_values_array) {
 
 $post_id_inputs = ['ID','given_name','family_name'];
 $post_question_inputs = ['quiz-question-1','quiz-question-2','quiz-question-3','quiz-question-4','quiz-question-5'];
-$answers = ['NGINX',['Windows','Linux', 'MacOS'],['Ipv6_Support','SSL_Secure_Server', 'Root_SSH_Access'],'1995','1996'];
+$answers = ['NGINX',['Windows','Linux', 'MacOS'],['Ipv6','SSL_Secure_Server', 'Root_SSH_Access'],'1995','1996'];
 $post_id_values_array = get_post_values($post_id_inputs);
 
 if (!fallback_count($post_id_values_array) == count($post_id_values_array)) {
