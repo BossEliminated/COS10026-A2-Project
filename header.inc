@@ -5,4 +5,5 @@
   <meta name="description" content="Apache details and facts">
   <meta name="keywords" content="PHP, SQL, Management, Apache, Info, Details, Facts, Server">
   <meta name="author" content="Nicholas, Yash, Syed, Chris">
+  <link rel="shortcut icon" href="img/favicon.ico">
 </head>

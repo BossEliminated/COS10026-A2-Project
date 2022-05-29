@@ -155,7 +155,7 @@ hr { /*Nick T*/
   margin: 0px auto;
 }
 
-.index-container p { /*Nick T*/
+.index-container > p { /*Nick T*/
   margin: 20px;
 }
 
@@ -207,6 +207,22 @@ img.index-container-img { /*Nick T*/
 img.index-bottom-image {
   float: left;
   width: 100%;
+}
+
+.index-video {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  justify-content: center;
+  padding: 20px;
+  margin-right: 20px
+}
+
+.index-video > div {
+  padding: 8px;
+  border-radius: 5px;
+  background: #ccd1d7;
 }
 
 /* ----------------- Topic page ---------------- */
