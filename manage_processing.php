@@ -73,7 +73,7 @@ function query_build($filter_fields, $modifier_bool) {
 			$base_query = ($base_query . " AND " . "(score=5 AND attempt=1)");
 		}
 		elseif ($mark_filter_selected == 2) {
-			$base_query = ($base_query . " AND " . "(score < 3 AND attempt=2)");
+			$base_query = ($base_query . " AND " . "(score_2 < 3 AND attempt=2)");
 		} elseif ($mark_filter_selected == 3) {
 			$base_query = ($base_query . " AND " . "(attempt=1)");
 		} elseif ($mark_filter_selected == 4) {
