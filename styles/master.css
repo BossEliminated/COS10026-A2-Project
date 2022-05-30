@@ -169,7 +169,7 @@ img.index-container-img { /*Nick T*/
 }
 
 .index-background-image { /*Nick T*/
-  background-image: url("../img/index-section-background.jpg");
+  background-image: url("images/index-section-background.jpg");
   background-repeat: no-repeat, repeat;
   background-size: cover;
 }

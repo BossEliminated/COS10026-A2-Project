@@ -5,7 +5,7 @@
     <?php $select = 1; include './menu.inc' ?>
     <div class="index-container-intro">
       <h1>Apache HTTP Server</h1>
-      <img class="index-container-img" src="img/server-icon.png" alt="Server icon">
+      <img class="index-container-img" src="images/server-icon.png" alt="Server icon">
     </div>
     <div class="index-background-image">
       <div class="index-container">
@@ -25,12 +25,12 @@
         <div class="box-index">
           <h1 class="ee">Secure, Fast.</h1>
           <h2>Packed with features to speed up you'r server</h2>
-          <img class="index-bottom-image" src="img/Lock.png" alt="Security Image">
+          <img class="index-bottom-image" src="images/Lock.png" alt="Security Image">
         </div>
         <div class="box-index">
           <h1 class="rightflxbx">Free to use and highly reliable</h1>
           <h2>The most popular open source software web server</h2>
-          <img class="index-bottom-image" src="img/handshake.png" alt="Apache Graphic2">
+          <img class="index-bottom-image" src="images/handshake.png" alt="Apache Graphic2">
         </div>
       </div>
     </div>

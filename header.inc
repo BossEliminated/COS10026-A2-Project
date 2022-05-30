@@ -1,5 +1,5 @@
 <head>
-  <link rel="stylesheet" href="css/master.css">
+  <link rel="stylesheet" href="styles/master.css">
   <meta charset="utf-8">
   <title><?php print($title) ?></title>
   <meta name="description" content="Apache details and facts">

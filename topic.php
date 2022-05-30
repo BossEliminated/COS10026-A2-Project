@@ -75,8 +75,8 @@
         <section class="topic-content">
           <h2>The customizability of Apache</h2>
           <figure class="figure_fixer_flow">
-          <img id="changeimghover" src="img/apachemodule2.jpg" alt="Little Image representing Apache">
-  		<img id="defaultimg" src="img/apachemodule.jpg" alt="Little Image representing Apache2">
+          <img id="changeimghover" src="images/apachemodule2.jpg" alt="Little Image representing Apache">
+  		<img id="defaultimg" src="images/apachemodule.jpg" alt="Little Image representing Apache2">
           <figcaption>
           mod_authn_file is a modular addon upon the CORE of Apache. It provides a form of authentication to Apache.
           </figcaption>

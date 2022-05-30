@@ -1,5 +1,5 @@
 <header class="nav-bar">
-  <a href="./"><img src="img/Apache_logo.png" alt="apache logo"></a>
+  <a href="./"><img src="images/Apache_logo.png" alt="apache logo"></a>
   <div><a <?php if($select == 1){print('id="nav-bar-active"');};?> href="./">Home</a></div>
   <div>
     <a <?php if($select == 2){print('id="nav-bar-active"');};?> class="show-tooltip" href="topic.php">Topic</a>
